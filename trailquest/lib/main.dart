@@ -4,9 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_routes/google_maps_routes.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:web_socket_channel/status.dart' as status;
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+WebSocketChannel? channel;
 
 void main() {
+  channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
   runApp(const MyApp());
+}
+
+void _sendMessage(String message) {
+  print(message);
+
+  try {
+    channel?.sink.add(message);
+    channel?.stream.listen((message) {
+      print(message);
+      channel?.sink.close();
+    });
+  } catch (e) {
+    print(e);
+  }
 }
 
 Future<Position> _determinePosition() async {
@@ -84,7 +103,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
   MapsRoutes route = MapsRoutes();
   DistanceCalculator distanceCalculator = DistanceCalculator();
-  String googleApiKey = 'AIzaSyCm9qCt6XUl6uSiuUGpa_jExeG2rQU59jk';
+  String googleApiKey = 'API-KEY';
   String totalDistance = 'No route';
 
   void _onMapCreated(GoogleMapController controller) {
@@ -129,8 +148,8 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                         borderRadius: BorderRadius.circular(15.0)),
                     child: Align(
                       alignment: Alignment.center,
-                      child:
-                          Text(totalDistance, style: const TextStyle(fontSize: 25.0)),
+                      child: Text(totalDistance,
+                          style: const TextStyle(fontSize: 25.0)),
                     )),
               ),
             )
@@ -148,6 +167,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
             _determinePosition().then((value) {
               mapController.animateCamera(CameraUpdate.newLatLngZoom(
                   LatLng(value.latitude, value.longitude), 14));
+              _sendMessage("${value}");
             });
           },
         ),

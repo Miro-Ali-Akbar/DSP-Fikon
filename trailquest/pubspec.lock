@@ -453,6 +453,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.1"
+  web_socket_channel:
+    dependency: "direct main"
+    description:
+      name: web_socket_channel
+      sha256: "1d8e795e2a8b3730c41b8a98a2dff2e0fb57ae6f0764a1c46ec5915387d257b2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.4"
 sdks:
   dart: ">=3.3.1 <4.0.0"
   flutter: ">=3.19.0"
