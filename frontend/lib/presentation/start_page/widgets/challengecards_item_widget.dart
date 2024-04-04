@@ -25,7 +25,7 @@ class ChallengecardsItemWidget extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: 14.h,
-              vertical: 7.v,
+              vertical: 5.v,
             ),
             decoration: AppDecoration.fillDeepOrange.copyWith(
               borderRadius: BorderRadiusStyle.roundedBorder15,
@@ -51,7 +51,6 @@ class ChallengecardsItemWidget extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(
                           top: 7.v,
-                          bottom: 3.v,
                         ),
                         child: Text(
                           "n.n km left",
@@ -60,14 +59,13 @@ class ChallengecardsItemWidget extends StatelessWidget {
                       ),
                       CustomImageView(
                         imagePath: ImageConstant.imgSettings,
-                        width: 20.h,
-                        margin: EdgeInsets.only(left: 36.h),
+                        width: 17.h,
+                        margin: EdgeInsets.only(left: 60.h),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
                           left: 7.h,
                           top: 7.v,
-                          bottom: 1.v,
                         ),
                         child: Text(
                           "2 days",
@@ -78,9 +76,8 @@ class ChallengecardsItemWidget extends StatelessWidget {
                         imagePath: ImageConstant.imgArrowRight,
                         height: 21.v,
                         margin: EdgeInsets.only(
-                          left: 51.h,
+                          left: 27.h,
                           top: 7.v,
-                          bottom: 3.v,
                         ),
                       ),
                     ],

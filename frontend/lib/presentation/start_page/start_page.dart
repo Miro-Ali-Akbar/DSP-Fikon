@@ -27,9 +27,9 @@ class StartPage extends StatelessWidget {
             children: [
               SizedBox(height: 23.v),
               _buildChallengeCards(context),
-              SizedBox(height: 94.v),
+              SizedBox(height: 462.v),
               SizedBox(
-                height: 470.v,
+                height: 85.v,
                 width: double.maxFinite,
                 child: Stack(
                   alignment: Alignment.center,
@@ -134,9 +134,6 @@ class StartPage extends StatelessWidget {
             AppbarTitle(
               text: "TrailQuest",
             ),
-            AppbarTitle(
-              text: "TrailQuest",
-            )
           ],
         ),
       ),
@@ -229,13 +226,13 @@ class StartPage extends StatelessWidget {
       },
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: 7.h,
+          horizontal: 1.h,
           vertical: 2.v,
         ),
         decoration: AppDecoration.fillGreen,
         child: Column(
           children: [
-            SizedBox(height: 8.v),
+            SizedBox(height: 10.v),
             CustomImageView(
               imagePath: ticket,
               height: 29.v,
