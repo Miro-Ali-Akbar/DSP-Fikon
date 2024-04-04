@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:trailquest_proto/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
@@ -27,18 +26,24 @@ class CheckpointChallengeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CustomImageView(
-                      imagePath: ImageConstant.imgArrowDownBlack900,
-                      height: 20.v,
-                      margin: EdgeInsets.only(
-                        top: 22.v,
-                        bottom: 52.v,
-                      ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: CustomImageView(
+                        imagePath: ImageConstant.imgArrowDownBlack900,
+                        height: 20.v,
+                        margin: EdgeInsets.only(
+                          left: 10.v,
+                          right: 10.v,
+                          top: 22.v,
+                          bottom: 22.v,
+                        ),
+                      )
                     ),
+                    
                     Container(
                       width: 170.h,
                       margin: EdgeInsets.only(
-                        left: 71.h,
+                        left: 35.h,
                         top: 16.v,
                       ),
                       child: Text(
@@ -85,7 +90,7 @@ class CheckpointChallengeScreen extends StatelessWidget {
   Widget _buildDescription(BuildContext context) {
     return Container(
       height: 500.v,
-      width: 350.h,
+      width: 330.h,
       margin: EdgeInsets.only(left: 21.h),
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -93,18 +98,18 @@ class CheckpointChallengeScreen extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: SizedBox(
-              width: 180.h,
+              width: 200.h,
               child: Text(
                 "This is a challenge where you are going to gather checkpoints.\n\nWhen you press start, you will receive a trail leading to the first checkpoint. ",
-                maxLines: 8,
+                maxLines: 10,
                 overflow: TextOverflow.ellipsis,
                 style: CustomTextStyles.bodyLargeBlack9000117,
               ),
             ),
           ),
           Positioned(
-            top: 200,
-            left: 20,
+            top: 250,
+            left: 0,
             child: SizedBox(
               width: 303.h,
               child: Text(
@@ -116,14 +121,14 @@ class CheckpointChallengeScreen extends StatelessWidget {
             )
           ),
           CustomImageView(
-            imagePath: ImageConstant.imgSvgrepoIconcarrierOnprimary,
+            imagePath: ImageConstant.imgSvgrepoIconcarrierOnprimary, // the picture of a crossroad sign
             width: 90.h,
             alignment: Alignment.topRight,
             margin: EdgeInsets.only(right: 10.h),
           ),
           Positioned(
-            top: 400,
-            left: -2,
+            top: 420,
+            left: -22,
             child: Align(
               alignment: Alignment.center,
               child: Container(
