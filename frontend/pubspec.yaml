@@ -1,0 +1,28 @@
+name: trailquest_proto
+description: A new Flutter project.
+version: 1.0.0+1
+environment: 
+  sdk: '>=3.3.2 <4.0.0'
+dependencies: 
+  flutter: 
+    sdk: flutter
+  cached_network_image: ^3.3.0
+  flutter_svg: ^2.0.9
+  intl: ^0.18.0
+dev_dependencies: 
+  flutter_test: 
+    sdk: flutter
+flutter: 
+  uses-material-design: true
+  assets: 
+    - assets/
+    - assets/images/
+  fonts: 
+    - family: Lalezar
+      fonts: 
+        - asset: assets/fonts/LalezarRegular.ttf
+          weight: 400
+    - family: Inter
+      fonts: 
+        - asset: assets/fonts/InterRegular.ttf
+          weight: 400
