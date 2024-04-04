@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trailquest_proto/presentation/start_page/start_page.dart';
 import '../presentation/checkpoint_challenge_screen/checkpoint_challenge_screen.dart';
 import '../presentation/individual_trail_page_screen/individual_trail_page_screen.dart';
 import '../presentation/app_navigation_screen/app_navigation_screen.dart';
@@ -21,6 +22,7 @@ class AppRoutes {
   static Map<String, WidgetBuilder> routes = {
     checkpointChallengeScreen: (context) => CheckpointChallengeScreen(),
     individualTrailPageScreen: (context) => IndividualTrailPageScreen(),
-    appNavigationScreen: (context) => AppNavigationScreen()
+    appNavigationScreen: (context) => AppNavigationScreen(),
+    startPage: (context) => StartPage()
   };
 }

@@ -27,7 +27,7 @@ class CheckpointChallengeScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: ()=>Navigator.pop(context),
                       icon: CustomImageView(
                         imagePath: ImageConstant.imgArrowDownBlack900,
                         height: 20.v,
@@ -177,4 +177,5 @@ class CheckpointChallengeScreen extends StatelessWidget {
   /*Widget _buildOne(BuildContext context) {
     return 
   }*/
+
 }

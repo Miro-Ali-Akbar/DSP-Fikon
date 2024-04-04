@@ -5,7 +5,6 @@ import 'package:trailquest_proto/widgets/custom_drop_down.dart';
 import 'package:flutter/material.dart';
 import 'package:trailquest_proto/core/app_export.dart'; // ignore_for_file: must_be_immutable
 
-// ignore_for_file: must_be_immutable
 class StartPage extends StatelessWidget {
   StartPage({Key? key})
       : super(

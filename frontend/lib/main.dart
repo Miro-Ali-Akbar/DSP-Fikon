@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
           theme: theme,
           title: 'trailquest_proto',
           debugShowCheckedModeBanner: false,
-          initialRoute: AppRoutes.checkpointChallengeScreen,
+          initialRoute: AppRoutes.startPage,
           routes: AppRoutes.routes,
         );
       },
