@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_routes/google_maps_routes.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 WebSocketChannel? channel;
@@ -89,8 +88,8 @@ class MapsRoutesExample extends StatefulWidget {
 }
 
 class _MapsRoutesExampleState extends State<MapsRoutesExample> {
-  // Completer<GoogleMapController> _controller = Completer();
   late GoogleMapController mapController;
+  final Completer<GoogleMapController> _controller = Completer();
 
   Position? pos;
 
@@ -103,11 +102,21 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
   MapsRoutes route = MapsRoutes();
   DistanceCalculator distanceCalculator = DistanceCalculator();
-  String googleApiKey = 'API-KEY';
+  String googleApiKey = 'AIzaSyDGApuCFwGexIAwxNd8qZETgZhC-xEdpYo';
   String totalDistance = 'No route';
 
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+  Future<void> centerScreen(Position position) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(
+        CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)));
+  }
+
+  @override
+  void initState() {
+    Geolocator.getPositionStream().listen((position) {
+      centerScreen(position);
+    });
+    super.initState();
   }
 
   @override
@@ -125,17 +134,30 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
         body: Stack(
           children: [
             Align(
-              alignment: Alignment.center,
-              child: GoogleMap(
-                zoomControlsEnabled: false,
-                polylines: route.routes,
-                initialCameraPosition: const CameraPosition(
-                  zoom: 15.0,
-                  target: LatLng(59.85444306179348, 17.63943133739685),
-                ),
-                onMapCreated: _onMapCreated,
-              ),
-            ),
+                alignment: Alignment.center,
+                child: StreamBuilder<Position>(
+                  stream: Geolocator.getPositionStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final position = snapshot.data;
+                      return GoogleMap(
+                        zoomControlsEnabled: false,
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: false,
+                        polylines: route.routes,
+                        initialCameraPosition: CameraPosition(
+                          target:
+                              LatLng(position!.latitude, position.longitude),
+                          zoom: 15.0,
+                        ),
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller.complete(controller);
+                        },
+                      );
+                    }
+                    return const CircularProgressIndicator();
+                  },
+                )),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Align(
@@ -167,7 +189,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
             _determinePosition().then((value) {
               mapController.animateCamera(CameraUpdate.newLatLngZoom(
                   LatLng(value.latitude, value.longitude), 14));
-              _sendMessage("${value}");
+              _sendMessage("$value");
             });
           },
         ),
