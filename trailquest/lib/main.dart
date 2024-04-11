@@ -8,151 +8,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:collection';
 import 'api_key.dart'; 
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 void main() {
   runApp(const MyApp());
-}
-
-Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-
-  // Test if location services are enabled.
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    // Location services are not enabled don't continue
-    // accessing the position and request users of the
-    // App to enable the location services.
-    return Future.error('Location services are disabled.');
-  }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      // Permissions are denied, next time you could try
-      // requesting permissions again (this is also where
-      // Android's shouldShowRequestPermissionRationale
-      // returned true. According to Android guidelines
-      // your App should show an explanatory UI now.
-      return Future.error('Location permissions are denied');
-    }
-  }
-
-  if (permission == LocationPermission.deniedForever) {
-    // Permissions are denied forever, handle appropriately.
-    return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
-  }
-
-  // When we reach here, permissions are granted and we can
-  // continue accessing the position of the device.
-  return await Geolocator.getCurrentPosition();
-}
-
-//fetches elevation of a coordinate
-Future<double> _getElevation(LatLng coordinates) async {
-    final apiKey = YOUR_API_KEY;
-    final url = 'https://maps.googleapis.com/maps/api/elevation/json?locations=${coordinates.latitude},${coordinates.longitude}&key=$apiKey';
-    final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['status'] == 'OK' && data['results'] != null && data['results'].isNotEmpty) {
-          return data['results'][0]['elevation'];
-        } else {
-          return Future.error('Error retrieving elevation data'); 
-        }
-      } else {
-        return Future.error('Failed to load elevation data'); 
-      }
-  }
-
-//checks is elevation difference is greater than 20
-Future<bool> _elevationOK(List<LatLng> points) async {
-
-  double currentElevation; 
-  double nextElevation; 
-
-  for (int i = 0; i < points.length - 1; i++) {
-    currentElevation = await _getElevation(points[i]); 
-    nextElevation = await _getElevation(points[i+1]); 
-    
-    double difference = nextElevation - currentElevation; 
-
-    if (difference < -20 || difference > 20) {
-      return false; 
-    }
-    
-  }
-  return true; 
-}
-
-//fetches the stairs of Uppsala
-Future<List<Marker>> fetchStairsData(List<Marker> markers) async {
-  //TODO: hard coded to Uppsala, might need to be different if continious loading is neccessary (e.g need to follow camera, toilet.dart = ex.)
-  final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area(id:3600305455)->.searchArea;(way["highway"="steps"](area.searchArea););(._;>;);out;';  
-  final response = await http.get(Uri.parse(url));
-  print("Fetching stairs from: $url");
-  
-  if (response.statusCode == 200) {
-    final decoded = json.decode(response.body);
-      List<dynamic> elements = decoded['elements'];
-        return markers = _parseStairsData(elements);
-  } else {
-    print('Failed to load stairs data: ${response.body}');
-    throw Exception('Failed to load stairs data');
-  }
-}
-
-//parses stair data
-List<Marker> _parseStairsData(List<dynamic> data) {
-  List<Marker> parsedMarkers = [];
-  HashMap<int, Map<String, dynamic>> nodes = HashMap();
-  
-  // Parse nodes
-  for (var item in data) {
-    if (item['type'] == 'node') {
-      nodes[item['id']] = {'lat': item['lat'], 'lon': item['lon']};
-    }
-  }
-
-  // Parse ways
-  for (var item in data) {
-    if (item['type'] == 'way' && item['tags'] != null && item['tags']['highway'] == 'steps') {
-      List<LatLng> coordinates = [];
-      if (item['nodes'] != null) {
-        for (var nodeId in item['nodes']) {
-          var node = nodes[nodeId];
-          if (node != null) {
-            coordinates.add(LatLng(node['lat'], node['lon']));
-          }
-        }
-        if (coordinates.isNotEmpty) {
-          // Assuming first node is the starting point of the stairs
-          LatLng firstNode = coordinates.first;
-          String snippet = '';
-          if (item['tags'].containsKey('surface')) {
-            snippet = item['tags']['surface']; 
-          } else {
-            snippet = 'No data of stair type';
-          }
-          parsedMarkers.add(
-            Marker(
-              markerId: MarkerId(item['id'].toString()),
-              position: firstNode,
-              infoWindow: InfoWindow(
-                title: 'Stairs',
-                snippet: snippet,
-              ),
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  return parsedMarkers;
 }
 
 class MyApp extends StatelessWidget {
@@ -181,30 +40,62 @@ class MapsRoutesExample extends StatefulWidget {
 class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   late GoogleMapController mapController;
 
-  Position? pos;
-
-  List<LatLng> points = [
-    const LatLng(59.84429621673012, 17.638228177426775),
-    const LatLng(59.84643220507929, 17.63963225848925),
-    const LatLng(59.85009456157953, 17.643307828593034),
-    const LatLng(59.85444306179348, 17.63943133739685),
-  ];
-
-  MapsRoutes route = MapsRoutes();
-  DistanceCalculator distanceCalculator = DistanceCalculator();
-  String googleApiKey = YOUR_API_KEY;
-  String totalDistance = 'No route';
-
-  static const start = LatLng(59.85444306179348, 17.63943133739685);
-
-  late Future<double>? startElevation = null;
-  late Future<bool>? elevationOK = null;
-
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
-  List<Marker> markers = [];
+  static const start = LatLng(59.85444306179348, 17.63943133739685);
+  static const maxPoint = LatLng(59.85750437916374, 17.62851763603763); 
+
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+  String googleAPiKey = YOUR_API_KEY;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// origin marker
+    _addMarker(LatLng(start.latitude, start.longitude), "origin",
+        BitmapDescriptor.defaultMarker);
+
+    /// destination marker
+    _addMarker(LatLng(maxPoint.latitude, maxPoint.longitude), "destination",
+        BitmapDescriptor.defaultMarkerWithHue(90));
+    _getPolyline();
+  }
+
+  _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    MarkerId markerId = MarkerId(id);
+    Marker marker =
+        Marker(markerId: markerId, icon: descriptor, position: position);
+    markers[markerId] = marker;
+  }
+
+  _addPolyLine() {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+        polylineId: id, color: Colors.red, points: polylineCoordinates);
+    polylines[id] = polyline;
+    setState(() {});
+  }
+
+  _getPolyline() async {
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        googleAPiKey,
+        PointLatLng(start.latitude, start.longitude),
+        PointLatLng(start.latitude, start.longitude),
+        travelMode: TravelMode.walking,
+        wayPoints: [PolylineWayPoint(location: "59.85750437916374,17.62851763603763"), PolylineWayPoint(location: "59.85836,17.63568")]);
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,16 +116,18 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               child: GoogleMap(
                 myLocationEnabled: true,
                 zoomControlsEnabled: false,
-                polylines: route.routes,
+                //polylines: route.routes,
                 initialCameraPosition: const CameraPosition(
-                  zoom: 15.0,
+                  zoom: 14.0,
                   target: start,
-                ),                
-                markers: Set<Marker>.of(markers),
+                ),  
+                markers: Set<Marker>.of(markers.values),
+                polylines: Set<Polyline>.of(polylines.values),              
+                //markers: Set<Marker>.of(markers),
                 onMapCreated: _onMapCreated, 
                 ),
             ),
-            Padding(
+           /* Padding(
               padding: const EdgeInsets.all(8.0),
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -304,11 +197,13 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                   ],
                 ),
               ),
-            ),
+            ),*/
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
+        floatingActionButton: FloatingActionButton( 
+          onPressed: () async { 
+            _addPolyLine(); 
+            /*
             await route.drawRoute(points, 'Test routes',
                 const Color.fromRGBO(130, 78, 210, 1.0), googleApiKey,
                 travelMode: TravelModes.walking);
@@ -331,7 +226,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               } catch (error) {
                 print('Error fetching stairs data: $error');
               }
-            });
+            });*/
           },
         ),
       ),
