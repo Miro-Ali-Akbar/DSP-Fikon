@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'dart:collection';
 import 'api_key.dart'; 
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'dart:math'; 
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MapsRoutesExample extends StatefulWidget {
   const MapsRoutesExample({super.key, required this.title});
   final String title;
@@ -44,8 +46,11 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     mapController = controller;
   }
 
+
   static const start = LatLng(59.85444306179348, 17.63943133739685);
-  static const maxPoint = LatLng(59.85750437916374, 17.62851763603763); 
+  static const maxPoint = LatLng(59.85750437916374, 17.62851763603763);
+  
+
 
   Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
@@ -82,13 +87,46 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     setState(() {});
   }
 
+  _getWayPoints() {
+    List<PolylineWayPoint> wayPoints = []; 
+
+    const routeLength = 3; 
+    const lengthBetweenPoints = routeLength / 8; 
+
+    double startOffset = start.latitude + routeLength / 110.574; 
+
+    LatLng exp = LatLng(startOffset, start.longitude); 
+
+  //let lat: CLLocationDegrees = location.coordinate.latitude + latDistance / 110.574
+  //let lng: CLLocationDegrees = location.coordinate.longitude + longDistance / (111.320 * cos(lat * .pi / 180))
+  //return CLLocation(latitude: lat, longitude: lng)
+
+
+    wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
+
+    // Calculate and add remaining waypoints
+    for (int i = 1; i <= 7; i++) {
+      double distance = i * lengthBetweenPoints;
+      double lat = start.latitude + distance / 110.574;
+      double lon = start.longitude + distance / (111.320 * cos(lat * pi / 180));
+      wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
+    }
+
+    //wayPoints.add(PolylineWayPoint(location: "59.85750437916374,17.62851763603763")); 
+    //wayPoints.add(PolylineWayPoint(location: exp.latitude.toString()+","+exp.longitude.toString())); 
+
+    return wayPoints; 
+  }
+
   _getPolyline() async {
+    List<PolylineWayPoint> points = _getWayPoints(); 
+
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         googleAPiKey,
         PointLatLng(start.latitude, start.longitude),
         PointLatLng(start.latitude, start.longitude),
         travelMode: TravelMode.walking,
-        wayPoints: [PolylineWayPoint(location: "59.85750437916374,17.62851763603763"), PolylineWayPoint(location: "59.85836,17.63568")]);
+        wayPoints: points); // [PolylineWayPoint(location: "59.85750437916374,17.62851763603763"), PolylineWayPoint(location: point1.latitude.toString()+","+point1.longitude.toString())]);
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -116,14 +154,12 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               child: GoogleMap(
                 myLocationEnabled: true,
                 zoomControlsEnabled: false,
-                //polylines: route.routes,
                 initialCameraPosition: const CameraPosition(
                   zoom: 14.0,
                   target: start,
                 ),  
                 markers: Set<Marker>.of(markers.values),
                 polylines: Set<Polyline>.of(polylines.values),              
-                //markers: Set<Marker>.of(markers),
                 onMapCreated: _onMapCreated, 
                 ),
             ),
