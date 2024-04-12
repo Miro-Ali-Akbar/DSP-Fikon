@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:trailquest/pages/challengePage.dart';
+import 'package:trailquest/pages/profilePage.dart';
+import 'package:trailquest/pages/startPage.dart';
+import 'package:trailquest/pages/trailPage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -13,19 +17,18 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   int myIndex = 0; 
+  final screens = [
+    StartPage(),
+    TrailPage(),
+    ChallengePage(), 
+    ProfilePage()
+  ];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        //body: Center(
-        //  child: Text('Hello World!', 
-        //    style: TextStyle(
-        //      color: Colors.green, 
-        //      fontSize: 30.0,
-        //    )
-        //  ), 
-        //),
+        body: screens[myIndex],
 
         appBar: AppBar(
           actions: const [],
