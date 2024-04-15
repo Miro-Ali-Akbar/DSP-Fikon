@@ -22,7 +22,7 @@ class _MainAppState extends State<MainApp> {
   final screens = [
     const StartPage(),
     const TrailPage(),
-    const ChallengePage(), 
+    ChallengePage(), 
     const ProfilePage()
   ];
 
