@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:trailquest/pages/challengePage.dart';
-import 'package:trailquest/pages/profilePage.dart';
-import 'package:trailquest/pages/startPage.dart';
-import 'package:trailquest/pages/trailPage.dart';
+import 'package:trailquest/pages/challenge_page.dart';
+import 'package:trailquest/pages/profile_page.dart';
+import 'package:trailquest/pages/start_page.dart';
+import 'package:trailquest/pages/trail_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -27,26 +27,20 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
+      debugShowCheckedModeBanner: false,
+
+      theme: ThemeData(fontFamily: 'InterRegular'),
+
       home: Scaffold(
         body: screens[myIndex],
-
-        appBar: AppBar(
-          actions: const [],
-          title: const Align(
-            alignment: Alignment.centerRight,
-            child: Text('TrailQuest', 
-              style: TextStyle(
-              color: Colors.black),
-              ),
-          ),
-        ),
 
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
             setState(() {
               myIndex = index;
-              });
+            });
           },
           currentIndex: myIndex,
           backgroundColor: Colors.green.shade600,

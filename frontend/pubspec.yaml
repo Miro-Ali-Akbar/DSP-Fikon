@@ -17,3 +17,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+  - family: InterRegular
+    fonts: 
+      - asset: assets/fonts/InterRegular.ttf
+      - weight: 400

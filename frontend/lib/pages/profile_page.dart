@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class ChallengePage extends StatelessWidget{ 
+class ProfilePage extends StatelessWidget{ 
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+
       home: Scaffold(
         body: Center(
-          child: Text('Challenge!', 
+          child: Text('Profile!', 
             style: TextStyle(
               color: Colors.green, 
               fontSize: 30.0,
