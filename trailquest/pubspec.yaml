@@ -40,6 +40,7 @@ dependencies:
   google_maps_routes: ^1.1.2
   http: ^0.13.6
   flutter_polyline_points: ^1.0.0
+  flutter_map_math: ^0.1.7
 
 dev_dependencies:
   flutter_test:

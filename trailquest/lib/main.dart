@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,10 +11,95 @@ import 'dart:collection';
 import 'api_key.dart'; 
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dart:math'; 
+import 'package:flutter_map_math/flutter_geo_math.dart';
+
+String totalDistance = 'No Route'; 
+bool inIntervall = false; 
 
 void main() {
   runApp(const MyApp());
 }
+
+
+Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
+    List<PolylineWayPoint> wayPoints = [];
+
+    const routeLength = 4; 
+    const lengthBetweenPoints = routeLength / 8; 
+    const radius = routeLength / (pi + 2); 
+
+    double startOffset = start.latitude + routeLength / 110.574; 
+
+    LatLng exp = LatLng(startOffset, start.longitude); 
+
+    wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
+
+    int pointsCount = 10; 
+    final random = Random();
+    double startDirection = random.nextDouble() * (2*pi + 1.0);
+
+    double distance = 0; 
+    double routeDistance = 0; 
+
+  for (int i = 1; i <= pointsCount; i++) {
+    double angle = (pi * i) / (2 * pointsCount) + startDirection;
+    double lat = start.latitude + radius * sin(angle) / 110.574;
+    double lon = start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
+
+    wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
+  }
+
+  for (int i = 0; i < wayPoints.length - 1; i++) {
+    LatLng origin = _parseLatLng(wayPoints[i].location);
+    LatLng destination = _parseLatLng(wayPoints[i + 1].location);
+    double distance = await _getWalkingDistance(origin, destination);
+
+    print("Distance between waypoint $i and ${i + 1}: $distance meters");
+    routeDistance += distance; 
+  }
+
+  print(routeDistance); 
+ 
+  if (routeDistance > routeLength * 1000 - 500 && routeDistance < routeLength * 1000 + 500) { //+- 500m
+    inIntervall = true; 
+    totalDistance = routeDistance.toString(); 
+  } //else {
+    //inIntervall = false; 
+    //totalDistance = 'No Route'; 
+  //}
+
+  return wayPoints;
+}
+
+LatLng _parseLatLng(String locationString) {
+  List<String> coordinates = locationString.split(',');
+  double lat = double.parse(coordinates[0]);
+  double lon = double.parse(coordinates[1]);
+  return LatLng(lat, lon);
+}
+
+Future<double> _getWalkingDistance(LatLng origin, LatLng destination) async {
+  String apiKey = YOUR_API_KEY; 
+  String url = 'https://maps.googleapis.com/maps/api/directions/json?'
+      'origin=${origin.latitude},${origin.longitude}&'
+      'destination=${destination.latitude},${destination.longitude}&'
+      'mode=walking&'
+      'key=$apiKey';
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    if (data['status'] == 'OK') {
+      return data['routes'][0]['legs'][0]['distance']['value'].toDouble();
+    } else {
+      throw Exception('Failed to fetch directions: ${data['status']}');
+    }
+  } else {
+    throw Exception('Failed to fetch directions');
+  }
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -46,17 +132,19 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     mapController = controller;
   }
 
+  //String totalDistance = 'No Route'; 
 
   static const start = LatLng(59.85444306179348, 17.63943133739685);
-  static const maxPoint = LatLng(59.85750437916374, 17.62851763603763);
+  //static const maxPoint = LatLng(59.85750437916374, 17.62851763603763);
   
-
 
   Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   String googleAPiKey = YOUR_API_KEY;
+
+  DistanceCalculator distanceCalculator = DistanceCalculator();
 
   @override
   void initState() {
@@ -67,9 +155,9 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
         BitmapDescriptor.defaultMarker);
 
     /// destination marker
-    _addMarker(LatLng(maxPoint.latitude, maxPoint.longitude), "destination",
-        BitmapDescriptor.defaultMarkerWithHue(90));
-    _getPolyline();
+    //_addMarker(LatLng(maxPoint.latitude, maxPoint.longitude), "destination",
+    //    BitmapDescriptor.defaultMarkerWithHue(90));
+    //_getPolyline();
   }
 
   _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
@@ -87,39 +175,70 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     setState(() {});
   }
 
+/*
   _getWayPoints() {
     List<PolylineWayPoint> wayPoints = []; 
 
-    const routeLength = 3; 
+    const routeLength = 4; 
     const lengthBetweenPoints = routeLength / 8; 
+    const radius = routeLength / (pi + 2); 
 
     double startOffset = start.latitude + routeLength / 110.574; 
 
     LatLng exp = LatLng(startOffset, start.longitude); 
 
-  //let lat: CLLocationDegrees = location.coordinate.latitude + latDistance / 110.574
-  //let lng: CLLocationDegrees = location.coordinate.longitude + longDistance / (111.320 * cos(lat * .pi / 180))
-  //return CLLocation(latitude: lat, longitude: lng)
-
-
     wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
 
-    // Calculate and add remaining waypoints
-    for (int i = 1; i <= 7; i++) {
-      double distance = i * lengthBetweenPoints;
-      double lat = start.latitude + distance / 110.574;
-      double lon = start.longitude + distance / (111.320 * cos(lat * pi / 180));
+    int pointsCount = 10; 
+    final random = Random();
+    double startDirection = random.nextDouble() * (2*pi + 1.0);
+
+    double distance = 0; 
+
+    for (int i = 1; i <= pointsCount; i++) {
+      //square
+      //double distance = i * lengthBetweenPoints;
+      //double lat = start.latitude + distance / 110.574;
+      //double lon = start.longitude + distance / (111.320 * cos(lat * pi / 180));
+      //wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
+
+      
+
+      //half circle
+      double angle = (pi * i) / (2 * pointsCount) + startDirection;
+      double lat = start.latitude + radius * sin(angle) / 110.574;
+      double lon = start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
+
+
+      //distance += _coordinateDistance(prev.latitude, prev.longitude, lat, lon); 
+      ////print(distance); 
+      //prev = LatLng(lat, lon); 
+
+
       wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
     }
 
     //wayPoints.add(PolylineWayPoint(location: "59.85750437916374,17.62851763603763")); 
     //wayPoints.add(PolylineWayPoint(location: exp.latitude.toString()+","+exp.longitude.toString())); 
 
+    totalDistance = distance.toString(); 
+
     return wayPoints; 
   }
+*/
 
-  _getPolyline() async {
-    List<PolylineWayPoint> points = _getWayPoints(); 
+
+ Future<void> _getPolyline(LatLng start) async {
+  List<PolylineWayPoint> points = []; 
+  //while (!inIntervall) {
+  //  points = await _getWayPoints(start); 
+  //}
+  //TODO: for/while?
+  for (int i = 0; i < 5; i++) {
+    if (!inIntervall) {
+      points = await _getWayPoints(start); 
+    }
+  }
 
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         googleAPiKey,
@@ -163,7 +282,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                 onMapCreated: _onMapCreated, 
                 ),
             ),
-           /* Padding(
+            Padding(
               padding: const EdgeInsets.all(8.0),
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -176,11 +295,11 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                   ),
                   child: Align(
                     alignment: Alignment.center,
-                    child: Text(totalDistance, style: const TextStyle(fontSize: 25.0)),
+                    child: Text(totalDistance.toString(), style: const TextStyle(fontSize: 25.0)),
                   ),
                 ),
               ),
-            ),
+            ), /*
             Positioned(
               top: 16.0, 
               left: 16.0, 
@@ -238,7 +357,17 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
         ),
         floatingActionButton: FloatingActionButton( 
           onPressed: () async { 
-            _addPolyLine(); 
+            _getPolyline(start); 
+
+
+            //polylineCoordinates.forEach((LatLng point) {
+            //  print(point); 
+            //});
+
+            //setState(() {
+            //  totalDistance = distanceCalculator.calculateRouteDistance(polylineCoordinates,
+            //      decimals: 2);
+            //});
             /*
             await route.drawRoute(points, 'Test routes',
                 const Color.fromRGBO(130, 78, 210, 1.0), googleApiKey,
