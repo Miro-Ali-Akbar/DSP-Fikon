@@ -39,6 +39,7 @@ dependencies:
   geolocator: ^11.0.0
   google_maps_routes: ^1.1.2
   web_socket_channel: ^2.4.4
+  geofence_service: ^5.0.0
 
 dev_dependencies:
   flutter_test:
