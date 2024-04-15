@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:trailquest/pages/generate_trail_page.dart';
 
 class TrailPage extends StatelessWidget{
   const TrailPage({super.key});
@@ -37,12 +39,22 @@ class CreateNewTrail extends StatelessWidget {
   @override 
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: null, 
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+          pageBuilder: (context, x, xx) => GenerateTrail(),
+          transitionDuration: Duration.zero, 
+          reverseTransitionDuration: Duration.zero));
+      }, 
+
       style: TextButton.styleFrom(
-        backgroundColor: Colors.green,
-      ), 
-      
-      child: const Text('Create new trail +', style: TextStyle(color: Colors.white, fontSize: 30)),
+        backgroundColor: Colors.green, 
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        )
+      ),
+
+      child: const Text('Generate new trail +', style: TextStyle(color: Colors.white, fontSize: 30)), 
     ); 
   }
 }
