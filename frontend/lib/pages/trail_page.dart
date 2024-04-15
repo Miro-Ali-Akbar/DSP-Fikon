@@ -2,11 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
 
-class TrailPage extends StatelessWidget{ 
+class TrailPage extends StatelessWidget{
+  const TrailPage({super.key});
+ 
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
 
       home: Scaffold(
@@ -14,10 +16,10 @@ class TrailPage extends StatelessWidget{
         body: Center(
           child: Column(
             children: <Widget>[
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               CreateNewTrail(),
-              const SizedBox(height: 150),
-              const Text('Trail!', 
+              SizedBox(height: 150),
+              Text('Trail!', 
               style: TextStyle(
                 color: Colors.green, 
                 fontSize: 30.0,
@@ -31,6 +33,8 @@ class TrailPage extends StatelessWidget{
 }
 
 class CreateNewTrail extends StatelessWidget {
+  const CreateNewTrail({super.key});
+
 
   @override 
   Widget build(BuildContext context) {

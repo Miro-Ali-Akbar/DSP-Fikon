@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/pages/profile_page.dart';
 import 'package:trailquest/pages/start_page.dart';
@@ -18,10 +20,10 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   int myIndex = 0; 
   final screens = [
-    StartPage(),
-    TrailPage(),
-    ChallengePage(), 
-    ProfilePage()
+    const StartPage(),
+    const TrailPage(),
+    const ChallengePage(), 
+    const ProfilePage()
   ];
 
   @override
@@ -45,18 +47,46 @@ class _MainAppState extends State<MainApp> {
           currentIndex: myIndex,
           backgroundColor: Colors.green.shade600,
           selectedItemColor: Colors.white,
-          items: const[
+          items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home), 
+            icon: SvgPicture.asset('assets/images/img_home.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
+            activeIcon: SvgPicture.asset('assets/images/img_home.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),),
             label: 'Start'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.earbuds_outlined), 
+            icon: SvgPicture.asset('assets/images/img_trails.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
+            activeIcon: SvgPicture.asset('assets/images/img_trails.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
             label: 'Trails'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bolt), 
+            icon: SvgPicture.asset('assets/images/img_trophy.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
+            activeIcon: SvgPicture.asset('assets/images/img_trophy.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
             label: 'Challanges'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person), 
+            icon: SvgPicture.asset('assets/images/img_profile.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
+            activeIcon: SvgPicture.asset('assets/images/img_profile.svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
             label: 'Profile')
           ],
         ),
