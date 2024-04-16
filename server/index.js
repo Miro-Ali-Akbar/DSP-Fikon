@@ -63,9 +63,10 @@ wss.on('connection', ws => {
         message = JSON.parse(message);
 
         console.log(message);
+        console.log(message.data);
         switch(message.msgID) {
             case "initRes":
-                initUser(message);
+                initUser(message.data);
                 console.log('added data');
                 break;
         }

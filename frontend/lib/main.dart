@@ -3,30 +3,28 @@ import 'package:trailquest/pages/challengePage.dart';
 import 'package:trailquest/pages/profilePage.dart';
 import 'package:trailquest/pages/startPage.dart';
 import 'package:trailquest/pages/trailPage.dart';
-import 'package:web_socket_channel/status.dart' as status;
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'dart:convert';
 
-WebSocketChannel? channel;
+
+
 
 void main() {
-  channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
+  
   runApp(const MainApp());
 }
 
-void _sendMessage(String message) {
-  print(message);
+// void _sendMessage(String message) {
+//   print(message);
 
-  try {
-    channel?.sink.add(message);
-    channel?.stream.listen((message) {
-      print(message);
-      channel?.sink.close();
-    });
-  } catch (e) {
-    print(e);
-  }
-}
+//   try {
+//     channel?.sink.add(message);
+//     channel?.stream.listen((message) {
+//       print(message);
+//       channel?.sink.close();
+//     });
+//   } catch (e) {
+//     print(e);
+//   }
+// }
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});

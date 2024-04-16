@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:trailquest/main.dart';
-
+import 'package:web_socket_channel/status.dart' as status;
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:convert';
 
 class ChallengePage extends StatelessWidget{ 
-
+  WebSocketChannel channel = WebSocketChannel.connect(Uri.parse("ws://130.243.229.232:3000"));
  var jsonString = '''
-  [
-    {"msgID": intres},
-    {"data": {"username": emmisen}}
-  ]
+    {"msgID": "initRes",
+    "data": {"username": "emmisen"}}
   ''';
 
+  void _sendMessage(var message) {
+    print(message);
+    try {
+      channel.sink.add(message);
+      channel.stream.listen((message) {
+        print(message);
+        channel.sink.close();
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,15 +34,7 @@ class ChallengePage extends StatelessWidget{
             IconButton(
               icon: Icon(Icons.settings),
               onPressed: () {
-                try{
-                  channel?.sink.add(jsonString);
-                  channel?.stream.listen((jsonString) {
-                    print(jsonString);
-                    channel?.sink.close();
-                  });
-                } catch (error) {
-                  print(error);
-                }
+                _sendMessage(jsonString);
   
               },
             ),
