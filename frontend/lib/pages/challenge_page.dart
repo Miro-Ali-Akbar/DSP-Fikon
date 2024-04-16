@@ -13,6 +13,9 @@ class ChallengePage extends StatelessWidget{
       debugShowCheckedModeBanner: false,
 
       home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Challenges'),
+        ),
         body: Center(
           child: scrollChallenges(context)
         ), 
@@ -30,7 +33,33 @@ Widget scrollChallenges(BuildContext context) {
       return Container(
         height: 150,
         color: Colors.amber[colorCodes[index]],
-        child: Center(child: Text('Challenge ${entries[index]}')),
+        child: Padding(
+          padding: EdgeInsets.only(left: 10),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Challenge ${entries[index]}',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  '0/10 checkpoints',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20
+                  ),
+                ),
+              ),
+            ],
+          )
+        )
       );
     },
     separatorBuilder: (BuildContext context, int index) => const Divider(),
