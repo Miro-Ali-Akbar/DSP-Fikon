@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  web_socket_channel: ^2.4.4
 
 dev_dependencies:
   flutter_test:
@@ -17,6 +16,5 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
-  
   uses-material-design: true
-  
+  web_socket_channel: ^2.4.4
