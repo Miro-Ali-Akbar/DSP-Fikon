@@ -143,7 +143,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     //  _furtherCheckStairs(origin); 
     //}
 
-    double distance = await _getWalkingDistance(origin, destination);
+    double distance = await _getWalkingDistance(origin, destination, noStairs);
 
     print("Distance between waypoint $i and ${i + 1}: $distance meters");
     routeDistance += distance; 
@@ -209,7 +209,7 @@ LatLng _parseLatLng(String locationString) {
 }
 
 // requests for distance between waypoints
-Future<double> _getWalkingDistance(LatLng origin, LatLng destination) async {
+Future<double> _getWalkingDistance(LatLng origin, LatLng destination, bool noStairs) async {
   String apiKey = YOUR_API_KEY; 
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
@@ -223,10 +223,31 @@ Future<double> _getWalkingDistance(LatLng origin, LatLng destination) async {
     final data = json.decode(response.body);
     if (data['status'] == 'OK') {
 
-      //bool noStairs = await _checkStairs(origin); 
+      if (!noStairs) {
+        bool found = false;
 
+          // Search for the phrase in html_instructions field
+          for (var route in data['routes']) {
+            for (var leg in route['legs']) {
+              for (var step in leg['steps']) {
+                if (step['html_instructions'] != null &&
+                    step['html_instructions'].contains('Ta trappan')) {
+                  found = true;
+                  break;
+                }
+              }
+              if (found) break;
+            }
+            if (found) break;
+          }
+
+        print("!!!!!!!!!!!!!!!!"); 
+        print(found); 
+        print("!!!!!!!!!!!!!!!!!!"); 
+      }
 
       return data['routes'][0]['legs'][0]['distance']['value'].toDouble();
+
     } else {
       throw Exception('Failed to fetch directions: ${data['status']}');
     }
