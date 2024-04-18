@@ -41,125 +41,11 @@ void reset() {
         BitmapDescriptor.defaultMarker);
 }
 
-//fetches the stairs of Uppsala
-Future<List<Marker>> fetchStairsData(List<Marker> markers) async {
-  //TODO: hard coded to Uppsala, might need to be different if continious loading is neccessary (e.g need to follow camera, toilet.dart = ex.)
-  final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area(id:3600305455)->.searchArea;(way["highway"="steps"](area.searchArea););(._;>;);out;';  
-  final response = await http.get(Uri.parse(url));
-  print("Fetching stairs from: $url");
-  
-  if (response.statusCode == 200) {
-    final decoded = json.decode(response.body);
-      List<dynamic> elements = decoded['elements'];
-        return markers = _parseStairsData(elements);
-  } else {
-    print('Failed to load stairs data: ${response.body}');
-    throw Exception('Failed to load stairs data');
-  }
-}
-
-//parses stair data
-List<Marker> _parseStairsData(List<dynamic> data) {
-  List<Marker> parsedMarkers = [];
-  HashMap<int, Map<String, dynamic>> nodes = HashMap();
-  
-  // Parse nodes
-  for (var item in data) {
-    if (item['type'] == 'node') {
-      nodes[item['id']] = {'lat': item['lat'], 'lon': item['lon']};
-    }
-  }
-
-  // Parse ways
-  for (var item in data) {
-    if (item['type'] == 'way' && item['tags'] != null && item['tags']['highway'] == 'steps') {
-      List<LatLng> coordinates = [];
-      if (item['nodes'] != null) {
-        for (var nodeId in item['nodes']) {
-          var node = nodes[nodeId];
-          if (node != null) {
-            coordinates.add(LatLng(node['lat'], node['lon']));
-          }
-        }
-        if (coordinates.isNotEmpty) {
-          // Assuming first node is the starting point of the stairs
-          LatLng firstNode = coordinates.first;
-          String snippet = '';
-          if (item['tags'].containsKey('surface')) {
-            snippet = item['tags']['surface']; 
-          } else {
-            snippet = 'No data of stair type';
-          }
-          parsedMarkers.add(
-            Marker(
-              markerId: MarkerId(item['id'].toString()),
-              position: firstNode,
-              infoWindow: InfoWindow(
-                title: 'Stairs',
-                snippet: snippet,
-              ),
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  return parsedMarkers;
-}
-
-
-
-Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
-    List<PolylineWayPoint> wayPoints = [];
-
-    const routeLength = 4; 
-    const radius = routeLength / (pi + 2); 
-
-    wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
-    print(start); 
-
-    int pointsCount = 4; //TODO: increase!
-    final random = Random();
-    double startDirection = random.nextDouble() * (2*pi + 1.0);
-
-    double routeDistance = 0; 
-
-  // calculates each new waypoint
-  for (int i = 1; i <= pointsCount; i++) {
-    double angle = (pi * i) / (2 * pointsCount) + startDirection;
-    double lat = start.latitude + radius * sin(angle) / 110.574;
-    double lon = start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
-
-    wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
-  }
-
-  //wayPoints.add(PolylineWayPoint(location: "59.85484782098098,17.64208456717594"));
-
-  // calculates distance between each waypoint
-  for (int i = 0; i < wayPoints.length - 1; i++) {
-    LatLng origin = _parseLatLng(wayPoints[i].location);
-    LatLng destination = _parseLatLng(wayPoints[i + 1].location);
-
-    //LatLng origin = start; 
-    //LatLng destination = LatLng(59.85484782098098, 17.64208456717594); 
-
-    bool noStairs = await _checkStairs(origin);
-
-    double distance = await _getWalkingDistance(origin, destination, noStairs);
-
-    print("Distance between waypoint $i and ${i + 1}: $distance meters");
-    routeDistance += distance; 
-  }
-
-  print(routeDistance); 
- 
-  if (routeDistance > routeLength * 1000 - 2000 && routeDistance < routeLength * 1000 + 2000) { //+- 500m //TODO: edit!
-    inIntervall = true; 
-    totalDistance = routeDistance.toString(); 
-  } 
-
-  return wayPoints;
+_addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    MarkerId markerId = MarkerId(id);
+    Marker marker =
+        Marker(markerId: markerId, icon: descriptor, position: position);
+    markers[markerId] = marker;
 }
 
 Future<bool> _checkStairs(LatLng waypoint) async {
@@ -198,13 +84,6 @@ Future<bool> _checkStairs(LatLng waypoint) async {
   } else {
     return true; 
   }
-}
-
-LatLng _parseLatLng(String locationString) {
-  List<String> coordinates = locationString.split(',');
-  double lat = double.parse(coordinates[0]);
-  double lon = double.parse(coordinates[1]);
-  return LatLng(lat, lon);
 }
 
 // requests for distance between waypoints
@@ -252,12 +131,65 @@ Future<double> _getWalkingDistance(LatLng origin, LatLng destination, bool noSta
   }
 }
 
-_addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
-    MarkerId markerId = MarkerId(id);
-    Marker marker =
-        Marker(markerId: markerId, icon: descriptor, position: position);
-    markers[markerId] = marker;
+LatLng _parseLatLng(String locationString) {
+  List<String> coordinates = locationString.split(',');
+  double lat = double.parse(coordinates[0]);
+  double lon = double.parse(coordinates[1]);
+  return LatLng(lat, lon);
+}
+
+Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
+    List<PolylineWayPoint> wayPoints = [];
+
+    const routeLength = 4; 
+    const radius = routeLength / (pi + 2); 
+
+    wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
+    print(start); 
+
+    int pointsCount = 4; //TODO: increase!
+    final random = Random();
+    double startDirection = random.nextDouble() * (2*pi + 1.0);
+
+    double routeDistance = 0; 
+
+  // calculates each new waypoint
+  for (int i = 1; i <= pointsCount; i++) {
+    double angle = (pi * i) / (2 * pointsCount) + startDirection;
+    double lat = start.latitude + radius * sin(angle) / 110.574;
+    double lon = start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
+
+    wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
   }
+
+  //LatLng guaranteedStairs = LatLng(59.85484782098098,17.64208456717594); 
+  //wayPoints.add(PolylineWayPoint(location: "59.85484782098098,17.64208456717594")); //test point with guaranteed stairs
+
+  // calculates distance between each waypoint
+  for (int i = 0; i < wayPoints.length - 1; i++) {
+    LatLng origin = _parseLatLng(wayPoints[i].location);
+    LatLng destination = _parseLatLng(wayPoints[i + 1].location);
+
+    //LatLng origin = start; 
+    //LatLng destination = guaranteedStairs; 
+
+    bool noStairs = await _checkStairs(origin);
+
+    double distance = await _getWalkingDistance(origin, destination, noStairs);
+
+    print("Distance between waypoint $i and ${i + 1}: $distance meters");
+    routeDistance += distance; 
+  }
+
+  print(routeDistance); 
+ 
+  if (routeDistance > routeLength * 1000 - 2000 && routeDistance < routeLength * 1000 + 2000) { //+- 500m //TODO: edit!
+    inIntervall = true; 
+    totalDistance = routeDistance.toString(); 
+  } 
+
+  return wayPoints;
+}
 
 
 class MyApp extends StatelessWidget {
@@ -290,11 +222,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
-
-  //static const maxPoint = LatLng(59.85750437916374, 17.62851763603763);
-  
-  //Map<MarkerId, Marker> markers = {};
-
   
   String googleAPiKey = YOUR_API_KEY;
 
@@ -341,7 +268,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     reset(); 
   }
 
-
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         googleAPiKey,
         PointLatLng(start.latitude, start.longitude),
@@ -382,7 +308,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                 markers: Set<Marker>.of(markers.values),
                 polylines: Set<Polyline>.of(polylines.values),              
                 onMapCreated: _onMapCreated, 
-                //markers: Set<Marker>.of(markers),
                 ),
             ),
             Padding(
@@ -414,16 +339,8 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
             _getPolyline(start);
             inIntervall = false;  
+            stairsExist = false; 
 
-            //try {
-            //    //List<Marker> fetchedMarkers = await fetchStairsData(markers);
-            //    Map<MarkerId, Marker> fetchedMarkers = await fetchStairsData(markers);
-            //    setState(() {
-            //      markers = fetchedMarkers;
-            //    });
-            //  } catch (error) {
-            //    print('Error fetching stairs data: $error');
-            //  }
           },
         ),
       ),
