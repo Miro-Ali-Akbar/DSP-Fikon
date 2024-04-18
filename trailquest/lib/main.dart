@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -19,6 +20,7 @@ Map<MarkerId, Marker> markers = {};
 Map<PolylineId, Polyline> polylines = {};
 List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
+bool stairsExist = false; 
 
 const start = LatLng(59.85444306179348, 17.63943133739685);
 
@@ -32,6 +34,7 @@ void reset() {
   polylines = {};
   polylineCoordinates = [];
   polylinePoints = PolylinePoints();
+  stairsExist = false; 
   
   /// origin marker
     _addMarker(LatLng(start.latitude, start.longitude), "origin",
@@ -115,7 +118,6 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
 
     wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
     print(start); 
-    //bool noStairs = await _checkStairs(start); 
 
     int pointsCount = 4; //TODO: increase!
     final random = Random();
@@ -132,16 +134,17 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
   }
 
+  //wayPoints.add(PolylineWayPoint(location: "59.85484782098098,17.64208456717594"));
+
   // calculates distance between each waypoint
   for (int i = 0; i < wayPoints.length - 1; i++) {
     LatLng origin = _parseLatLng(wayPoints[i].location);
     LatLng destination = _parseLatLng(wayPoints[i + 1].location);
 
+    //LatLng origin = start; 
+    //LatLng destination = LatLng(59.85484782098098, 17.64208456717594); 
+
     bool noStairs = await _checkStairs(origin);
-    print(noStairs); 
-    //if (!noStairs) {
-    //  _furtherCheckStairs(origin); 
-    //}
 
     double distance = await _getWalkingDistance(origin, destination, noStairs);
 
@@ -160,16 +163,12 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
 }
 
 Future<bool> _checkStairs(LatLng waypoint) async {
-  final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="steps"](around:150, ${waypoint.latitude}, ${waypoint.longitude});(._;>;);out;';  
+  final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="steps"](around:100, ${waypoint.latitude}, ${waypoint.longitude});(._;>;);out;';  
   final response = await http.get(Uri.parse(url));
-  print("Fetching stairs from: $url");
 
   if (response.statusCode == 200) {
-    //Map<String, dynamic> jsonData = json.decode(response.body);
     final decoded = json.decode(response.body);
     List<dynamic> elements = decoded['elements'];
-
-    print(elements); 
 
     HashMap<int, Map<String, dynamic>> nodes = HashMap();
     
@@ -224,26 +223,23 @@ Future<double> _getWalkingDistance(LatLng origin, LatLng destination, bool noSta
     if (data['status'] == 'OK') {
 
       if (!noStairs) {
-        bool found = false;
 
           // Search for the phrase in html_instructions field
           for (var route in data['routes']) {
             for (var leg in route['legs']) {
               for (var step in leg['steps']) {
                 if (step['html_instructions'] != null &&
-                    step['html_instructions'].contains('Ta trappan')) {
-                  found = true;
+                    step['html_instructions'].contains('stairs')) {
+                  print(step['html_instructions']); 
+                  stairsExist = true;
                   break;
                 }
               }
-              if (found) break;
+              if (stairsExist) break;
             }
-            if (found) break;
+            if (stairsExist) break;
           }
-
-        print("!!!!!!!!!!!!!!!!"); 
-        print(found); 
-        print("!!!!!!!!!!!!!!!!!!"); 
+          print(stairsExist); 
       }
 
       return data['routes'][0]['legs'][0]['distance']['value'].toDouble();
@@ -329,6 +325,12 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   //TODO: for/while? ^
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
+      points = await _getWayPoints(start); 
+    }
+
+    if (stairsExist) {
+      print("STAIRS FOUND ON ROUTE, RETRYING..."); 
+      stairsExist = false; 
       points = await _getWayPoints(start); 
     }
   }
