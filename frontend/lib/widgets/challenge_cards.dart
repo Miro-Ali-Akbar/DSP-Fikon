@@ -89,123 +89,82 @@ class _CardState extends State<ChallengeCard> {
       );
     }
     else if(widget.type == 'Quiz') {
-      return Container(
-        height: 150,
-        color: Color.fromARGB(255, 250, 159, 74),
-        child: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(top: 5),
-                  child: Text(
-                    '${widget.name}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30
+      return GestureDetector(
+        onTap:() {
+          setState(() {
+            count++;
+          });
+        },
+        child: Container(
+          height: 150,
+          color: Color.fromARGB(255, 250, 159, 74),
+          child: Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 5),
+                    child: Text(
+                      '${widget.name}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 30
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Padding(padding: EdgeInsets.all(35)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [ 
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Text(
-                      '0/10 questions done',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20
+                Padding(padding: EdgeInsets.all(35)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [ 
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        '$count/10 questions done',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20
+                        ),
                       ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 15),
-                      child: SvgPicture.asset(
-                        'assets/images/img_arrow_right.svg',
-                        height: 20,
-                        width: 20,
-                        colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                    )
-                  ),
-                ],
-              )
-            ],
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 15),
+                        child: SvgPicture.asset(
+                          'assets/images/img_arrow_right.svg',
+                          height: 20,
+                          width: 20,
+                          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
+                      )
+                    ),
+                  ],
+                )
+              ],
+            )
           )
-        )
+        ),
       );
     }
     else if(widget.type == 'Orienteering') {
-      return Container(
-        height: 150,
-        color: Color.fromARGB(255, 137, 70, 196),
-        child: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  '${widget.name}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30
-                  ),
-                ),
-              ),
-              Padding(padding: EdgeInsets.all(35)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [ 
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Text(
-                      '0/10 control points',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 15),
-                      child: SvgPicture.asset(
-                        'assets/images/img_arrow_right.svg',
-                        height: 20,
-                        width: 20,
-                        colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                    )
-                  ),
-                ],
-              )
-            ],
-          )
-        )
-      );
-    }
-    else {
-      return Container(
-        height: 150,
-        color: Color.fromARGB(255, 92, 95, 97),
-
-        child: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(top: 5),
+      return GestureDetector(
+        onTap:() {
+          setState(() {
+            count++;
+          });
+        },
+        child: Container(
+          height: 150,
+          color: Color.fromARGB(255, 137, 70, 196),
+          child: Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
                   child: Text(
                     '${widget.name}',
                     style: TextStyle(
@@ -214,38 +173,96 @@ class _CardState extends State<ChallengeCard> {
                     ),
                   ),
                 ),
-              ),
-              Padding(padding: EdgeInsets.all(35)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [ 
-                  Align(
-                    alignment: Alignment.bottomLeft,
+                Padding(padding: EdgeInsets.all(35)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [ 
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        '$count/10 control points',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 15),
+                        child: SvgPicture.asset(
+                          'assets/images/img_arrow_right.svg',
+                          height: 20,
+                          width: 20,
+                          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
+                      )
+                    ),
+                  ],
+                )
+              ],
+            )
+          )
+        ),
+      );
+    }
+    else {
+      return GestureDetector(
+        onTap:() {},
+        child: Container(
+          height: 150,
+          color: Color.fromARGB(255, 92, 95, 97),
+        
+          child: Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      'no info',
+                      '${widget.name}',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20
+                        fontSize: 30
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 15),
-                      child: SvgPicture.asset(
-                        'assets/images/img_arrow_right.svg',
-                        height: 20,
-                        width: 20,
-                        colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                ),
+                Padding(padding: EdgeInsets.all(35)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [ 
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        'no info',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20
+                        ),
                       ),
-                    )
-                  ),
-                ],
-              )
-            ],
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 15),
+                        child: SvgPicture.asset(
+                          'assets/images/img_arrow_right.svg',
+                          height: 20,
+                          width: 20,
+                          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
+                      )
+                    ),
+                  ],
+                )
+              ],
+            )
           )
-        )
+        ),
       );
     }
   }
