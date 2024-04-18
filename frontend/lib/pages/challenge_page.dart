@@ -1,14 +1,26 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:trailquest/widgets/filter_buttons.dart';
+import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge_cards.dart';
 
 
-final List<String> entries = <String>['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
-final List<int> colorCodes = <int>[600, 500, 300, 600, 500, 300, 600, 500, 300];
 
+const List<Widget> statusChallenge = <Widget>[
+  Text('Not started'),
+  Text('Ongoing'),
+  Text('All')
+];
 
+const List<Widget> typeChallenge = <Widget>[
+  Text('Time limit'),
+  Text('Quiz'),
+  Text('Checkpoints'),
+  Text('Orienteering')
+];
+
+final List<bool> _selectedStatus = <bool>[false, false, true];
+final List<bool> _selectedType = <bool>[false, false, false, false];
 
 class ChallengePage extends StatefulWidget{
   ChallengePage({super.key});
@@ -22,7 +34,7 @@ class _ChallengeState extends State<ChallengePage> {
 
   @override
   Widget build(BuildContext context) {
-    bool selectedNotStarted = false;
+    //bool selectedNotStarted = false;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -33,110 +45,85 @@ class _ChallengeState extends State<ChallengePage> {
         ),
         body: Scaffold(
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(160),
+            preferredSize: Size.fromHeight(120),
             child: AppBar(
               backgroundColor: Colors.green.shade600,
               actions: [
-                OutlinedButton(
-                  onPressed: () {},
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child:OutlinedButton.icon(
+                  onPressed: () {
+                    for (int i = 0; i < _selectedStatus.length; i++) {
+                          _selectedStatus[i] = i == _selectedStatus.length-1;
+                        }
+                    for (int i = 0; i < _selectedType.length; i++) {
+                      _selectedType[i] = false;
+                    }
+                  },
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white)
+                    side: const BorderSide(color: Colors.white),
+                    minimumSize: Size(30, 20)
                   ),
-                  child: Text('clear  x', style: TextStyle(color: Colors.white),),
+                  label: Text('clear', style: TextStyle(color: Colors.white),),
+                  icon: SvgPicture.asset('assets/images/img_cross.svg')
+                  )
                 )
               ],
-
+              
               flexibleSpace: Row(
-                children: [
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  ToggleButtons(
+                    direction: Axis.vertical,
+                    onPressed: (int index) {
+                      setState(() {
+                        for (int i = 0; i < _selectedStatus.length; i++) {
+                          _selectedStatus[i] = i == index;
+                        }
+                      });
+                    },
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    borderColor: Colors.white,
+                    selectedColor: Colors.black,
+                    fillColor: Colors.white,
+                    color: Colors.white,
+                    constraints: const BoxConstraints(
+                      minHeight: 30.0,
+                      minWidth: 80.0
+                    ),
+                    isSelected: _selectedStatus,
+                    children: statusChallenge,
+                  ),]),
+
                   Column(
-                    children: [
-                      /*FilterButton(
-                        title: 'test'
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [ToggleButtons(
+                      direction: Axis.horizontal,
+                      onPressed: (int index) {
+                        setState(() {
+                          _selectedType[index] = !_selectedType[index];
+                        });
+                      },
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      borderColor: Colors.white,
+                      selectedColor: Colors.black,
+                      fillColor: Colors.white,
+                      color: Colors.white,
+                      constraints: const BoxConstraints(
+                        minHeight: 30.0,
+                        minWidth: 77.0,
                       ),
-                      
-                      TextButton(
-                        onPressed: () {}, 
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                        ),
-                        child: Text(
-                          'Ongoing', 
-                          style: 
-                          TextStyle(color: Colors.black),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {}, 
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                        ),
-                        child: Text(
-                          'All', 
-                          style: 
-                          TextStyle(color: Colors.black),
-                        ),
-                      )*/
-                    ],
-                  ),
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 30)),
-                  Column(children: [
-                    /*Padding(padding: EdgeInsets.symmetric(vertical: 23)),
-                    TextButton(
-                        onPressed: () {}, 
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                        ),
-                        child: Text(
-                          'Time limit', 
-                          style: 
-                          TextStyle(color: Colors.black),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {}, 
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                        ),
-                        child: Text(
-                          'Checkpoints', 
-                          style: 
-                          TextStyle(color: Colors.black),
-                        ),
-                      )
-                  */],),
-                  Column(children: [
-                    Padding(padding: EdgeInsets.symmetric(vertical: 23)),
-                    TextButton(
-                        onPressed: () {}, 
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                        ),
-                        child: Text(
-                          'Distance', 
-                          style: 
-                          TextStyle(color: Colors.black),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {}, 
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                        ),
-                        child: Text(
-                          'Steps', 
-                          style: 
-                          TextStyle(color: Colors.black),
-                        ),
-                      )
-                  ],),
+                      isSelected: _selectedType,
+                      children: typeChallenge,
+                    ),]
+                  )
                 ],),
 
             ),
           ),
-          body: FilterButton(
-            title: 'test',
-          )//scrollChallenges(context),
+          body: scrollChallenges(context),
         )
       
       )
@@ -147,55 +134,11 @@ class _ChallengeState extends State<ChallengePage> {
 Widget scrollChallenges(BuildContext context) {
   return ListView.separated(
     padding: const EdgeInsets.all(8),
-    itemCount: entries.length,
-    itemBuilder: (BuildContext context, int index) {
-      return Container(
-        height: 150,
-        color: Colors.amber[colorCodes[index]],
-        child: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'Challenge ${entries[index]}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30
-                  ),
-                ),
-              ),
-              Padding(padding: EdgeInsets.all(35)),
-              Row(
-                children: [ 
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Text(
-                      '0/10 checkpoints',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20
-                      ),
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 90)),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: SvgPicture.asset(
-                      'assets/images/img_arrow_right.svg',
-                      height: 20,
-                      width: 20,
-                      colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    )
-                  )
-                ],
-              )
-            ],
-          )
-        )
-      );
+    itemCount: challenges.length,
+    itemBuilder: (context, index) {
+      return challenges[index];
     },
     separatorBuilder: (BuildContext context, int index) => const Divider(),
+    
   );
 }
