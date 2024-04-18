@@ -36,7 +36,7 @@ void reset() {
   polylinePoints = PolylinePoints();
   stairsExist = false; 
   
-  /// origin marker
+  //origin marker
     _addMarker(LatLng(start.latitude, start.longitude), "origin",
         BitmapDescriptor.defaultMarker);
 }
@@ -46,6 +46,47 @@ _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
     Marker marker =
         Marker(markerId: markerId, icon: descriptor, position: position);
     markers[markerId] = marker;
+}
+
+//fetches elevation of a coordinate
+Future<double> _getElevation(LatLng coordinates) async {
+    final apiKey = YOUR_API_KEY;
+    final url = 'https://maps.googleapis.com/maps/api/elevation/json?locations=${coordinates.latitude},${coordinates.longitude}&key=$apiKey';
+    final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK' && data['results'] != null && data['results'].isNotEmpty) {
+          return data['results'][0]['elevation'];
+        } else {
+          return Future.error('Error retrieving elevation data'); 
+        }
+      } else {
+        return Future.error('Failed to load elevation data'); 
+      }
+  }
+
+Future<double> _getHilliness() async {
+  print("polyListLength:"); 
+  print(polylineCoordinates.length); 
+
+  double smallestElevation = await _getElevation(polylineCoordinates[0]);
+  double largestElevation = smallestElevation;
+
+  for (int i = 1; i < polylineCoordinates.length; i += 10) { //increments of 10 in polyline list
+    double elevation = await _getElevation(polylineCoordinates[i]);
+    if (elevation < smallestElevation) {
+      smallestElevation = elevation;
+    }
+    if (elevation > largestElevation) {
+      largestElevation = elevation;
+    }
+  }
+
+  print('Smallest Elevation: $smallestElevation');
+  print('Largest Elevation: $largestElevation');
+
+  return largestElevation - smallestElevation; 
 }
 
 Future<bool> _checkStairs(LatLng waypoint) async {
@@ -337,10 +378,15 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               reset(); 
             });
 
-            _getPolyline(start);
             inIntervall = false;  
-            stairsExist = false; 
+            stairsExist = false;
 
+            await _getPolyline(start);
+            
+
+            double hillines = await _getHilliness(); 
+            print("Total Hilliness:"); 
+            print(hillines); 
           },
         ),
       ),
