@@ -17,13 +17,12 @@ const usersRef = db.collection('users');
 // Initialize server variable
 
 const PORT = process.env.PORT || 3000;
-
 const server = express().use((req, res) => res.send("HELLO WORLD")).listen(PORT, () => console.log(`listening to port: ${PORT}`));
-
 const wss = new Server({server});
 
 wss.connectedUsers = [];
 
+const i = 0;
 // Event handler
 
 wss.on('connection', ws => {
@@ -34,14 +33,9 @@ wss.on('connection', ws => {
         msgID: "init",
         socketID: ws.id,
         signature: 0, 
-    }
-    ));
+    }));
 
     console.log('Client connected: ', ws.id);
-
-    // ws.isAlive = true;
-
-    // ws.on('pong', heartbeat);
 
     ws.on('message', function inc(data) {
         let message =  data;
@@ -52,9 +46,10 @@ wss.on('connection', ws => {
         console.log(message.data);
         switch(message.msgID) {
             case "initRes":
-                initUser(message.data);
-                console.log('added data');
-                wss.connectedUsers[0] = [message.data.signature, ws.id];
+                initUser(message.data.username, message.data);
+                console.log('=== user added to database ===');
+                wss.connectedUsers[i] = [message.data.username, ws.id];
+                i += 1;
                 break;
         }
     })

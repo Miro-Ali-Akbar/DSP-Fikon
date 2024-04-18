@@ -23,6 +23,6 @@ function generateID() {
  * @brief Enters data into a given document in database
  * @param userData data given to the function from parsed JSON-string
  */
-async function initUser(userData) {
-    await usersRef.doc("hitsu").set(userData);
+async function initUser(username, userData) {
+    await usersRef.doc(username).set(userData);
 }
