@@ -21,7 +21,7 @@ class _MainAppState extends State<MainApp> {
   int myIndex = 0; 
   final screens = [
     const StartPage(),
-    const TrailPage(),
+    TrailPage(),
     ChallengePage(), 
     const ProfilePage()
   ];
