@@ -23,7 +23,7 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   late Completer<GoogleMapController> _controller = Completer();
 
-  String googleApiKey = 'AIzaSyAbckAwu3urTMrg4Yl5Uq7cAUdKEUL20nY';
+  String googleApiKey = 'API-key';
   bool visiblePlayer = true;
 
   @override
