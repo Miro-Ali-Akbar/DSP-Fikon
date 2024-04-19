@@ -45,6 +45,11 @@ async function initUser(username, userData) {
     await usersRef.doc(username).set(userData);
 }
 
+/**
+ * @brief Gets route from database in hardcoded document
+ * @param num - Index under document from which to extract data
+ * @returns JSON-file of collected data
+ */
 async function getRoutes(num) {
     try {
         const route = await routesRef.doc("karoRoutes").get();
@@ -57,6 +62,17 @@ async function getRoutes(num) {
     }
 }
 
+/**
+ * @brief helper function to getRoutes, handles async sending and awaiting. 
+ * @param ws - webSocket through which to send stringified return value of getRoutes
+ * @param index - index passed to getRoutes to specify which one to get from db
+ */
+async function sendRoutes(ws, index) {
+    ws.send(JSON.stringify(await getRoutes(index)));
+    console.log('route sent');
+}
+
+
 // Initialize server variable
 
 const PORT = process.env.PORT || 3000;
@@ -68,10 +84,6 @@ wss.connectedUsers = [];
 let i = 0;
 // Event handler
 
-async function sendRoutes(ws, index) {
-    ws.send(JSON.stringify(await getRoutes(index)));
-    console.log('route sent');
-}
 
 wss.on('connection', ws => {
     ws.id = generateID();
