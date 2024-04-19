@@ -45,13 +45,17 @@ async function initUser(username, userData) {
     await usersRef.doc(username).set(userData);
 }
 
-async function getRoute(routeIndex) {
-    const routes = await routesRef.doc('karoRoutes').get();
-    console.log(await routes.testArr);
-    const route = await routes.testArr[routeIndex];
-    return route;
+async function getRoutes(num) {
+    try {
+        const route = await routesRef.doc("karoRoutes").get();
+        let routeData = route.data().testArr[num];
+        return { route: routeData.test, color: routeData.color };
+    } catch(error) {
+        console.log('Error: Something went wrong when fetching data.');
+        console.log(error);
+        return null;
+    }
 }
-
 
 // Initialize server variable
 
@@ -65,7 +69,7 @@ let i = 0;
 // Event handler
 
 async function sendRoutes(ws, index) {
-    ws.send(JSON.stringify(await getRoute(index)));
+    ws.send(JSON.stringify(await getRoutes(index)));
     console.log('route sent');
 }
 
@@ -86,8 +90,8 @@ wss.on('connection', ws => {
 
         message = JSON.parse(message);
 
-        console.log(message);
-        console.log(message.data);
+        console.log('1: ', message);
+        console.log('2: ', message.data);
         switch(message.msgID) {
             case "initRes":
                 initUser(message.data.username, message.data);
