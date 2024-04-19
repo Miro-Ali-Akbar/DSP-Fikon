@@ -1,3 +1,5 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -32,7 +34,7 @@ class ChallengePage extends StatefulWidget{
 }
 
 class _ChallengeState extends State<ChallengePage> {
-  bool selected = false;
+  int score = 1000;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,12 @@ class _ChallengeState extends State<ChallengePage> {
 
       home: Scaffold(
         appBar: AppBar(
-          leading: Text('Your score: n'),
+          title: AutoSizeText('Your score is $score',
+          style: TextStyle(fontSize: 20.0),
+              maxLines: 2,
+              minFontSize: 15.0,
+              overflow: TextOverflow.ellipsis,
+          ),
           actions: <Widget>[
             TextButton.icon(
               onPressed: (){
@@ -64,7 +71,26 @@ class _ChallengeState extends State<ChallengePage> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
               )
-            ,)
+            ),
+            Padding(
+              padding: EdgeInsets.only(right: 5),
+              child: TextButton.icon(
+                onPressed: (){}, 
+                label: Text('Leaderboard',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20
+                ),),
+                icon: SvgPicture.asset('assets/images/img_group.svg'),
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.green.shade600,
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                )
+              ,),
+            )
           ],
         ),
         body: Padding(
@@ -110,7 +136,7 @@ class _ChallengeState extends State<ChallengePage> {
                           }
                         });
                       },
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
                       borderColor: Colors.white,
                       selectedColor: Colors.black,
                       fillColor: Colors.white,
