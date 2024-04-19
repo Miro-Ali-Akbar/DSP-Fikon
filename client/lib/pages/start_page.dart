@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -23,7 +22,7 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   late Completer<GoogleMapController> _controller = Completer();
 
-  String googleApiKey = 'API-key';
+  String googleApiKey = 'YOUR-API-KEY';
   bool visiblePlayer = true;
 
   @override
