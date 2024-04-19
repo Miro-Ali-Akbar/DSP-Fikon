@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.0.9
   flutter_animated_button: ^2.0.3
+  google_maps_flutter: ^2.6.1
+  permission_handler: ^11.3.1
 
   cupertino_icons: ^1.0.6
   google_maps_flutter: ^2.6.0
