@@ -34,96 +34,115 @@ class _ChallengeState extends State<ChallengePage> {
 
   @override
   Widget build(BuildContext context) {
-    //bool selectedNotStarted = false;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Challenges'),
+          leading: Text('Your score: n'),
+          actions: <Widget>[
+            TextButton.icon(
+              onPressed: (){}, 
+              label: Text('Leaderboard',
+              style: TextStyle(
+                color: Colors.white
+              ),),
+              icon: SvgPicture.asset('assets/images/img_group.svg'),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.green.shade600,
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              )
+            ,)
+          ],
         ),
-        body: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(120),
-            child: AppBar(
-              backgroundColor: Colors.green.shade600,
-              actions: [
-                Directionality(
-                  textDirection: TextDirection.rtl,
-                  child:OutlinedButton.icon(
-                  onPressed: () {
-                    for (int i = 0; i < _selectedStatus.length; i++) {
-                          _selectedStatus[i] = i == _selectedStatus.length-1;
-                        }
-                    for (int i = 0; i < _selectedType.length; i++) {
-                      _selectedType[i] = false;
-                    }
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
-                    minimumSize: Size(30, 20)
-                  ),
-                  label: Text('clear', style: TextStyle(color: Colors.white),),
-                  icon: SvgPicture.asset('assets/images/img_cross.svg')
-                  )
-                )
-              ],
-              
-              flexibleSpace: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                  ToggleButtons(
-                    direction: Axis.vertical,
-                    onPressed: (int index) {
-                      setState(() {
-                        for (int i = 0; i < _selectedStatus.length; i++) {
-                          _selectedStatus[i] = i == index;
-                        }
-                      });
+        body: Padding(
+          padding: EdgeInsets.only(top: 5),
+          child: Scaffold(
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(120),
+              child: AppBar(
+                backgroundColor: Colors.green.shade600,
+                actions: [
+                  Directionality(
+                    textDirection: TextDirection.rtl,
+                    child:OutlinedButton.icon(
+                    onPressed: () {
+                      for (int i = 0; i < _selectedStatus.length; i++) {
+                            _selectedStatus[i] = i == _selectedStatus.length-1;
+                          }
+                      for (int i = 0; i < _selectedType.length; i++) {
+                        _selectedType[i] = false;
+                      }
                     },
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    borderColor: Colors.white,
-                    selectedColor: Colors.black,
-                    fillColor: Colors.white,
-                    color: Colors.white,
-                    constraints: const BoxConstraints(
-                      minHeight: 30.0,
-                      minWidth: 80.0
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.white),
+                      minimumSize: Size(30, 20)
                     ),
-                    isSelected: _selectedStatus,
-                    children: statusChallenge,
-                  ),]),
-
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [ToggleButtons(
-                      direction: Axis.horizontal,
+                    label: Text('clear', style: TextStyle(color: Colors.white),),
+                    icon: SvgPicture.asset('assets/images/img_cross.svg')
+                    )
+                  )
+                ],
+                
+                flexibleSpace: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                    ToggleButtons(
+                      direction: Axis.vertical,
                       onPressed: (int index) {
                         setState(() {
-                          _selectedType[index] = !_selectedType[index];
+                          for (int i = 0; i < _selectedStatus.length; i++) {
+                            _selectedStatus[i] = i == index;
+                          }
                         });
                       },
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
                       borderColor: Colors.white,
                       selectedColor: Colors.black,
                       fillColor: Colors.white,
                       color: Colors.white,
                       constraints: const BoxConstraints(
                         minHeight: 30.0,
-                        minWidth: 77.0,
+                        minWidth: 80.0
                       ),
-                      isSelected: _selectedType,
-                      children: typeChallenge,
-                    ),]
-                  )
-                ],),
-
+                      isSelected: _selectedStatus,
+                      children: statusChallenge,
+                    ),]),
+          
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [ToggleButtons(
+                        direction: Axis.horizontal,
+                        onPressed: (int index) {
+                          setState(() {
+                            _selectedType[index] = !_selectedType[index];
+                          });
+                        },
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        borderColor: Colors.white,
+                        selectedColor: Colors.black,
+                        fillColor: Colors.white,
+                        color: Colors.white,
+                        constraints: const BoxConstraints(
+                          minHeight: 30.0,
+                          minWidth: 77.0,
+                        ),
+                        isSelected: _selectedType,
+                        children: typeChallenge,
+                      ),]
+                    )
+                  ],),
+          
+              ),
             ),
+            body: scrollChallenges(context),
           ),
-          body: scrollChallenges(context),
         )
       
       )

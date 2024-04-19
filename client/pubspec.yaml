@@ -28,6 +28,7 @@ flutter:
     - assets/images/img_filter.svg
     - assets/images/img_arrow_right.svg
     - assets/images/img_cross.svg
+    - assets/images/img_group.svg
     
 #  fonts:
 #  - family: InterRegular
