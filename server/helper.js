@@ -26,3 +26,8 @@ function generateID() {
 async function initUser(username, userData) {
     await usersRef.doc(username).set(userData);
 }
+
+async function getRoute(routeIndex) {
+    const route = await routesRef.doc('karoRoutes').get()[routeIndex];
+    return route;
+}
