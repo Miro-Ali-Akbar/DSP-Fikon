@@ -1,18 +1,18 @@
 import 'dart:async';
-import 'dart:ffi';
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_routes/google_maps_routes.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http; 
 import 'dart:convert';
 import 'dart:collection';
-import 'api_key.dart'; 
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dart:math'; 
-import 'package:flutter_map_math/flutter_geo_math.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_routes/google_maps_routes.dart';
+
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http; 
+
+import 'api_key.dart'; 
 
 String totalDistance = 'No Route'; 
 bool inIntervall = false; 
@@ -22,12 +22,9 @@ List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
 bool stairsExist = false; 
 
+String googleAPiKey = YOUR_API_KEY;
+
 const start = LatLng(59.85444306179348, 17.63943133739685);
-
-
-//void main() {
-//  runApp(const Genreated_map());
-//}
 
 void reset() {
   markers = {}; 
@@ -68,7 +65,7 @@ Future<double> _getElevation(LatLng coordinates) async {
 
 Future<double> _getHilliness() async {
   print("polyListLength:"); 
-  print(polylineCoordinates.length); 
+  print(polylineCoordinates.length); //ususally about 80-150 points
 
   double smallestElevation = await _getElevation(polylineCoordinates[0]);
   double largestElevation = smallestElevation;
@@ -226,11 +223,57 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
  
   if (routeDistance > routeLength * 1000 - 2000 && routeDistance < routeLength * 1000 + 2000) { //+- 500m //TODO: edit!
     inIntervall = true; 
-    totalDistance = routeDistance.toString(); 
+    totalDistance = routeDistance.toString(); //TODO: place somewhere useful when such exists
   } 
 
   return wayPoints;
 }
+
+_addPolyLine() {
+ PolylineId id = PolylineId("poly");
+ Polyline polyline = Polyline(
+     polylineId: id, color: Colors.red, points: polylineCoordinates);
+ polylines[id] = polyline;
+}
+
+Future<void> _getPolyline(LatLng start) async {
+  List<PolylineWayPoint> points = []; 
+  //while (!inIntervall) {
+  //  points = await _getWayPoints(start); 
+  //}
+  //TODO: for/while? ^
+  for (int i = 0; i < 5; i++) {
+    if (!inIntervall) {
+      points = await _getWayPoints(start); 
+    }
+
+    if (stairsExist) {
+      print("STAIRS FOUND ON ROUTE, RETRYING..."); 
+      stairsExist = false; 
+      inIntervall = false; 
+      points = await _getWayPoints(start); 
+    }
+  }
+
+  if (!inIntervall) {
+    totalDistance = 'Failed'; 
+    points = []; 
+    reset(); 
+  }
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        googleAPiKey,
+        PointLatLng(start.latitude, start.longitude),
+        PointLatLng(start.latitude, start.longitude),
+        travelMode: TravelMode.walking,
+        wayPoints: points); // [PolylineWayPoint(location: "59.85750437916374,17.62851763603763"), PolylineWayPoint(location: point1.latitude.toString()+","+point1.longitude.toString())]);
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
+  }
 
 
 class Genreated_map extends StatelessWidget {
@@ -265,8 +308,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     mapController = controller;
   }
   
-  String googleAPiKey = YOUR_API_KEY;
-
   DistanceCalculator distanceCalculator = DistanceCalculator();
 
   @override
@@ -276,54 +317,20 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     // origin marker
     _addMarker(LatLng(start.latitude, start.longitude), "origin",
         BitmapDescriptor.defaultMarker);
-  }  
 
-  _addPolyLine() {
-    PolylineId id = PolylineId("poly");
-    Polyline polyline = Polyline(
-        polylineId: id, color: Colors.red, points: polylineCoordinates);
-    polylines[id] = polyline;
+    _asyncMethod(); 
+  }
+
+  _asyncMethod() async {
+    await _getPolyline(start);
+
     setState(() {});
+            
+    double hillines = await _getHilliness(); //TODO: place somewhere useful when such exists
+    print("Total Hilliness:"); 
+    print(hillines); 
   }
-
- Future<void> _getPolyline(LatLng start) async {
-  List<PolylineWayPoint> points = []; 
-  //while (!inIntervall) {
-  //  points = await _getWayPoints(start); 
-  //}
-  //TODO: for/while? ^
-  for (int i = 0; i < 5; i++) {
-    if (!inIntervall) {
-      points = await _getWayPoints(start); 
-    }
-
-    if (stairsExist) {
-      print("STAIRS FOUND ON ROUTE, RETRYING..."); 
-      stairsExist = false; 
-      points = await _getWayPoints(start); 
-    }
-  }
-
-  if (!inIntervall) {
-    totalDistance = 'Failed'; 
-    points = []; 
-    reset(); 
-  }
-
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        googleAPiKey,
-        PointLatLng(start.latitude, start.longitude),
-        PointLatLng(start.latitude, start.longitude),
-        travelMode: TravelMode.walking,
-        wayPoints: points); // [PolylineWayPoint(location: "59.85750437916374,17.62851763603763"), PolylineWayPoint(location: point1.latitude.toString()+","+point1.longitude.toString())]);
-    if (result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      });
-    }
-    _addPolyLine();
-  }
-
+    
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -365,14 +372,15 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                   ),
                   child: Align(
                     alignment: Alignment.center,
-                    child: Text(totalDistance.toString(), style: const TextStyle(fontSize: 25.0)),
+                    child: Text(totalDistance.toString(), style: const TextStyle(fontSize: 25.0)), //totalDistance for the route
                   ),
                 ),
               ),
             ), 
           ],
         ),
-        floatingActionButton: FloatingActionButton( 
+        floatingActionButton: FloatingActionButton.extended( 
+          label: Text("Retry?"),
           onPressed: () async { 
 
             setState(() {
@@ -383,13 +391,14 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
             stairsExist = false;
 
             await _getPolyline(start);
-            
+
+            setState(() {}); 
 
             double hillines = await _getHilliness(); 
             print("Total Hilliness:"); 
             print(hillines); 
           },
-        ),
+        ), 
       ),
     );
   }
