@@ -1,0 +1,36 @@
+name: trailquest
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.2 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.10+1
+  flutter_animated_button: ^2.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+ 
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/img_home.svg
+    - assets/images/img_trails.svg
+    - assets/images/img_trophy.svg
+    - assets/images/img_profile.svg
+    - assets/images/arrow-sm-left-svgrepo-com (1).svg
+    - assets/images/img_filter.svg
+    - assets/images/img_arrow_right.svg
+    - assets/images/img_cross.svg
+    
+#  fonts:
+#  - family: InterRegular
+#    fonts: 
+#      - asset: assets/fonts/InterRegular.ttf
+#      - weight: 400
