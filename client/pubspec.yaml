@@ -28,6 +28,13 @@ flutter:
     - assets/images/img_filter.svg
     - assets/images/img_arrow_right.svg
     - assets/images/img_cross.svg
+    - assets/images/img_route.svg
+    - assets/images/img_trees.svg
+    - assets/images/img_city.svg
+    - assets/images/img_house_and_tree.svg
+    - assets/images/img_park.svg
+    - assets/images/img_round_arrow.svg
+    - assets/images/img_circular_arrow.svg
     
 #  fonts:
 #  - family: InterRegular
