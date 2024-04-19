@@ -26,6 +26,9 @@ flutter:
     - assets/images/img_profile.svg
     - assets/images/arrow-sm-left-svgrepo-com (1).svg
     - assets/images/img_filter.svg
+    - assets/images/img_arrow_right.svg
+    - assets/images/img_cross.svg
+    
 #  fonts:
 #  - family: InterRegular
 #    fonts: 
