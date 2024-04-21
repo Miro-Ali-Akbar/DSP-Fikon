@@ -72,25 +72,6 @@ class _ChallengeState extends State<ChallengePage> {
                 ),
               )
             ),
-            Padding(
-              padding: EdgeInsets.only(right: 5),
-              child: TextButton.icon(
-                onPressed: (){}, 
-                label: Text('Leaderboard',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20
-                ),),
-                icon: SvgPicture.asset('assets/images/img_group.svg'),
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                )
-              ,),
-            )
           ],
         ),
         body: Padding(
