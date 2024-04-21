@@ -12,6 +12,7 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_svg: ^2.0.9
   flutter_animated_button: ^2.0.3
+  web_socket_channel: ^2.1.0
   google_maps_flutter: ^2.6.1
   permission_handler: ^11.3.1
 
