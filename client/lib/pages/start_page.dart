@@ -1,3 +1,5 @@
+import 'package:trailquest/global_vars.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -22,7 +24,7 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   late Completer<GoogleMapController> _controller = Completer();
 
-  String googleApiKey = 'YOUR-API-KEY';
+  String googleApiKey = googleMapsKey;
   bool visiblePlayer = true;
 
   @override
