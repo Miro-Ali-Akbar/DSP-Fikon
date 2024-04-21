@@ -9,9 +9,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^2.0.10+1
+  flutter_svg: ^2.0.9
   flutter_animated_button: ^2.0.3
   web_socket_channel: ^2.1.0
+  google_maps_flutter: ^2.6.1
+  permission_handler: ^11.3.1
+
+  cupertino_icons: ^1.0.6
+  geolocator: ^11.0.0
+  google_maps_routes: ^1.1.2
+  http: ^0.13.6 
+  flutter_polyline_points: ^1.0.0
 
 dev_dependencies:
   flutter_test:

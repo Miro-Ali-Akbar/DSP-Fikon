@@ -14,6 +14,65 @@ const db = getFirestore();
 
 const usersRef = db.collection('users');
 
+const routesRef = db.collection('routes');
+
+
+// Server helper functions
+
+/**
+ * @brief Updates alive-status of a socket.
+ */
+function heartbeat() {
+    this.isAlive = true;
+}
+
+/**
+ * @brief ID generation for new websockets
+ * @returns generated user ID
+ */
+function generateID() {
+    return Math.floor((1 + Math.random()) * 0x10000);
+}
+
+
+// Database helper functions
+
+/**
+ * @brief Enters data into a given document in database
+ * @param userData data given to the function from parsed JSON-string
+ */
+async function initUser(username, userData) {
+    await usersRef.doc(username).set(userData);
+}
+
+/**
+ * @brief Gets route from database in hardcoded document
+ * @param num - Index under document from which to extract data
+ * @returns JSON-file of collected data
+ */
+async function getRoutes(num) {
+    try {
+        const route = await routesRef.doc("karoRoutes").get();
+        let routeData = route.data().testArr[num];
+        return { route: routeData.test, color: routeData.color };
+    } catch(error) {
+        console.log('Error: Something went wrong when fetching data.');
+        console.log(error);
+        return null;
+    }
+}
+
+/**
+ * @brief helper function to getRoutes, handles async sending and awaiting. 
+ * @param ws - webSocket through which to send stringified return value of getRoutes
+ * @param index - index passed to getRoutes to specify which one to get from db
+ */
+async function sendRoutes(ws, index) {
+    ws.send(JSON.stringify(await getRoutes(index)));
+    console.log('route sent');
+}
+
+
 // Initialize server variable
 
 const PORT = process.env.PORT || 3000;
@@ -22,8 +81,9 @@ const wss = new Server({server});
 
 wss.connectedUsers = [];
 
-const i = 0;
+let i = 0;
 // Event handler
+
 
 wss.on('connection', ws => {
     ws.id = generateID();
@@ -42,14 +102,18 @@ wss.on('connection', ws => {
 
         message = JSON.parse(message);
 
-        console.log(message);
-        console.log(message.data);
+        console.log('1: ', message);
+        console.log('2: ', message.data);
         switch(message.msgID) {
             case "initRes":
                 initUser(message.data.username, message.data);
                 console.log('=== user added to database ===');
                 wss.connectedUsers[i] = [message.data.username, ws.id];
-                i += 1;
+                i = i + 1;
+                break;
+            case "routesReq":
+                let index = message.data.index;
+                sendRoutes(ws, index);
                 break;
         }
     })
