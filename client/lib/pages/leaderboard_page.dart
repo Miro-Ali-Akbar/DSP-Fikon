@@ -5,7 +5,16 @@ import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
 
+
+
+
 class Leaderboard extends StatelessWidget {
+
+  final List<String> myList;
+
+  // Constructor to receive the list
+  Leaderboard(this.myList);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,9 +27,14 @@ class Leaderboard extends StatelessWidget {
             )
           )
         ),
-        body: Column(children: [
-          
-        ],
+        //attempt att displaying a list not tested yet
+        body: ListView.builder(
+          itemCount: myList.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(myList[index]),
+            );
+          }
         )
       )
     );

@@ -6,6 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/pages/leaderboard_page.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
+import 'package:trailquest/main.dart';
+import 'dart:convert';
 
 
 
@@ -53,11 +55,21 @@ class _ChallengeState extends State<ChallengePage> {
           actions: <Widget>[
             TextButton.icon(
               onPressed: (){
-                Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-                pageBuilder: (context, x, xx) => Leaderboard(),
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-                ));
+                 try {
+                  channel?.sink.add(jsonString);
+                  channel?.stream.listen((jsonString) {
+                    List<String> stringList = (jsonDecode(jsonString) as List<dynamic>).cast<String>();
+                    channel?.sink.close();
+                    Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+                    pageBuilder: (context, x, xx) => Leaderboard(stringList),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                    ));
+                  });
+                } catch (e) {
+                  print(e);
+                }
+                
               }, 
               label: Text('Leaderboard',
               style: TextStyle(

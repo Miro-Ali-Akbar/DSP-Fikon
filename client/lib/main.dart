@@ -9,6 +9,7 @@ import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 WebSocketChannel? channel;
+var jsonString = '';
 
 void main() {
   channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
