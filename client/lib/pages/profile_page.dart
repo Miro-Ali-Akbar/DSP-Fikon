@@ -74,35 +74,67 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
             // https://api.flutter.dev/flutter/material/ExpansionTile-class.html
-            ExpansionTile(title: const Text("Preferences"), children: <Widget>[
-              Builder(builder: (BuildContext context) {
-                return Container(
-                  padding: const EdgeInsets.all(24),
-                  alignment: Alignment.center,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      ListTile(
-                        title: Text('Button 1'),
-                        onTap: () {
-                          // Do something when Button
-                        },
-                      ),
-                      ListTile(
-                        title: Text('Button 2'),
-                        onTap: () {
-                          // Do something when Button
-                        },
-                      ),
-                      // Add more buttons as needed
-                    ],
+            DropdownTile(
+              "Preferences",
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Button 1'),
+                    onTap: () {
+                      // Do something when Button
+                    },
                   ),
-                );
-              },),
-            ],),
+                  ListTile(
+                    title: Text('Button 2'),
+                    onTap: () {
+                      // Do something when Button
+                    },
+                  ),
+                  // Add more buttons as needed
+                ],
+              ),
+            ),
             Text("data"),
             // add firebase api
             // const SignOutButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container DropdownTile(String Name, Column Buttons) {
+    const edgeValue = 20.0;
+    return Container(
+      margin: EdgeInsets.all(edgeValue),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(edgeValue),
+        ),
+        color: Colors.green,
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          title: Text(Name),
+          children: <Widget>[
+            Builder(
+              builder: (BuildContext context) {
+                return Container(
+                  margin: EdgeInsets.all(0),
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(edgeValue),
+                      bottomRight: Radius.circular(edgeValue),
+                    ),
+                  ),
+                  // alignment: Alignment.center,
+                  child: Buttons,
+                );
+              },
+            ),
           ],
         ),
       ),
