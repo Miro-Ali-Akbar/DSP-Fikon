@@ -9,7 +9,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool isExpanded = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -74,44 +73,33 @@ class _ProfilePageState extends State<ProfilePage> {
                 // Do something when you click on a friend eg take them to friend page?
               },
             ),
-            Container(
-              width: ProfilePage.dropDownWidth,
-              padding: EdgeInsets.all(5.0),
-              child: OutlinedButton(
-                child: Row(
-                  children: [
-                    Text('Friends',
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    Spacer(),
-                    Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-                  ],
-                ),
-                onPressed: () {
-                  setState(() {
-                    isExpanded = !isExpanded;
-                  });
-                },
-              ),
-            ),
-            if (isExpanded)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  ListTile(
-                    title: Text('Button 3'),
-                    onTap: () {
-                      // Do something when Button 3 is pressed
-                    },
+            // https://api.flutter.dev/flutter/material/ExpansionTile-class.html
+            ExpansionTile(title: const Text("Preferences"), children: <Widget>[
+              Builder(builder: (BuildContext context) {
+                return Container(
+                  padding: const EdgeInsets.all(24),
+                  alignment: Alignment.center,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      ListTile(
+                        title: Text('Button 1'),
+                        onTap: () {
+                          // Do something when Button
+                        },
+                      ),
+                      ListTile(
+                        title: Text('Button 2'),
+                        onTap: () {
+                          // Do something when Button
+                        },
+                      ),
+                      // Add more buttons as needed
+                    ],
                   ),
-                  ListTile(
-                    title: Text('Button 4'),
-                    onTap: () {
-                      // Do something when Button 4 is pressed
-                    },
-                  ),
-                  // Add more buttons as needed
-                ],
-              ),
+                );
+              },),
+            ],),
             Text("data"),
             // add firebase api
             // const SignOutButton(),
