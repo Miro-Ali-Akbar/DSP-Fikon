@@ -124,6 +124,7 @@ let i = 0;
 // Event handler
 
 // TODO: create one dynamic send and dynamic get function.
+// TODO: create a sorting function for 
 wss.on('connection', ws => {
     ws.id = generateID();
 
@@ -150,7 +151,7 @@ wss.on('connection', ws => {
                 wss.connectedUsers[i] = [message.data.username, ws.id];
                 i = i + 1;
                 break;
-            case "routesReq":
+            case "getRoute":
                 let index = message.data.index;
                 sendRoutes(ws, index);
                 break;

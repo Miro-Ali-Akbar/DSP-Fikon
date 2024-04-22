@@ -7,7 +7,7 @@ ws.onopen = () => {
     ws.send(JSON.stringify({msgID: "initRes", data: { username: "uName" } }));
 
 
-    ws.send(JSON.stringify({msgID: "getRoute"}));
+    ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
     
     ws.send(JSON.stringify({msgID: "getLeaderboard"}));
 
@@ -19,6 +19,5 @@ ws.onopen = () => {
                 console.log(message.data);
                 break;
         }
-
     });
 }
