@@ -16,6 +16,8 @@ const usersRef = db.collection('users');
 
 const routesRef = db.collection('routes');
 
+const leaderboardRef = db.collection('leaderboard');
+
 
 // Server helper functions
 
@@ -63,6 +65,23 @@ async function getRoutes(num) {
 }
 
 /**
+ * @brief Gets leaderboard array from database in document 
+ * @returns array of leaderboard
+ */
+async function getLeaderboard() {
+    try {
+        const leaderboard = await leaderboardRef.doc("leaderboard").get();
+        const lbData = leaderboard.data();
+        console.log('leaderboard:', lbData.arr);
+        return lbData.arr;
+    } catch(error) {
+        console.log('Error: Something went wrong when fetching data.');
+        console.log(error);
+        return null;
+    }
+}
+
+/**
  * @brief helper function to getRoutes, handles async sending and awaiting. 
  * @param ws - webSocket through which to send stringified return value of getRoutes
  * @param index - index passed to getRoutes to specify which one to get from db
@@ -70,6 +89,26 @@ async function getRoutes(num) {
 async function sendRoutes(ws, index) {
     ws.send(JSON.stringify(await getRoutes(index)));
     console.log('route sent');
+}
+
+/**
+ * @brief helper function to getLeaderboard, handles async sending and awaiting. 
+ * @param ws - webSocket through which to send stringified return value of getLeaderboard
+ */
+async function sendLeaderboard(ws) {
+    const leaderboard = await getLeaderboard();
+    let leaderboardMsg = {
+        msgID: "leaderboard",
+        data: {
+            user1: leaderboard[0], 
+            user2: leaderboard[1], 
+            user3: leaderboard[2], 
+            user4: leaderboard[3], 
+            user5: leaderboard[4]
+        }        
+    }
+    ws.send(JSON.stringify(leaderboardMsg));
+    console.log('leaderboard sent:', leaderboardMsg);
 }
 
 
@@ -84,7 +123,7 @@ wss.connectedUsers = [];
 let i = 0;
 // Event handler
 
-
+// TODO: create one dynamic send and dynamic get function.
 wss.on('connection', ws => {
     ws.id = generateID();
 
@@ -115,6 +154,11 @@ wss.on('connection', ws => {
                 let index = message.data.index;
                 sendRoutes(ws, index);
                 break;
+            case "getLeaderboard":
+                sendLeaderboard(ws);
+                console.log('sent leaderboard');
+                break;
+                
         }
     })
 
