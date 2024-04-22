@@ -1,8 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
-import 'package:trailquest/widgets/challenge_cards.dart';
+import 'package:trailquest/widgets/filter_buttons.dart';
 
 
 
@@ -34,7 +34,6 @@ class _ChallengeState extends State<ChallengePage> {
 
   @override
   Widget build(BuildContext context) {
-    //bool selectedNotStarted = false;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -45,7 +44,7 @@ class _ChallengeState extends State<ChallengePage> {
         ),
         body: Scaffold(
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(120),
+            preferredSize: Size.fromHeight(130),
             child: AppBar(
               backgroundColor: Colors.green.shade600,
               actions: [
@@ -97,29 +96,21 @@ class _ChallengeState extends State<ChallengePage> {
                     children: statusChallenge,
                   ),]),
 
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [ToggleButtons(
-                      direction: Axis.horizontal,
-                      onPressed: (int index) {
-                        setState(() {
-                          _selectedType[index] = !_selectedType[index];
-                        });
-                      },
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      borderColor: Colors.white,
-                      selectedColor: Colors.black,
-                      fillColor: Colors.white,
-                      color: Colors.white,
-                      constraints: const BoxConstraints(
-                        minHeight: 30.0,
-                        minWidth: 77.0,
-                      ),
-                      isSelected: _selectedType,
-                      children: typeChallenge,
-                    ),]
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: 90,
+                      width: 200,
+                      alignment: Alignment.bottomCenter,
+                      padding: EdgeInsets.only(bottom: 6),
+                      child:
+                        Expanded(
+                          child: FilterButtons()
+                        )
+                    ),
                   )
-                ],),
+                ],
+              ),
 
             ),
           ),
