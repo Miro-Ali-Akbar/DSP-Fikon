@@ -68,7 +68,7 @@ class CreateNewTrail extends StatelessWidget {
       onPressed: (){
         Navigator.push(
           context, 
-          MaterialPageRoute(builder: (context) => const Genreated_map()),
+          MaterialPageRoute(builder: (context) => const GeneratedMap()),
           );
       }, 
       style: TextButton.styleFrom(
