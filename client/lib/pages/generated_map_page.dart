@@ -7,6 +7,9 @@ import 'package:trailquest/global_vars.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
+import 'package:flutter_config/flutter_config.dart';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +20,10 @@ Map<MarkerId, Marker> markers = {};
 Map<PolylineId, Polyline> polylines = {};
 List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
+
 bool stairsExist = false;
+String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
+
 
 late LatLng start;
 
@@ -399,8 +405,4 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(GeneratedMap());
 }
