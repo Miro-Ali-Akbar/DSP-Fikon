@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:collection';
+import 'dart:io';
 import 'dart:math'; 
 
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:google_maps_routes/google_maps_routes.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http; 
 
-// import 'api_key.dart'; 
+import 'api_key.dart'; 
 
 String totalDistance = 'No Route'; 
 bool inIntervall = false; 
@@ -21,8 +22,9 @@ Map<PolylineId, Polyline> polylines = {};
 List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
 bool stairsExist = false; 
+bool natureTrail = true; 
 
-String googleAPiKey = 'YOUR_API_KEY';
+String googleAPiKey = YOUR_API_KEY;
 
 const start = LatLng(59.85444306179348, 17.63943133739685);
 
@@ -45,9 +47,59 @@ _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
     markers[markerId] = marker;
 }
 
+Future<List<PolylineWayPoint>> _getPath(String radius, double maxWaypointDistance) async {
+  List<PolylineWayPoint> wayPoints = [];
+  double routeDistance = 0; 
+
+  final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="path"](around:${radius},${start.latitude},${start.longitude});(._;>;);out;';  
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final decoded = json.decode(response.body);
+    
+    // Parse nodes
+    Map<int, LatLng> nodes = {};
+    for (var item in decoded['elements']) {
+      if (item['type'] == 'node') {
+        nodes[item['id']] = LatLng(item['lat'], item['lon']);
+      }
+    }
+
+    // Parse ways and create waypoints
+    for (var item in decoded['elements']) {
+      if (item['type'] == 'way') {
+        List<dynamic> wayNodes = item['nodes'];
+        List<LatLng> path = [];
+        for (var nodeId in wayNodes) {
+          LatLng node = nodes[nodeId]!;
+          path.add(node);
+        }
+        // Create waypoints along the path
+        for (int i = 0; i < path.length - 1; i++) {
+          double distance = await _getWalkingDistance(path[i], path[i + 1], true);
+          //print(distance); 
+          if (routeDistance <= maxWaypointDistance) {
+            // Add waypoint if distance between consecutive nodes is within threshold
+            wayPoints.add(PolylineWayPoint(location: '${path[i].latitude},${path[i].longitude}'));
+            routeDistance += distance; 
+          } else {
+            break; 
+          }
+        }
+      }
+    }
+  }
+  totalDistance = routeDistance.toString();
+  print(totalDistance); 
+  inIntervall = true; 
+    
+  return wayPoints;
+}
+
+
 //fetches elevation of a coordinate
 Future<double> _getElevation(LatLng coordinates) async {
-    final apiKey = 'YOUR-API-KEY';
+    final apiKey = YOUR_API_KEY;
     final url = 'https://maps.googleapis.com/maps/api/elevation/json?locations=${coordinates.latitude},${coordinates.longitude}&key=$apiKey';
     final response = await http.get(Uri.parse(url));
 
@@ -70,7 +122,7 @@ Future<double> _getHilliness() async {
   double smallestElevation = await _getElevation(polylineCoordinates[0]);
   double largestElevation = smallestElevation;
 
-  for (int i = 1; i < polylineCoordinates.length; i += 10) { //increments of 10 in polyline list
+  for (int i = 1; i < polylineCoordinates.length; i += 20) { //increments of 10 in polyline list
     double elevation = await _getElevation(polylineCoordinates[i]);
     if (elevation < smallestElevation) {
       smallestElevation = elevation;
@@ -126,7 +178,7 @@ Future<bool> _checkStairs(LatLng waypoint) async {
 
 // requests for distance between waypoints
 Future<double> _getWalkingDistance(LatLng origin, LatLng destination, bool noStairs) async {
-  String apiKey = 'YOUR-API-KEY'; 
+  String apiKey = YOUR_API_KEY; 
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
       'destination=${destination.latitude},${destination.longitude}&'
@@ -178,27 +230,32 @@ LatLng _parseLatLng(String locationString) {
 
 Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     List<PolylineWayPoint> wayPoints = [];
+    double routeDistance = 0; 
 
-    const routeLength = 4; 
-    const radius = routeLength / (pi + 2); 
+    double routeLength = 4; 
+    double radius = routeLength / (pi + 2); 
 
     wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
     print(start); 
 
-    int pointsCount = 4; //TODO: increase!
-    final random = Random();
-    double startDirection = random.nextDouble() * (2*pi + 1.0);
+    if (natureTrail) {
+      wayPoints = await _getPath((radius * 1000).toString(), routeLength * 1000); 
+      print("_getPath DONE"); 
+    } else {
+      int pointsCount = 5; //TODO: increase!
+      final random = Random();
+      double startDirection = random.nextDouble() * (2*pi + 1.0);
 
-    double routeDistance = 0; 
+      // calculates each new waypoint
+      for (int i = 1; i <= pointsCount; i++) {
+        //double angle = (pi * i) / (2 * pointsCount) + startDirection; //quarter circle because pi/2
+        double angle = (pi * i) / (pointsCount) + startDirection; //half circle because pi
+        double lat = start.latitude + radius * sin(angle) / 110.574;
+        double lon = start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
 
-  // calculates each new waypoint
-  for (int i = 1; i <= pointsCount; i++) {
-    double angle = (pi * i) / (2 * pointsCount) + startDirection;
-    double lat = start.latitude + radius * sin(angle) / 110.574;
-    double lon = start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
-
-    wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
-  }
+        wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
+      }
+    
 
   //LatLng guaranteedStairs = LatLng(59.85484782098098,17.64208456717594); 
   //wayPoints.add(PolylineWayPoint(location: "59.85484782098098,17.64208456717594")); //test point with guaranteed stairs
@@ -218,6 +275,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     print("Distance between waypoint $i and ${i + 1}: $distance meters");
     routeDistance += distance; 
   }
+  
 
   print(routeDistance); 
  
@@ -225,7 +283,9 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     inIntervall = true; 
     totalDistance = routeDistance.toString(); //TODO: place somewhere useful when such exists
   } 
-
+  }
+  
+  print(wayPoints[0]); 
   return wayPoints;
 }
 
@@ -260,6 +320,8 @@ Future<void> _getPolyline(LatLng start) async {
     points = []; 
     reset(); 
   }
+
+  print(points); 
 
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         googleAPiKey,
