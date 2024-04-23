@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:trailquest/pages/profile_page.dart';
 import '../widgets/back_button.dart';
 
 class GenerateTrail extends StatelessWidget{
@@ -11,6 +14,7 @@ class GenerateTrail extends StatelessWidget{
       debugShowCheckedModeBanner: false,
 
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Column( 
           children: [
             Row(
@@ -18,13 +22,15 @@ class GenerateTrail extends StatelessWidget{
                 GoBackButton().build(context),
               ],
             ),
-            Column(
-              children: [
-                PageCenter(),
-                CreateNewTrail(), 
-              ],
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [PageCenter()]
+                )
+              )
             ),
-          ]
+            CreateNewTrail(), 
+          ],
         )  
       ),
     );
@@ -50,34 +56,59 @@ class CreateNewTrail extends StatelessWidget {
   }
 }
 
-class PageCenter extends StatelessWidget {
+class PageCenter extends StatefulWidget {
+  PageCenter({super.key});
+
+  @override 
+  State<PageCenter> createState() => _PageCenterState(); 
+}
+
+class _PageCenterState extends State<PageCenter> {
+
+  bool checkedvalue = false; 
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('What activity do you want to do?', style: TextStyle(fontSize: 15)), 
-        ActivityOptions(), 
-        Text('How long do you want the trail to be?', style: TextStyle(fontSize: 15)),
-        Container(
-          child: InputField(),
-          width: 300,
-          height: 70,
-        ),
-        Text(
-          'Do you want the end point to be the same as the start point?', 
-          style: TextStyle(fontSize: 15), 
-          textAlign: TextAlign.center,),
-        TrailType(),
-        Text(
-          'Do you want to start from your current position?', 
-          style: TextStyle(fontSize: 15), 
-          textAlign: TextAlign.center,),
-        StartPointOptions(),
-        Text('What kind of enviornment do you want?', style: TextStyle(fontSize: 15)),
-        EnviornmentOptions(),
-      ],
-    );
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: [
+          Text('What activity do you want to do?', style: TextStyle(fontSize: 15)), 
+          ActivityOptions(), 
+          Text('How long do you want the trail to be?', style: TextStyle(fontSize: 15)),
+          Container(
+            child: InputField(),
+            width: 300,
+            height: 70,
+          ),
+          Text(
+            'Do you want the end point to be the same as the start point?', 
+            style: TextStyle(fontSize: 15), 
+            textAlign: TextAlign.center,),
+          TrailType(),
+          Text(
+            'Do you want to start from your current position?', 
+            style: TextStyle(fontSize: 15), 
+            textAlign: TextAlign.center,),
+          StartPointOptions(),
+          Text('What kind of enviornment do you want?', style: TextStyle(fontSize: 15)),
+          EnviornmentOptions(),
+          Row(
+            children: [
+              Checkbox(
+                value: checkedvalue,
+                onChanged: (newValue) {
+                  setState(() {
+                    checkedvalue = newValue ?? false;
+                  });
+                },
+              ),
+              Text('Make the route accessible for wheelchair users'),
+            ],
+          ),
+        ],
+      ), 
+    ); 
   }
 }
 
@@ -223,6 +254,15 @@ class _StartPointOptionsState extends State<StartPointOptions> {
             _selectedStatusStartPoint[i] = i == index;
           }
         });
+        if (_selectedStatusStartPoint[1]) {
+          //TODO: When this button is pressed a map should open to allow the user to choose a starting point. 
+          // Uncomment the following code and add the destination after the arrow. The code is tested and should work :)
+          //Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+          //  pageBuilder: (context, x, xx) => ,
+          //  transitionDuration: Duration.zero,
+          //  reverseTransitionDuration: Duration.zero,
+          //));
+        }
       },
       children: List<Widget>.generate(
         2, (index) => Padding(
@@ -299,8 +339,7 @@ class _EnvironmentOptionsState extends State<EnviornmentOptions> {
             child: Column(
               children: [
                 SvgPicture.asset(
-                  EnviornmentIcons[index], 
-                  //color: _selectedStatusEnviornment[index] ? Colors.white : Colors.black,
+                  EnviornmentIcons[index],
                   colorFilter: _selectedStatusEnviornment[index] ?
                     ColorFilter.mode(Colors.white, BlendMode.srcIn) :
                     ColorFilter.mode(Colors.black, BlendMode.srcIn),
@@ -332,11 +371,53 @@ class InputField extends StatefulWidget {
 class _InputFieldState extends State<InputField> {
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      keyboardType: TextInputType.number,
-      inputFormatters: <TextInputFormatter>[
-        FilteringTextInputFormatter.digitsOnly
-      ], // Only numbers can be entered
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: TextField(
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly
+          ],
+         ),),
+         UnitToggleButton(),
+       ], // Only numbers can be entered
+    );
+  }
+}
+
+class UnitToggleButton extends StatefulWidget {
+  UnitToggleButton({super.key}); 
+  
+  @override
+  _UnitToggleButtonState createState() => _UnitToggleButtonState();
+}
+
+class _UnitToggleButtonState extends State<UnitToggleButton> {
+  bool isMeters = true;
+
+  void toggleUnit() {
+    setState(() {
+      isMeters = !isMeters;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: toggleUnit,
+      child: Text(
+        isMeters ? 'Meters' : 'Minutes',
+        style: TextStyle(color: Colors.black),
+      ),
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        side: BorderSide(
+          color: Colors.black,
+        )
+      ),
     );
   }
 }
