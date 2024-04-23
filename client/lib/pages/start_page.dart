@@ -1,5 +1,3 @@
-import 'package:trailquest/global_vars.dart';
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
