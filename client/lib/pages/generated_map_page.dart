@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_routes/google_maps_routes.dart';
@@ -22,7 +23,7 @@ List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
 bool stairsExist = false; 
 
-String googleAPiKey = 'YOUR_API_KEY';
+String googleAPiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
 const start = LatLng(59.85444306179348, 17.63943133739685);
 
@@ -47,8 +48,7 @@ _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
 
 //fetches elevation of a coordinate
 Future<double> _getElevation(LatLng coordinates) async {
-    final apiKey = 'YOUR-API-KEY';
-    final url = 'https://maps.googleapis.com/maps/api/elevation/json?locations=${coordinates.latitude},${coordinates.longitude}&key=$apiKey';
+    final url = 'https://maps.googleapis.com/maps/api/elevation/json?locations=${coordinates.latitude},${coordinates.longitude}&key=$googleAPiKey';
     final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -126,12 +126,11 @@ Future<bool> _checkStairs(LatLng waypoint) async {
 
 // requests for distance between waypoints
 Future<double> _getWalkingDistance(LatLng origin, LatLng destination, bool noStairs) async {
-  String apiKey = 'YOUR-API-KEY'; 
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
       'destination=${destination.latitude},${destination.longitude}&'
       'mode=walking&'
-      'key=$apiKey';
+      'key=$googleAPiKey';
 
   final response = await http.get(Uri.parse(url));
 
