@@ -34,7 +34,8 @@ void reset() {
 
 void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
   MarkerId markerId = MarkerId(id);
-  Marker marker = Marker(markerId: markerId, icon: descriptor, position: position);
+  Marker marker =
+      Marker(markerId: markerId, icon: descriptor, position: position);
   markers[markerId] = marker;
 }
 
@@ -45,7 +46,9 @@ Future<double> _getElevation(LatLng coordinates) async {
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
-    if (data['status'] == 'OK' && data['results'] != null && data['results'].isNotEmpty) {
+    if (data['status'] == 'OK' &&
+        data['results'] != null &&
+        data['results'].isNotEmpty) {
       return data['results'][0]['elevation'];
     } else {
       throw Exception('Error retrieving elevation data');
@@ -98,12 +101,16 @@ Future<bool> _checkStairs(LatLng waypoint) async {
     }
     // Parse ways
     for (var item in elements) {
-      if (item['type'] == 'way' && item['tags'] != null && item['tags']['highway'] == 'steps') {
+      if (item['type'] == 'way' &&
+          item['tags'] != null &&
+          item['tags']['highway'] == 'steps') {
         if (item['nodes'] != null) {
           for (var nodeId in item['nodes']) {
             var node = nodes[nodeId];
             if (node != null) {
-              _addMarker(LatLng(node['lat'], node['lon']), item['id'].toString(),
+              _addMarker(
+                  LatLng(node['lat'], node['lon']),
+                  item['id'].toString(),
                   BitmapDescriptor.defaultMarkerWithHue(90));
             }
           }
@@ -169,7 +176,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   const routeLength = 4;
   const radius = routeLength / (pi + 2);
 
-  wayPoints.add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
+  wayPoints
+      .add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
   print(start);
 
   int pointsCount = 4; //TODO: increase!
@@ -182,9 +190,10 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   for (int i = 1; i <= pointsCount; i++) {
     double angle = (pi * i) / (2 * pointsCount) + startDirection;
     double lat = start.latitude + radius * sin(angle) / 110.574;
-    double lon = start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
+    double long =
+        start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
 
-    wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
+    wayPoints.add(PolylineWayPoint(location: "$lat,$long"));
   }
 
   // Calculates distance between each waypoint
@@ -206,7 +215,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       routeDistance < routeLength * 1000 + 2000) {
     // +- 500m //TODO: edit!
     inIntervall = true;
-    totalDistance = routeDistance.toString(); //TODO: place somewhere useful when such exists
+    totalDistance = routeDistance
+        .toString(); //TODO: place somewhere useful when such exists
   }
 
   return wayPoints;
@@ -279,7 +289,14 @@ class MapsRoutesExample extends StatefulWidget {
 }
 
 class _MapsRoutesExampleState extends State<MapsRoutesExample> {
-  late GoogleMapController mapController;
+  // late GoogleMapController mapController;
+  late Completer<GoogleMapController> _controller = Completer();
+
+    Future<void> centerScreen(Position position) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(
+        CameraUpdate.newLatLngZoom(LatLng(position.latitude, position.longitude), 15));
+  }
 
   @override
   void initState() {
@@ -307,7 +324,8 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
     setState(() {});
 
-    double hillines = await _getHilliness(); //TODO: place somewhere useful when such exists
+    double hillines =
+        await _getHilliness(); //TODO: place somewhere useful when such exists
     print("Total Hilliness:");
     print(hillines);
   }
@@ -333,7 +351,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               markers: Set<Marker>.of(markers.values),
               polylines: Set<Polyline>.of(polylines.values),
               onMapCreated: (GoogleMapController controller) {
-                mapController = controller;
+                _controller.complete(controller);
               },
             ),
           ),
@@ -350,7 +368,8 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                 ),
                 child: Align(
                   alignment: Alignment.center,
-                  child: Text(totalDistance.toString(), style: const TextStyle(fontSize: 25.0)),
+                  child: Text(totalDistance.toString(),
+                      style: const TextStyle(fontSize: 25.0)),
                 ),
               ),
             ),
@@ -364,10 +383,12 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
             reset();
           });
 
+
           inIntervall = false;
           stairsExist = false;
 
           await _getPolyline(start);
+          centerScreen(await Geolocator.getCurrentPosition());
 
           setState(() {});
 
