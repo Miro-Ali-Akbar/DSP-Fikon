@@ -3,6 +3,10 @@ import 'package:flutter_svg/svg.dart';
 
 final List<String> challengeTypes = <String>['Checkpoints', 'Quiz', 'Orienteering'];
 
+/**
+ * Creates the cards that will be visible on the challenge page and start page.
+ * As of now, the accepted types are 'Checkpoints', 'Orienteering' and 'Quiz' but it's likely that Quiz will be substituted for 'Straight line'
+ */
 
 class ChallengeCard extends StatefulWidget{
   final String type;
@@ -30,6 +34,7 @@ class _CardState extends State<ChallengeCard> {
     if(widget.type == 'Checkpoints') {
       return GestureDetector(
         onTap:() {
+          // This is where we can add navigation to the page that will display more detailed information about the challenge
           setState(() {
             count++;
           });
@@ -91,6 +96,7 @@ class _CardState extends State<ChallengeCard> {
     else if(widget.type == 'Quiz') {
       return GestureDetector(
         onTap:() {
+          // This is where we can add navigation to the page that will display more detailed information about the challenge
           setState(() {
             count++;
           });
@@ -152,6 +158,7 @@ class _CardState extends State<ChallengeCard> {
     else if(widget.type == 'Orienteering') {
       return GestureDetector(
         onTap:() {
+          // This is where we can add navigation to the page that will display more detailed information about the challenge
           setState(() {
             count++;
           });
@@ -208,6 +215,7 @@ class _CardState extends State<ChallengeCard> {
       );
     }
     else {
+      // A default challenge that does not belong to any of the given types, not meant to actually be used
       return GestureDetector(
         onTap:() {},
         child: Container(

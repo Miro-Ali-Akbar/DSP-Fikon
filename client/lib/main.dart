@@ -1,3 +1,7 @@
+import 'package:trailquest/global_vars.dart';
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
@@ -5,8 +9,13 @@ import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/pages/profile_page.dart';
 import 'package:trailquest/pages/start_page.dart';
 import 'package:trailquest/pages/trail_page.dart';
+import 'package:web_socket_channel/status.dart' as status;
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+WebSocketChannel? channel;
 
 void main() {
+  channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
   runApp(const MainApp());
 }
 
@@ -16,6 +25,7 @@ class MainApp extends StatefulWidget {
   @override
   State<MainApp> createState() => _MainAppState();
 }
+
 
 class _MainAppState extends State<MainApp> {
   int myIndex = 0; 

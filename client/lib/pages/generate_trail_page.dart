@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/profile_page.dart';
 import '../widgets/back_button.dart';
+import 'generated_map_page.dart'; 
+
 
 class GenerateTrail extends StatelessWidget{
 
@@ -43,7 +45,12 @@ class CreateNewTrail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: null, 
+      onPressed: (){
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const Genreated_map()),
+          );
+      }, 
       style: TextButton.styleFrom(
         backgroundColor: Colors.green,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
