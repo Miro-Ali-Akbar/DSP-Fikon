@@ -113,11 +113,9 @@ class _ChallengeState extends State<ChallengePage> {
                     width: 200,
                     alignment: Alignment.bottomCenter,
                     padding: EdgeInsets.only(bottom: 6),
-                    child: 
-                      Expanded(
-                        child: FilterButtons(selected: _selectedType,)
-                      )
-                    ),
+                    child: FilterButtons(
+                      selected: _selectedType,
+                    )),
                   )
                 ],
               ),
