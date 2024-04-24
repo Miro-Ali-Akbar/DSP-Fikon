@@ -15,7 +15,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 WebSocketChannel? channel;
 
 void main() {
-  channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
+  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
   runApp(const MainApp());
 }
 
