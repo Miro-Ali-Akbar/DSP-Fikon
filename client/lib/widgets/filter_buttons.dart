@@ -25,7 +25,7 @@ class _FilterState extends State<FilterButtons> {
       physics: NeverScrollableScrollPhysics(),
       childAspectRatio: 5/2,
       crossAxisCount: 2,
-      // If we want to add more challenges, this is where we do it
+      // If we want to add more filters, this is where we do it
       children: [
         Text('Time limit'),
         Text('Quiz'),
