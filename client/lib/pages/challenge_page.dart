@@ -59,12 +59,14 @@ class _ChallengeState extends State<ChallengePage> {
                   // 'clear' button that should unselect all selected filters
                   child:OutlinedButton.icon(
                     onPressed: () {
-                      for (int i = 0; i < _selectedStatus.length; i++) {
+                      setState(() {
+                        for (int i = 0; i < _selectedStatus.length; i++) {
                           _selectedStatus[i] = i == _selectedStatus.length-1;
-                      }
-                      for (int i = 0; i < _selectedType.length; i++) {
-                        _selectedType[i] = false;
-                      }
+                        }
+                        for (int i = 0; i < _selectedType.length; i++) {
+                          _selectedType[i] = false;
+                        }
+                      });
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.white),
