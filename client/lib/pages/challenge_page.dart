@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge_cards.dart';
 import 'package:trailquest/widgets/filter_buttons.dart';
 
 /**
@@ -19,7 +20,7 @@ final List<bool> _selectedStatus = <bool>[false, false, true];
 
 
 //Filter buttons for the type of challenge
-const List<Widget> typeChallenge = <Widget>[
+const List<Text> typeChallenge = <Text>[
   Text('Time limit'),
   Text('Quiz'),
   Text('Checkpoints'),
@@ -132,12 +133,41 @@ class _ChallengeState extends State<ChallengePage> {
 
 // Creates the scrollable view of challenge cards
 Widget scrollChallenges(BuildContext context) {
+  List<ChallengeCard> current = filterChallenges(context, challenges);
   return ListView.separated(
     padding: const EdgeInsets.all(8),
-    itemCount: challenges.length,
+    itemCount: current.length,
     itemBuilder: (context, index) {
-      return challenges[index];
+      return current[index];
     },
     separatorBuilder: (BuildContext context, int index) => const Divider(),
   );
+}
+
+List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> list) {
+  List<String?> activeTypes = [];
+  for(int i = 0; i < _selectedType.length; i++) {
+    if(_selectedType[i]) { 
+      String? type = typeChallenge[i].data;
+      activeTypes.add(type);
+    }
+  }
+
+  if(activeTypes.length == 0) {
+    return list;
+  } else {
+    List<ChallengeCard> filteredChallenges = [];
+    for(int i = 0; i < list.length; i++) {
+      for(int j = 0; j < activeTypes.length; j++) {
+        if(activeTypes[j] == list[i].type) {
+        filteredChallenges.add(list[i]);
+        }
+      }
+    }
+    if(filteredChallenges.length == 0) {
+      return list;
+    } else {
+      return filteredChallenges;
+    }
+  }
 }
