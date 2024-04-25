@@ -18,8 +18,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
   await FlutterConfig.loadEnvVariables();
   var googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
-  channel =
-      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
   runApp(const MainApp());
 }
 
