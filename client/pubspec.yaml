@@ -20,6 +20,7 @@ dependencies:
   google_maps_routes: ^1.1.2
   http: ^0.13.6 
   flutter_polyline_points: ^1.0.0
+  flutter_config: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -37,6 +38,13 @@ flutter:
     - assets/images/img_filter.svg
     - assets/images/img_arrow_right.svg
     - assets/images/img_cross.svg
+    - assets/images/img_route.svg
+    - assets/images/img_trees.svg
+    - assets/images/img_city.svg
+    - assets/images/img_house_and_tree.svg
+    - assets/images/img_park.svg
+    - assets/images/img_round_arrow.svg
+    - assets/images/img_circular_arrow.svg
     
 #  fonts:
 #  - family: InterRegular

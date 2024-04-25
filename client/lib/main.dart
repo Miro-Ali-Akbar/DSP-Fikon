@@ -1,5 +1,4 @@
-import 'package:trailquest/global_vars.dart';
-
+import 'package:flutter_config/flutter_config.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -14,7 +13,11 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 WebSocketChannel? channel;
 
-void main() {
+void main() async {
+  // https://pub.dev/packages/flutter_config
+  WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
+  await FlutterConfig.loadEnvVariables();
+  var googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
   channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
   runApp(const MainApp());
 }
