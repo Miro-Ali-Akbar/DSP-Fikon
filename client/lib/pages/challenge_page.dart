@@ -10,8 +10,6 @@ import 'package:trailquest/main.dart';
 import 'dart:convert';
 
 
-
-
 const List<Widget> statusChallenge = <Widget>[
   Text('Not started'),
   Text('Ongoing'),
@@ -55,20 +53,21 @@ class _ChallengeState extends State<ChallengePage> {
           actions: <Widget>[
             TextButton.icon(
               onPressed: (){
-                 try {
-                  channel?.sink.add(jsonString);
-                  channel?.stream.listen((jsonString) {
-                    List<String> stringList = (jsonDecode(jsonString) as List<dynamic>).cast<String>();
-                    channel?.sink.close();
-                    Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-                    pageBuilder: (context, x, xx) => Leaderboard(stringList),
+                //  try {
+                //   channel?.sink.add(jsonString);
+                //   channel?.stream.listen((jsonString) {
+                //     List<String> stringList = (jsonDecode(jsonString) as List<dynamic>).cast<String>();
+                //     channel?.sink.close();
+                    
+                //   });
+                  Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+                    pageBuilder: (context, x, xx) => Leaderboard(dataList),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
                     ));
-                  });
-                } catch (e) {
-                  print(e);
-                }
+                // } catch (e) {
+                //   print(e);
+                // }
                 
               }, 
               label: Text('Leaderboard',

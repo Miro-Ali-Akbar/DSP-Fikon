@@ -7,13 +7,48 @@ import 'package:trailquest/pages/start_page.dart';
 import 'package:trailquest/pages/trail_page.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:convert';
 
 WebSocketChannel? channel;
 var jsonString = '';
+List<dynamic> dataList = [];
+
+void Listen(){
+  try {
+      channel?.stream.listen((jsonString) {
+      Map <String, dynamic> jsonDecoded = jsonDecode(jsonString);
+      String msgID;
+      if (jsonDecoded.isNotEmpty) {
+        // Get the first key-value pair from the Map
+        MapEntry<String, dynamic> firstEntry = jsonDecoded.entries.first;
+        
+        // Extract the value
+        msgID = firstEntry.value;
+    
+        MapEntry<String, dynamic> secondEntry = jsonDecoded.entries.elementAt(1);
+        dynamic data = secondEntry.value;
+
+        switch (msgID) {
+          case 'leaderboard': 
+            dataList = jsonDecode(data);
+            break;
+          case 'init':
+            print(jsonDecode(data));
+            break;
+        }
+      }             
+    });
+  } catch (e) {
+    print(e);
+  }
+
+}
 
 void main() {
   channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
+  Listen();
   runApp(const MainApp());
+  channel?.sink.close();
 }
 
 class MainApp extends StatefulWidget {
