@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:collection';
-import 'dart:io';
-import 'dart:math'; 
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -22,8 +21,10 @@ List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
 
 bool stairsExist = false;
-bool natureTrail = true; 
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
+
+bool natureTrail = true; 
+
 
 late LatLng start;
 
@@ -95,7 +96,6 @@ Future<List<PolylineWayPoint>> _getPath(String radius, double maxWaypointDistanc
 }
 
 
-//fetches elevation of a coordinate
 Future<double> _getElevation(LatLng coordinates) async {
   final url =
       'https://maps.googleapis.com/maps/api/elevation/json?locations=${coordinates.latitude},${coordinates.longitude}&key=$googleMapsApiKey';
@@ -193,22 +193,22 @@ Future<double> _getWalkingDistance(
     final data = json.decode(response.body);
     if (data['status'] == 'OK') {
       if (!noStairs) {
-          // Search for the phrase in html_instructions field
-          for (var route in data['routes']) {
-            for (var leg in route['legs']) {
-              for (var step in leg['steps']) {
-                if (step['html_instructions'] != null &&
-                    step['html_instructions'].contains('stairs')) {
-                  print(step['html_instructions']); 
-                  stairsExist = true;
-                  break;
-                }
+        // Search for the phrase in html_instructions field
+        for (var route in data['routes']) {
+          for (var leg in route['legs']) {
+            for (var step in leg['steps']) {
+              if (step['html_instructions'] != null &&
+                  step['html_instructions'].contains('stairs')) {
+                print(step['html_instructions']);
+                stairsExist = true;
+                break;
               }
-              if (stairsExist) break;
             }
             if (stairsExist) break;
           }
-          print(stairsExist); 
+          if (stairsExist) break;
+        }
+        print(stairsExist);
       }
 
       return data['routes'][0]['legs'][0]['distance']['value'].toDouble();
@@ -244,7 +244,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       //print("_getPath DONE"); 
 
 
-  //${radius * 1000}
+  //TODO: ${radius * 1000}
   final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="path"](around:500,${start.latitude},${start.longitude});(._;>;);out;';  
   final response = await http.get(Uri.parse(url));
 
@@ -376,7 +376,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   return wayPoints;
 }
 
-_addPolyLine() {
+void _addPolyLine() {
   PolylineId id = PolylineId("poly");
   Polyline polyline =
       Polyline(polylineId: id, color: Colors.red, points: polylineCoordinates);
