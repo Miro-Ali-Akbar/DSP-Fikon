@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -13,13 +15,16 @@ class ChallengeCard extends StatefulWidget{
   final String name;
   final Text description;
   final bool timeLimit;
+  // 0 = not started, 1 = ongoing, 2 = done
+  int status;
 
-  const ChallengeCard({
+  ChallengeCard({
     super.key,
     required this.name,
     required this.type,
     required this.description,
-    required this.timeLimit
+    required this.timeLimit,
+    required this.status
   });
 
   @override
@@ -41,6 +46,7 @@ class _CardState extends State<ChallengeCard> {
         },
         child: Container(
           height: 150,
+          width: 380,
           color: const Color.fromARGB(255, 89, 164, 224),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -103,6 +109,7 @@ class _CardState extends State<ChallengeCard> {
         },
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 250, 159, 74),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -165,6 +172,7 @@ class _CardState extends State<ChallengeCard> {
         },
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 137, 70, 196),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -220,6 +228,7 @@ class _CardState extends State<ChallengeCard> {
         onTap:() {},
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 92, 95, 97),
         
           child: Padding(
@@ -231,7 +240,7 @@ class _CardState extends State<ChallengeCard> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.name}',
+                      'No ongoing challenges',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30
@@ -243,7 +252,7 @@ class _CardState extends State<ChallengeCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [ 
-                    Align(
+                    /*Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
                         'no info',
@@ -252,8 +261,8 @@ class _CardState extends State<ChallengeCard> {
                           fontSize: 20
                         ),
                       ),
-                    ),
-                    Align(
+                    ),*/
+                    /*Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
                         padding: EdgeInsets.only(right: 15),
@@ -264,7 +273,7 @@ class _CardState extends State<ChallengeCard> {
                           colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
                         ),
                       )
-                    ),
+                    ),*/
                   ],
                 )
               ],
