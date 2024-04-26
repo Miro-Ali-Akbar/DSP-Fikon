@@ -32,9 +32,9 @@ void Listen(){
 
         switch (msgID) {
           case 'leaderboard': 
-            Map<String, dynamic> users = jsonDecode(data);
+            Map<String, dynamic> users = data;
             List<String> temp = [];
-            users.forEach((key, value) { temp.add(array_to_string([key, value]));});
+            users.forEach((key, value) { temp.add(array_to_string([value[0], value[1]]));});
             dataList = temp;
             break;
           case 'init':
