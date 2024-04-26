@@ -92,6 +92,7 @@ class _ChallengeState extends State<ChallengePage> {
                           for (int i = 0; i < _selectedStatus.length; i++) {
                             _selectedStatus[i] = i == index;
                           }
+                           //_selectedStatus[index] = !_selectedStatus[index];
                         });
                       },
                       borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -177,6 +178,14 @@ Widget scrollChallenges(BuildContext context) {
 // Filters the list of challenges depending on what filters are true (active) in the filter buttons
 List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> list) {
   List<String?> activeTypes = [];
+  int activeStatus = 3; //defalut is 'all'
+
+  for(int i = 0; i < _selectedStatus.length; i++) {
+    if(_selectedStatus[i]) {
+      activeStatus = i;
+    }    
+  }
+  
   for(int i = 0; i < _selectedType.length; i++) {
     if(_selectedType[i]) { 
       String? type = typeChallenge[i].data;
@@ -184,17 +193,23 @@ List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> l
     }
   }
 
-  if(activeTypes.length == 0) {
+  if(activeTypes.length == 0 && activeStatus > 2) {
     return list;
   } else {
     List<ChallengeCard> filteredChallenges = [];
+
     for(int i = 0; i < list.length; i++) {
-      for(int j = 0; j < activeTypes.length; j++) {
-        if(activeTypes[j] == list[i].type) {
+      if(list[i].status == activeStatus) {
         filteredChallenges.add(list[i]);
-        }
+      } else {
+          for(int j = 0; j < activeTypes.length; j++) {
+            if(activeTypes[j] == list[i].type) {
+              filteredChallenges.add(list[i]);
+            }
+          }
       }
     }
+
     if(filteredChallenges.length == 0) {
       return list;
     } else {
