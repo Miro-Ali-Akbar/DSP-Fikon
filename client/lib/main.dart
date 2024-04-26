@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
@@ -30,7 +32,9 @@ void Listen(){
 
         switch (msgID) {
           case 'leaderboard': 
-            dataList = jsonDecode(data);
+            Map<String, dynamic> users = jsonDecode(data);
+            List<String> temp = [];
+            users.forEach((key, value) { temp.add(array_to_string([key, value]));});
             break;
           case 'init':
             print(jsonDecode(data));
@@ -45,7 +49,7 @@ void Listen(){
 }
 
 void main() {
-  channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
+  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org"));
   Listen();
   runApp(const MainApp());
   channel?.sink.close();
@@ -56,6 +60,10 @@ class MainApp extends StatefulWidget {
 
   @override
   State<MainApp> createState() => _MainAppState();
+}
+
+String array_to_string(List tuple) {
+  return tuple[1] + tuple[0];
 }
 
 

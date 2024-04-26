@@ -6,8 +6,6 @@ import 'package:trailquest/widgets/challenge_cards.dart';
 
 
 
-
-
 class Leaderboard extends StatelessWidget {
 
   final List<dynamic> myList;
@@ -20,8 +18,6 @@ class Leaderboard extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        
-        
         //attempt att displaying a list not tested yet
         body: Column(
           children: [
