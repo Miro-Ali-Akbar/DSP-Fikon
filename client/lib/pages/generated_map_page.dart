@@ -372,12 +372,12 @@ Future<void> _getPolyline(LatLng start) async {
   }
 
   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      googleMapsApiKey,
-      PointLatLng(start.latitude, start.longitude),
-      PointLatLng(start.latitude, start.longitude),
-      travelMode: TravelMode.walking,
-      wayPoints: points);
-  print(result.points);
+    googleMapsApiKey,
+    PointLatLng(start.latitude, start.longitude),
+    PointLatLng(start.latitude, start.longitude),
+    travelMode: TravelMode.walking,
+    wayPoints: points,
+  );
   if (result.points.isNotEmpty) {
     result.points.forEach((PointLatLng point) {
       polylineCoordinates.add(LatLng(point.latitude, point.longitude));
