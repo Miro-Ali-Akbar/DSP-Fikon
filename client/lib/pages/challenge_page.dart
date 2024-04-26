@@ -12,10 +12,11 @@ import 'package:trailquest/widgets/challenge_cards.dart';
 const List<Widget> statusChallenge = <Widget>[
   Text('Not started'),
   Text('Ongoing'),
+  Text('Done'),
   Text('All')
 ];
 
-final List<bool> _selectedStatus = <bool>[false, false, true];
+final List<bool> _selectedStatus = <bool>[false, false, false, true];
 
 
 //Filters for the type of challenge
@@ -49,7 +50,7 @@ class _ChallengeState extends State<ChallengePage> {
         ),
         body: Scaffold(
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(130),
+            preferredSize: Size.fromHeight(150),
             child: AppBar(
               backgroundColor: Colors.green.shade600,
               actions: [
@@ -100,7 +101,7 @@ class _ChallengeState extends State<ChallengePage> {
                       color: Colors.white,
                       constraints: const BoxConstraints(
                         minHeight: 30.0,
-                        minWidth: 80.0
+                        minWidth: 100.0
                       ),
                       isSelected: _selectedStatus,
                       children: statusChallenge,
