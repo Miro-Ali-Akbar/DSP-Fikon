@@ -2,13 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge_cards.dart';
 import 'package:trailquest/widgets/filter_buttons.dart';
 
 /**
  * The page where all challenge cards are displayed
 */
 
-//Filter buttons for the status of the challenge
+//Filters for the status of the challenge
 const List<Widget> statusChallenge = <Widget>[
   Text('Not started'),
   Text('Ongoing'),
@@ -18,8 +19,8 @@ const List<Widget> statusChallenge = <Widget>[
 final List<bool> _selectedStatus = <bool>[false, false, true];
 
 
-//Filter buttons for the type of challenge
-const List<Widget> typeChallenge = <Widget>[
+//Filters for the type of challenge
+const List<Text> typeChallenge = <Text>[
   Text('Time limit'),
   Text('Quiz'),
   Text('Checkpoints'),
@@ -37,7 +38,7 @@ class ChallengePage extends StatefulWidget{
 
 class _ChallengeState extends State<ChallengePage> {
   bool selected = false;
-
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -55,15 +56,17 @@ class _ChallengeState extends State<ChallengePage> {
               actions: [
                 Directionality(
                   textDirection: TextDirection.rtl,
-                  // 'clear' button that should unselect all selected filters
+                  // 'clear' button that unselects all selected filters
                   child:OutlinedButton.icon(
                     onPressed: () {
-                      for (int i = 0; i < _selectedStatus.length; i++) {
+                      setState(() {
+                        for (int i = 0; i < _selectedStatus.length; i++) {
                           _selectedStatus[i] = i == _selectedStatus.length-1;
-                      }
-                      for (int i = 0; i < _selectedType.length; i++) {
-                        _selectedType[i] = false;
-                      }
+                        }
+                        for (int i = 0; i < _selectedType.length; i++) {
+                          _selectedType[i] = false;
+                        }
+                      });
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.white),
@@ -113,9 +116,39 @@ class _ChallengeState extends State<ChallengePage> {
                     width: 200,
                     alignment: Alignment.bottomCenter,
                     padding: EdgeInsets.only(bottom: 6),
-                    child: FilterButtons(
-                      selected: _selectedType,
-                    )),
+                    child: 
+                      GridView.count(
+                        physics: NeverScrollableScrollPhysics(),
+                        childAspectRatio: 5/2,
+                        crossAxisCount: 2,
+                        // If we want to add more filters, this is where we do it as well as the lists at the top
+                        children: [
+                          Text('Time limit'),
+                          Text('Quiz'),
+                          Text('Checkpoints'),
+                          Text('Orienteering')
+                        ].asMap().entries.map((widget) {
+                          return ToggleButtons(
+                            borderRadius: const BorderRadius.all(Radius.circular(10)),
+                            borderColor: Colors.white,
+                            selectedColor: Colors.black,
+                            fillColor: Colors.white,
+                            color: Colors.white, 
+                            constraints: const BoxConstraints(
+                              minHeight: 30.0,
+                              minWidth: 85.0,
+                            ),
+                            isSelected: [_selectedType[widget.key]],
+                            onPressed: (int index) {
+                              setState(() {
+                                _selectedType[widget.key] = !_selectedType[widget.key];
+                              });
+                            },
+                            children: [widget.value],
+                          );
+                        }).toList()
+                      )
+                    ),
                   )
                 ],
               ),
@@ -130,12 +163,42 @@ class _ChallengeState extends State<ChallengePage> {
 
 // Creates the scrollable view of challenge cards
 Widget scrollChallenges(BuildContext context) {
+  List<ChallengeCard> current = filterChallenges(context, challenges);
   return ListView.separated(
     padding: const EdgeInsets.all(8),
-    itemCount: challenges.length,
+    itemCount: current.length,
     itemBuilder: (context, index) {
-      return challenges[index];
+      return current[index];
     },
     separatorBuilder: (BuildContext context, int index) => const Divider(),
   );
+}
+
+// Filters the list of challenges depending on what filters are true (active) in the filter buttons
+List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> list) {
+  List<String?> activeTypes = [];
+  for(int i = 0; i < _selectedType.length; i++) {
+    if(_selectedType[i]) { 
+      String? type = typeChallenge[i].data;
+      activeTypes.add(type);
+    }
+  }
+
+  if(activeTypes.length == 0) {
+    return list;
+  } else {
+    List<ChallengeCard> filteredChallenges = [];
+    for(int i = 0; i < list.length; i++) {
+      for(int j = 0; j < activeTypes.length; j++) {
+        if(activeTypes[j] == list[i].type) {
+        filteredChallenges.add(list[i]);
+        }
+      }
+    }
+    if(filteredChallenges.length == 0) {
+      return list;
+    } else {
+      return filteredChallenges;
+    }
+  }
 }
