@@ -122,7 +122,7 @@ Future<double> _getHilliness() async {
   double smallestElevation = await _getElevation(polylineCoordinates[0]);
   double largestElevation = smallestElevation;
 
-  for (int i = 1; i < polylineCoordinates.length; i += 10) {
+  for (int i = 1; i < polylineCoordinates.length; i += 20) {
     // Increments of 10 in polyline list
     double elevation = await _getElevation(polylineCoordinates[i]);
     if (elevation < smallestElevation) {
@@ -245,7 +245,12 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
 
 
   //TODO: ${radius * 1000}
-  final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="path"](around:500,${start.latitude},${start.longitude});(._;>;);out;';  
+  //final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="path"](around:500,${start.latitude},${start.longitude});(._;>;);out;';
+  //final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];(way["natural"](around:700,${start.latitude},${start.longitude}););(way["highway"="path"](area);way["highway"="cycleway"](area););(._;>;);out;'; 
+  //final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:700,${start.latitude},${start.longitude});way["leisure"="park"](around:700,${start.latitude},${start.longitude}););(way["highway"="cycleway"](area);way["highway"="path"](area);););(._;>;);out;';
+  //final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];(way["natural"](around:700,${start.latitude},${start.longitude});way["leisure"="park"](around:700,${start.latitude},${start.longitude});way["highway"="cycleway"](area);way["highway"="path"](area););(._;>;);out;';
+  final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius * 1000},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius * 1000},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius * 1000},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;'; 
+  print(url); 
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
@@ -263,19 +268,25 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
 
     print(elements.length); 
     List<LatLng> path = [];
-    int counter = 0; 
+
+    final random = Random();
+    //double startDirection = random.nextDouble() * (2*pi + 1.0);
+
+    //int counter = 0; 
+    int counter = random.nextInt(10); 
+    int mod = ((elements.length - nodes.length) / 5).ceil(); 
+    print(mod); 
 
     for (int i = 0; i < elements.length; i++) {
       var item = elements[i];  
       if (item['type'] == 'way') {
         List<dynamic> wayNodes = item['nodes']; 
         var lastNode = wayNodes[wayNodes.length - 1]; 
-        print(lastNode); 
         
         LatLng node = nodes[lastNode]!; 
-        print(node); 
   
-        if (counter % 3 == 0) {
+        if (counter % mod == 0) {
+          print("ADDED"); 
           path.add(node); 
         }
         
@@ -284,13 +295,78 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       }
     }
 
-    print(path.length); 
-    for (int i = 0; i < path.length - 1; i++) {
-      double distance = await _getWalkingDistance(path[i], path[i + 1], true);
-      routeDistance += distance; 
+    double prev = 0;
+    List<LatLng> sortedPath = [];
 
-      wayPoints.add(PolylineWayPoint(location: "${path[i].latitude},${path[i].longitude}"));
+    print(path.length); 
+    //for (int i = 0; i < path.length - 1; i++) {
+      //double distance = await _getWalkingDistance(path[i], path[i + 1], true);
+//
+      //for (int j = 0; j < sortedPath.length; j++) {
+      //  if ()
+      //}
+
+      //if (routeDistance <= routeLength * 1000) {
+        //routeDistance += distance; 
+        //wayPoints.add(PolylineWayPoint(location: "${path[i].latitude},${path[i].longitude}"));
+        //_addMarker(LatLng(path[i].latitude, path[i].longitude), i.toString(), BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
+      //} else {
+      //  break; 
+      //}
+
+      if (path.length > 0) {
+        sortedPath.add(path.removeAt(0));
+        print(sortedPath); 
+      } else {
+        print("EMPTY PATH!!!!!!!!!!!!!!!!"); 
+      }
+      
+
+
+    // Keep sorting until all nodes are added to the sorted list
+    while (path.isNotEmpty) {
+      LatLng lastNode = sortedPath.last;
+
+      // Use Future.wait to execute getDistance asynchronously for all nodes
+      //List<double> distances = await Future.wait(path.map((node) => _getWalkingDistance(lastNode, node, false)));
+
+      List<double> distances = [];
+
+      // Calculate distance asynchronously for each node
+      await Future.forEach(path, (LatLng node) async {
+        double distance = await _getWalkingDistance(lastNode, node, false);
+        distances.add(distance);
+      });
+
+      // Find the index of the node with the shortest distance
+      int minDistanceIndex = distances.indexOf(distances.reduce((a, b) => a < b ? a : b));
+
+      // Add the node with the shortest distance to the sorted list
+      sortedPath.add(path[minDistanceIndex]);
+      path.removeAt(minDistanceIndex);
     }
+
+    //}
+    print(sortedPath.length); 
+    print(sortedPath); 
+
+    for (int i = 0; i < sortedPath.length - 1; i++) {
+      wayPoints.add(PolylineWayPoint(location: "${sortedPath[i].latitude},${sortedPath[i].longitude}"));
+      _addMarker(LatLng(sortedPath[i].latitude, sortedPath[i].longitude), i.toString(), BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
+    }
+
+
+     for (int i = 0; i < wayPoints.length - 1; i++) {
+    LatLng origin = _parseLatLng(wayPoints[i].location);
+    LatLng destination = _parseLatLng(wayPoints[i + 1].location);
+
+    double distance = await _getWalkingDistance(origin, destination, false);
+
+    print("Distance between waypoint $i and ${i + 1}: $distance meters");
+    routeDistance += distance;
+  }
+
+
 
     /*
     // Parse ways and create waypoints
