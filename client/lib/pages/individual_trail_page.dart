@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart'; 
 
 class IndividualTrailPage extends StatefulWidget{
 
+  final TrailCard trail;
+
+  const IndividualTrailPage({Key? key, required this.trail}) : super(key: key);
+
   @override
-  State<IndividualTrailPage> createState() => _IndividualTrailPageState();
+  State<IndividualTrailPage> createState() => _IndividualTrailPageState(trail: trail);
 }
 
 class _IndividualTrailPageState extends State<IndividualTrailPage> {
 
   bool saved = false; 
+  TrailCard trail; 
+
+  _IndividualTrailPageState({Key? key, required this.trail}); 
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +34,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                 GoBackButton(),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text('Insert name of trail here', 
+                  child: Text('${trail.name}', 
                     style: TextStyle(fontSize: 20)),
                 ),
               ],
@@ -46,7 +54,96 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                 ),
               ),
             ),
-            TrailInfo(),
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/img_walking.svg', 
+                          colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                            height: 35,
+                            width: 50,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text('${trail.lengthDistance/1000} km', style: TextStyle(fontSize: 15),),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/img_clock.svg', 
+                          colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                            height: 35,
+                            width: 50,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text('${trail.lengthTime} min', style: TextStyle(fontSize: 15),),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/img_trees.svg', 
+                          colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                            height: 35,
+                            width: 50,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text('${trail.natureStatus}', style: TextStyle(fontSize: 15),),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/img_stairs.svg', 
+                          colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                            height: 35,
+                            width: 50,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(trail.stairs ? 'This route could contain stairs' : 'This route does not contain any stairs',
+                          style: TextStyle(fontSize: 15),),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/img_arrow_up.svg', 
+                          colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                            height: 35,
+                            width: 50,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text('${trail.heightDifference}', style: TextStyle(fontSize: 15),),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ), 
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: SaveTrail(),
@@ -82,108 +179,109 @@ class _SaveTrailState extends State<SaveTrail> {
     );
   }
 }
-class TrailInfo extends StatefulWidget {
-  TrailInfo({super.key});
 
-  @override 
-  State<TrailInfo> createState() => _TrailInfoState(); 
-}
-
-class _TrailInfoState extends State<TrailInfo> {
-
-  bool checkedvalue = false; 
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/img_walking.svg', 
-                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                    height: 35,
-                    width: 50,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Text('XX km', style: TextStyle(fontSize: 15),),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/img_clock.svg', 
-                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                    height: 35,
-                    width: 50,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Text('XX min', style: TextStyle(fontSize: 15),),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/img_trees.svg', 
-                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                    height: 35,
-                    width: 50,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Text('Nature', style: TextStyle(fontSize: 15),),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/img_stairs.svg', 
-                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                    height: 35,
-                    width: 50,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Text('Stairs', style: TextStyle(fontSize: 15),),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/img_arrow_up.svg', 
-                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                    height: 35,
-                    width: 50,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Text('Height difference', style: TextStyle(fontSize: 15),),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ), 
-    ); 
-  }
-}
+//class TrailInfo extends StatefulWidget {
+//  TrailInfo({super.key});
+//
+//  @override 
+//  State<TrailInfo> createState() => _TrailInfoState(); 
+//}
+//
+//class _TrailInfoState extends State<TrailInfo> {
+//
+//  bool checkedvalue = false; 
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return SingleChildScrollView(
+//      scrollDirection: Axis.vertical,
+//      child: Column(
+//        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//        mainAxisSize: MainAxisSize.max,
+//        children: [
+//          Padding(
+//            padding: const EdgeInsets.all(10.0),
+//            child: Row(
+//              children: [
+//                SvgPicture.asset(
+//                  'assets/images/img_walking.svg', 
+//                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+//                    height: 35,
+//                    width: 50,),
+//                Padding(
+//                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+//                  child: Text('${trail.}', style: TextStyle(fontSize: 15),),
+//                ),
+//              ],
+//            ),
+//          ),
+//          Padding(
+//            padding: const EdgeInsets.all(10.0),
+//            child: Row(
+//              children: [
+//                SvgPicture.asset(
+//                  'assets/images/img_clock.svg', 
+//                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+//                    height: 35,
+//                    width: 50,),
+//                Padding(
+//                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+//                  child: Text('XX min', style: TextStyle(fontSize: 15),),
+//                ),
+//              ],
+//            ),
+//          ),
+//          Padding(
+//            padding: const EdgeInsets.all(10.0),
+//            child: Row(
+//              children: [
+//                SvgPicture.asset(
+//                  'assets/images/img_trees.svg', 
+//                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+//                    height: 35,
+//                    width: 50,),
+//                Padding(
+//                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+//                  child: Text('Nature', style: TextStyle(fontSize: 15),),
+//                ),
+//              ],
+//            ),
+//          ),
+//          Padding(
+//            padding: const EdgeInsets.all(10.0),
+//            child: Row(
+//              children: [
+//                SvgPicture.asset(
+//                  'assets/images/img_stairs.svg', 
+//                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+//                    height: 35,
+//                    width: 50,),
+//                Padding(
+//                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+//                  child: Text('Stairs', style: TextStyle(fontSize: 15),),
+//                ),
+//              ],
+//            ),
+//          ),
+//          Padding(
+//            padding: const EdgeInsets.all(10.0),
+//            child: Row(
+//              children: [
+//                SvgPicture.asset(
+//                  'assets/images/img_arrow_up.svg', 
+//                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+//                    height: 35,
+//                    width: 50,),
+//                Padding(
+//                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+//                  child: Text('Height difference', style: TextStyle(fontSize: 15),),
+//                ),
+//              ],
+//            ),
+//          ),
+//        ],
+//      ), 
+//    ); 
+//  }
+//}
 
