@@ -63,52 +63,12 @@ class _StartPageState extends State<StartPage> {
                   return ongoingChallenges[index];
                 },
                 separatorBuilder: (_, __) => const Divider(),
-              ),)
-                //(
-                //mainAxisAlignment: MainAxisAlignment.center,
-                //children: [
-                  /*PreferredSize(
-                    preferredSize: Size.fromHeight(150),
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.all(8),
-                      itemCount: ongoingChallenges.length,
-                      itemBuilder: (context, index) {
-                        return ongoingChallenges[index];
-                      },
-                      separatorBuilder: (BuildContext context, int index) => const Divider(),
-                    ),
-                  ),*/
-                //]
+              ),
+            )
           ),
           body: Stack(
           children: [
-            Text('map'),
-            // FIXME: Broken for som reason
-            // ListView(
-            //   scrollDirection: Axis.horizontal,
-            //   children: [
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     ),
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     ),
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     )
-            //   ],
-            // ),
-            /*GoogleMap(
+            GoogleMap(
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
@@ -118,7 +78,7 @@ class _StartPageState extends State<StartPage> {
               initialCameraPosition: CameraPosition(
                   target: LatLng(59.83972677529924, 17.6465716818546),
                   zoom: 15),
-            ),*/
+            ),
           ],
         ),
       ),
