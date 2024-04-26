@@ -241,7 +241,6 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     if (natureTrail) {
 
   final url = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius * 1000},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius * 1000},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius * 1000},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;'; 
-  print(url); 
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
@@ -265,37 +264,12 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     int evenGroup = ((elements.length - nodes.length) / 10).ceil(); 
     int counter = random.nextInt(evenGroup) + 1; 
 
-    /*
-    for (int i = 0; i < elements.length; i++) { //TODO: Borde väl gå med i = elements.length - nodes.length
-      var item = elements[i];  
-      if (item['type'] == 'way') {
-        List<dynamic> wayNodes = item['nodes']; 
-        var lastNode = wayNodes[wayNodes.length - 1]; 
-        
-        LatLng node = nodes[lastNode]!; 
-  
-        if (counter == mod) { // % mod == 0) {
-          print("ADDED"); 
-          print(mod); 
-          path.add(node); 
-          mod += evenGroup; 
-        }
-        
-        counter++; 
-
-      }
-    }*/
     for (int i = counter; i < elements.length; i += evenGroup) { 
       var item = elements[i];  
       if (item['type'] == 'way') {
         List<dynamic> wayNodes = item['nodes']; 
         var lastNode = wayNodes[wayNodes.length - 1]; 
-        
-        LatLng node = nodes[lastNode]!; 
-  
-          print("ADDED"); 
-          print(i); 
-          path.add(node); 
+        path.add(nodes[lastNode]!); 
       }
     }
 
@@ -359,10 +333,6 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   //} 
 
   }
-  //totalDistance = routeDistance.toString();
-  //inIntervall = true; 
-
-
     } else {
       int pointsCount = 5; //TODO: increase!
       final random = Random();
@@ -377,7 +347,6 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
 
         wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
       }
-    
 
   // Calculates distance between each waypoint
   for (int i = 0; i < wayPoints.length - 1; i++) {
@@ -391,12 +360,23 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     routeDistance += distance;
   }
   
-  
     }
     print("ROUTEDISTANCE:"); 
   print(routeDistance); 
  
-  if (routeDistance > routeLength * 1000 - 2000 && routeDistance < routeLength * 1000 + 2000) { //+- 500m //TODO: edit!
+
+  while (routeDistance > routeLength * 1000 + 500) {
+    LatLng origin = _parseLatLng(wayPoints[wayPoints.length - 2].location);
+    LatLng destination = _parseLatLng(wayPoints[wayPoints.length - 1].location);
+    double distance = await _getWalkingDistance(origin, destination, true);
+
+    wayPoints.removeAt(wayPoints.length - 1); 
+    routeDistance -= distance; 
+    print("REMOVED DISTANCE: "); 
+    print(distance); 
+  }
+
+  if (routeDistance > routeLength * 1000 - 500 && routeDistance < routeLength * 1000 + 500) { 
     inIntervall = true; 
     totalDistance = routeDistance.toString(); //TODO: place somewhere useful when such exists
   } 
