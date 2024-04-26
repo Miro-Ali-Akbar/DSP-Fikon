@@ -195,18 +195,28 @@ List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> l
 
   if(activeTypes.length == 0 && activeStatus > 2) {
     return list;
+
   } else {
     List<ChallengeCard> filteredChallenges = [];
-
-    for(int i = 0; i < list.length; i++) {
-      if(list[i].status == activeStatus) {
-        filteredChallenges.add(list[i]);
-      } else {
+    if(activeTypes.length > 0 && activeStatus < 3) {
+      for(int i = 0; i < list.length; i++) {
+        for(int j = 0; j < activeTypes.length; j++) {
+            if(activeTypes[j] == list[i].type && list[i].status == activeStatus) {
+              filteredChallenges.add(list[i]);
+            }
+          }
+      }
+    } else {
+      for(int i = 0; i < list.length; i++) {
+        if(list[i].status == activeStatus) {
+          filteredChallenges.add(list[i]);
+        } else {
           for(int j = 0; j < activeTypes.length; j++) {
             if(activeTypes[j] == list[i].type) {
               filteredChallenges.add(list[i]);
             }
           }
+        }
       }
     }
 

@@ -100,7 +100,7 @@ List<ChallengeCard> filterOngoing(BuildContext context) {
       name: 'null', 
       type: 'null', 
       status: 1, 
-      timeLimit: false,
+      //timeLimit: false,
     ));
   }
   return ongoing;

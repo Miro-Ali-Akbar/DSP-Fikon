@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -14,7 +12,7 @@ class ChallengeCard extends StatefulWidget{
   final String type;
   final String name;
   final Text description;
-  final bool timeLimit;
+  //final bool timeLimit;
   // 0 = not started, 1 = ongoing, 2 = done
   int status;
 
@@ -23,7 +21,7 @@ class ChallengeCard extends StatefulWidget{
     required this.name,
     required this.type,
     required this.description,
-    required this.timeLimit,
+    //required this.timeLimit,
     required this.status
   });
 
@@ -249,33 +247,6 @@ class _CardState extends State<ChallengeCard> {
                   ),
                 ),
                 Padding(padding: EdgeInsets.all(35)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [ 
-                    /*Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        'no info',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20
-                        ),
-                      ),
-                    ),*/
-                    /*Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 15),
-                        child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
-                          height: 20,
-                          width: 20,
-                          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                        ),
-                      )
-                    ),*/
-                  ],
-                )
               ],
             )
           )
