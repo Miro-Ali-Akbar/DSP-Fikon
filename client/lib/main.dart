@@ -35,6 +35,7 @@ void Listen(){
             Map<String, dynamic> users = jsonDecode(data);
             List<String> temp = [];
             users.forEach((key, value) { temp.add(array_to_string([key, value]));});
+            dataList = temp;
             break;
           case 'init':
             print(jsonDecode(data));
