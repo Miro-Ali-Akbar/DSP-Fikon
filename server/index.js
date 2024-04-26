@@ -70,10 +70,10 @@ async function getRoutes(num) {
  */
 async function getLeaderboard() {
     try {
-        const leaderboard = await leaderboardRef.doc("leaderboard").get();
+        const leaderboard = await leaderboardRef.doc("leaderboard1").get();
         const lbData = leaderboard.data();
         console.log('leaderboard:', lbData.arr);
-        return lbData.arr;
+        return lbData;
     } catch(error) {
         console.log('Error: Something went wrong when fetching data.');
         console.log(error);
@@ -100,11 +100,11 @@ async function sendLeaderboard(ws) {
     let leaderboardMsg = {
         msgID: "leaderboard",
         data: {
-            user1: leaderboard[0], 
-            user2: leaderboard[1], 
-            user3: leaderboard[2], 
-            user4: leaderboard[3], 
-            user5: leaderboard[4]
+            user1: await leaderboard.user1, 
+            user2: await leaderboard.user2, 
+            user3: await leaderboard.user3, 
+            user4: await leaderboard.user4, 
+            user5: await leaderboard.user5
         }        
     }
     ws.send(JSON.stringify(leaderboardMsg));
