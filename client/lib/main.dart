@@ -64,7 +64,7 @@ class MainApp extends StatefulWidget {
 }
 
 String array_to_string(List tuple) {
-  return tuple[1] + "$tuple[0]";
+  return tuple[1] + tuple[0];
 }
 
 
