@@ -53,22 +53,14 @@ class _ChallengeState extends State<ChallengePage> {
           actions: <Widget>[
             TextButton.icon(
               onPressed: (){
-                //  try {
-                //   channel?.sink.add(jsonString);
-                //   channel?.stream.listen((jsonString) {
-                //     List<String> stringList = (jsonDecode(jsonString) as List<dynamic>).cast<String>();
-                //     channel?.sink.close();
-                    
-                //   });
-                  Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-                    pageBuilder: (context, x, xx) => Leaderboard(dataList),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                    ));
-                // } catch (e) {
-                //   print(e);
-                // }
-                
+  
+                Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+                  pageBuilder: (context, x, xx) => Leaderboard(dataList),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ));
+        
+
               }, 
               label: Text('Leaderboard',
               style: TextStyle(

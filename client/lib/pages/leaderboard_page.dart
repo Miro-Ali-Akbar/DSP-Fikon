@@ -18,34 +18,37 @@ class Leaderboard extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        
         //attempt att displaying a list not tested yet
         body: Column(
+      
           children: [
+            
             Row(
               children: [
-                BackButton().build(context),
-              ],
-            ),
-            Center(
-              child: Column(
-                children: [
-                  Text('Leaderboard',
+                BackButton(),
+                Text('Leaderboard',
                     style: TextStyle(
                       color: Colors.green, 
                       fontSize: 30.0,
                     )
-                  ),
-                  ListView.builder(
-                    itemCount: myList.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(myList[index]),
-                      );
-                    }
-                  )
-                ],
+                )
+              ]
+            ),
+            Expanded(child: 
+              ListView.builder(
+                  itemCount: myList.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(myList[index]),
+                    );
+                  }
+                ),
               )
-            )
+              
+              
+              
+            
           ],
         )   
       )

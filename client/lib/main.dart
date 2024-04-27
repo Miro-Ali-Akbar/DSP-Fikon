@@ -36,9 +36,10 @@ void Listen(){
             List<String> temp = [];
             users.forEach((key, value) { temp.add(array_to_string([value[0], value[1]]));});
             dataList = temp;
+            print(dataList);
             break;
           case 'init':
-            print(jsonDecode(data));
+            print(data);
             break;
         }
       }             
@@ -50,10 +51,9 @@ void Listen(){
 }
 
 void main() {
-  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org"));
+  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org: 3000"));
   Listen();
   runApp(const MainApp());
-  channel?.sink.close();
 }
 
 class MainApp extends StatefulWidget {
@@ -64,7 +64,7 @@ class MainApp extends StatefulWidget {
 }
 
 String array_to_string(List tuple) {
-  return tuple[1] + tuple[0];
+  return tuple[1] + "$tuple[0]";
 }
 
 
