@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
-import 'package:trailquest/widgets/filter_buttons.dart';
 
 /**
  * The page where all challenge cards are displayed
@@ -13,10 +12,11 @@ import 'package:trailquest/widgets/filter_buttons.dart';
 const List<Widget> statusChallenge = <Widget>[
   Text('Not started'),
   Text('Ongoing'),
+  Text('Done'),
   Text('All')
 ];
 
-final List<bool> _selectedStatus = <bool>[false, false, true];
+final List<bool> _selectedStatus = <bool>[false, false, false, true];
 
 
 //Filters for the type of challenge
@@ -50,7 +50,7 @@ class _ChallengeState extends State<ChallengePage> {
         ),
         body: Scaffold(
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(130),
+            preferredSize: Size.fromHeight(150),
             child: AppBar(
               backgroundColor: Colors.green.shade600,
               actions: [
@@ -92,6 +92,7 @@ class _ChallengeState extends State<ChallengePage> {
                           for (int i = 0; i < _selectedStatus.length; i++) {
                             _selectedStatus[i] = i == index;
                           }
+                           //_selectedStatus[index] = !_selectedStatus[index];
                         });
                       },
                       borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -101,7 +102,7 @@ class _ChallengeState extends State<ChallengePage> {
                       color: Colors.white,
                       constraints: const BoxConstraints(
                         minHeight: 30.0,
-                        minWidth: 80.0
+                        minWidth: 100.0
                       ),
                       isSelected: _selectedStatus,
                       children: statusChallenge,
@@ -163,7 +164,7 @@ class _ChallengeState extends State<ChallengePage> {
 
 // Creates the scrollable view of challenge cards
 Widget scrollChallenges(BuildContext context) {
-  List<ChallengeCard> current = filterChallenges(context, challenges);
+  List<Challenge> current = filterChallenges(context, challenges);
   return ListView.separated(
     padding: const EdgeInsets.all(8),
     itemCount: current.length,
@@ -175,8 +176,16 @@ Widget scrollChallenges(BuildContext context) {
 }
 
 // Filters the list of challenges depending on what filters are true (active) in the filter buttons
-List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> list) {
+List<Challenge> filterChallenges(BuildContext context, List<Challenge> list) {
   List<String?> activeTypes = [];
+  int activeStatus = 3; //defalut is 'all'
+
+  for(int i = 0; i < _selectedStatus.length; i++) {
+    if(_selectedStatus[i]) {
+      activeStatus = i;
+    }    
+  }
+  
   for(int i = 0; i < _selectedType.length; i++) {
     if(_selectedType[i]) { 
       String? type = typeChallenge[i].data;
@@ -184,17 +193,33 @@ List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> l
     }
   }
 
-  if(activeTypes.length == 0) {
+  if(activeTypes.length == 0 && activeStatus > 2) {
     return list;
+
   } else {
-    List<ChallengeCard> filteredChallenges = [];
-    for(int i = 0; i < list.length; i++) {
-      for(int j = 0; j < activeTypes.length; j++) {
-        if(activeTypes[j] == list[i].type) {
+    List<Challenge> filteredChallenges = [];
+    if(activeTypes.length > 0 && activeStatus < 3) {
+      for(int i = 0; i < list.length; i++) {
+        for(int j = 0; j < activeTypes.length; j++) {
+            if(activeTypes[j] == list[i].type && list[i].status == activeStatus) {
+              filteredChallenges.add(list[i]);
+            }
+          }
+      }
+    } else {
+      for(int i = 0; i < list.length; i++) {
+        if(list[i].status == activeStatus) {
         filteredChallenges.add(list[i]);
-        }
+      } else {
+          for(int j = 0; j < activeTypes.length; j++) {
+            if(activeTypes[j] == list[i].type) {
+              filteredChallenges.add(list[i]);
+            }
+          }
       }
     }
+    }
+
     if(filteredChallenges.length == 0) {
       return list;
     } else {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:trailquest/pages/individual_challenge_page.dart';
 
 final List<String> challengeTypes = <String>['Checkpoints', 'Quiz', 'Orienteering'];
 
@@ -8,25 +9,25 @@ final List<String> challengeTypes = <String>['Checkpoints', 'Quiz', 'Orienteerin
  * As of now, the accepted types are 'Checkpoints', 'Orienteering' and 'Quiz' but it's likely that Quiz will be substituted for 'Straight line'
  */
 
-class ChallengeCard extends StatefulWidget{
+class Challenge extends StatefulWidget{
   final String type;
   final String name;
   final Text description;
-  final bool timeLimit;
+  final int status;
 
-  const ChallengeCard({
+  const Challenge({
     super.key,
     required this.name,
     required this.type,
     required this.description,
-    required this.timeLimit
+    required this.status
   });
 
   @override
-  State<ChallengeCard> createState() => _CardState();
+  State<Challenge> createState() => _CardState();
 }
 
-class _CardState extends State<ChallengeCard> {
+class _CardState extends State<Challenge> {
   int count = 0;
 
   @override
@@ -35,9 +36,11 @@ class _CardState extends State<ChallengeCard> {
       return GestureDetector(
         onTap:() {
           // This is where we can add navigation to the page that will display more detailed information about the challenge
-          setState(() {
-            count++;
-          });
+          /*Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => IndividualChallengePage(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));*/
         },
         child: Container(
           height: 150,
