@@ -26,7 +26,7 @@ class Leaderboard extends StatelessWidget {
             
             Row(
               children: [
-                BackButton(),
+                BackButton().build(context),
                 Text('Leaderboard',
                     style: TextStyle(
                       color: Colors.green, 

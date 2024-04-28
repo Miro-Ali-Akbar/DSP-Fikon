@@ -52,6 +52,7 @@ void Listen(){
 
 void main() {
   channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org: 3000"));
+  channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());
 }
