@@ -47,7 +47,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
               width: 400,
               child: Image(
                 fit: BoxFit.contain,
-                image: AssetImage('assets/images/img_image_1.png')
+                image: AssetImage(widget.challenge.image)
               ),
             ),
             Row(
