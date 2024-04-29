@@ -176,7 +176,7 @@ LatLng _parseLatLng(String locationString) {
 Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   List<PolylineWayPoint> wayPoints = [];
 
-  const routeLength = 4;
+  const routeLength = 2;
   const radius = routeLength;
 
   wayPoints
@@ -232,7 +232,7 @@ void _addPolyLine() {
   polylines[id] = polyline;
 }
 
-Future<void> _getPolyline(LatLng start) async {
+Future<PolylineResult> _getPolyline(LatLng start) async {
   List<PolylineWayPoint> points = [];
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
@@ -247,11 +247,13 @@ Future<void> _getPolyline(LatLng start) async {
     }
   }
 
-  // if (!inIntervall) {
-  //   totalDistance = 'Failed';
-  //   points = [];
-  //   reset();
-  // }
+  // If failed will use the last generated route
+  if (!inIntervall) {
+    print("Found no route");
+    totalDistance = 'Failed';
+    points = [];
+    reset();
+  }
 
   // Circle
   // From start to start through points generated
@@ -269,6 +271,8 @@ Future<void> _getPolyline(LatLng start) async {
     });
   }
   _addPolyLine();
+
+  return result;
 }
 
 class GeneratedMap extends StatelessWidget {
@@ -326,7 +330,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   }
 
   _asyncMethod() async {
-    await _getPolyline(start);
+    PolylineResult result = await _getPolyline(start);
 
     setState(() {});
 
@@ -392,7 +396,12 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
           inIntervall = false;
           stairsExist = false;
 
-          await _getPolyline(start);
+          PolylineResult result = await _getPolyline(start);
+          _addMarker(
+              LatLng(result.points[(result.points.length / 2).round()].latitude,
+                  result.points[(result.points.length / 2).round()].longitude),
+              "Last",
+              BitmapDescriptor.defaultMarkerWithHue(50));
           centerScreen(await Geolocator.getCurrentPosition());
 
           setState(() {});
