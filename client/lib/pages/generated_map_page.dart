@@ -14,6 +14,10 @@ import 'package:http/http.dart' as http;
 
 import 'generate_trail_page.dart';
 
+import 'package:flutter_svg/svg.dart';
+import 'package:trailquest/widgets/trail_cards.dart';
+import '../widgets/back_button.dart';
+
 String totalDistance = 'No Route';
 bool inIntervall = false;
 Map<MarkerId, Marker> markers = {};
@@ -418,7 +422,9 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
 }
 
 class GeneratedMap extends StatelessWidget {
-  const GeneratedMap({Key? key}) : super(key: key);
+  GeneratedMap({Key? key}) : super(key: key);
+
+  TrailCard trail = TrailCard(name: '', lengthDistance: 0, lengthTime: 0, natureStatus: '', stairs: false, heightDifference: 0, isSaved: false); 
 
   @override
   Widget build(BuildContext context) {
@@ -427,24 +433,43 @@ class GeneratedMap extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MapsRoutesExample(title: 'GMR Demo Home'),
+      //home: const MapsRoutesExample(title: 'GMR Demo Home'),
+      home: MapsRoutesGenerator(trail: trail, saved: false, onSaveChanged: (value){}),
     );
   }
 }
 
-class MapsRoutesExample extends StatefulWidget {
-  const MapsRoutesExample({Key? key, required this.title}) : super(key: key);
-  final String title;
+
+//TODO:
+
+class MapsRoutesGenerator extends StatefulWidget {
+  TrailCard trail;
+  bool saved;
+  final ValueChanged<bool> onSaveChanged; // Callback function
+
+  MapsRoutesGenerator({
+    Key? key,
+    required this.trail,
+    required this.saved,
+    required this.onSaveChanged, // Callback function
+  }) : super(key: key);
 
   @override
-  _MapsRoutesExampleState createState() => _MapsRoutesExampleState();
+  State<MapsRoutesGenerator> createState() =>
+      _MapsRoutesGeneratorState(trail: trail, saved: saved);
 }
 
-class _MapsRoutesExampleState extends State<MapsRoutesExample> {
+class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
+  bool saved = false;
+  TrailCard trail;
+
+  _MapsRoutesGeneratorState(
+      {Key? key, required this.trail, required this.saved});
+
+  
   late Completer<GoogleMapController> _controller = Completer();
 
   double inputDistance = 0;
-  //String activityOption = '';
   bool generateCircleRoute = false;
   bool userStartPoint = false;
   bool statusEnvironment = false;
@@ -476,6 +501,8 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
     // Get current location
     _getLocation(inputDistance);
+
+    _buildTrailCard(); 
   }
 
   void _getLocation(double inputDistance) async {
@@ -502,17 +529,28 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     print(hillines);
   }
 
+  //TODO: build the trailcard
+  void _buildTrailCard() {
+    
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('TrailQuest'),
-        elevation: 2,
-      ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.center,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+          body: Column(children: [
+        Row(
+          children: [
+            GoBackButton(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
+            ),
+          ],
+        ),
+        Expanded(
+          child: Center(
             child: GoogleMap(
               myLocationEnabled: true,
               zoomControlsEnabled: false,
@@ -527,48 +565,207 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: 200,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(totalDistance.toString(),
-                      style: const TextStyle(fontSize: 25.0)),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_walking.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.lengthDistance / 1000} km',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_clock.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.lengthTime} min',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_trees.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.natureStatus}',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_stairs.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        trail.stairs
+                            ? 'This route could contain stairs'
+                            : 'This route does not contain any stairs',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_arrow_up.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.heightDifference}',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                    if (saved) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 80),
+                        child: RemoveTrail(
+                          onRemove: (value) {
+                            setState(() {
+                              saved = value;
+                              widget.onSaveChanged(false);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!saved) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: SaveTrail(
+              onSave: (value) {
+                setState(() {
+                  saved = value;
+                  widget.onSaveChanged(true);
+                });
+              },
             ),
           ),
         ],
+      ])),
+    );
+  }
+}
+
+class SaveTrail extends StatefulWidget {
+  final Function(bool) onSave;
+
+  const SaveTrail({Key? key, required this.onSave}) : super(key: key);
+  @override
+  State<SaveTrail> createState() => _SaveTrailState();
+}
+
+class _SaveTrailState extends State<SaveTrail> {
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        widget.onSave(true);
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.green,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text("Retry?"),
-        onPressed: () async {
-          setState(() {
-            reset();
-          });
+      child: const Text('Save Trail +',
+          style: TextStyle(color: Colors.white, fontSize: 30)),
+    );
+  }
+}
 
-          inIntervall = false;
-          stairsExist = false;
+class RemoveTrail extends StatefulWidget {
+  final Function(bool) onRemove;
 
-          await _getPolyline(
-              start, inputDistance, statusEnvironment, avoidStairs);
-          centerScreen(await Geolocator.getCurrentPosition());
+  const RemoveTrail({Key? key, required this.onRemove}) : super(key: key);
 
-          setState(() {});
+  @override
+  State<RemoveTrail> createState() => _RemoveTrailState();
+}
 
-          double hillines = await _getHilliness();
-          print("Total Hilliness:");
-          print(hillines);
-        },
+class _RemoveTrailState extends State<RemoveTrail> {
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        widget.onRemove(false);
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.red,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
       ),
+      child: const Text('Remove Trail',
+          style: TextStyle(color: Colors.white, fontSize: 10)),
     );
   }
 }

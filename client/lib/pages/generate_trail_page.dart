@@ -57,7 +57,7 @@ class CreateNewTrail extends StatelessWidget {
     if (inputDistance.isNotEmpty) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const GeneratedMap()),
+        MaterialPageRoute(builder: (context) => GeneratedMap()),
       );
     }
   }
