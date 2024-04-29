@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:trailquest/pages/profile_page.dart';
 import '../widgets/back_button.dart';
 import 'generated_map_page.dart'; 
 
