@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -79,8 +81,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-            // TODO: add firebase api
-            // const SignOutButton(),
+            ElevatedButton(
+              onPressed: () {
+                print(FirebaseAuth.instance.currentUser);
+              },
+              // tooltip: 'Increment',
+              child: const Text("print user in debug"),
+            ),
+            const SignOutButton(),
           ],
         ),
       ),
