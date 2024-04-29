@@ -1,9 +1,6 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:trailquest/friend_trail_list.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
-import 'package:trailquest/pages/individual_trail_page.dart';
 import 'package:trailquest/my_trail_list.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 
@@ -42,7 +39,8 @@ class _TrailPageState extends State<TrailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               ),
               Expanded(
-                child: Trails(trails: browsing ? FriendTrailList : MyTrailList),
+                child: Trails(savedTrails: MyTrailList, friendTrails: FriendTrailList,),
+                //child: Trails(trails: MyTrailList),
               ),
             ],
           ),
@@ -158,49 +156,27 @@ class CreateNewTrail extends StatelessWidget {
 }
 
 class Trails extends StatelessWidget {
-  final List<TrailCard> trails;
-
-  const Trails({Key? key, required this.trails}) : super(key: key);
+  List<TrailCard> savedTrails;
+  List<TrailCard> friendTrails; 
+  
+  Trails({Key? key, required this.savedTrails, required this.friendTrails}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
+    List<TrailCard> allTrails = new List.from(savedTrails)..addAll(friendTrails); 
+    
+    List<TrailCard> filteredTrails = browsing ? 
+      friendTrails : 
+      allTrails.where((trail) {
+        return trail.isSaved; 
+      }).toList();
+
     return ListView.separated(
       padding: const EdgeInsets.all(10),
-      itemCount: trails.length,
+      itemCount: filteredTrails.length,
       itemBuilder: (BuildContext context, int index) {
-        return trails[index]; 
-        //GestureDetector(
-        //  child: Container(
-        //    width: 350,
-        //    height: 120,
-        //    decoration: BoxDecoration(
-        //      shape: BoxShape.rectangle,
-        //      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-        //      color: Colors.green[400],
-        //    ),
-        //    child: Row(
-        //      children: [
-        //        Align(
-        //          alignment: Alignment.centerRight,
-        //          child: Text(
-        //            trails[index],
-        //            style: TextStyle(
-        //              color: Colors.white,
-        //              fontSize: 30,
-        //            ),
-        //          ),
-        //        ),
-        //      ],
-        //    ),
-        //  ),
-        //  onTap: () {
-        //    Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-        //      pageBuilder: (context, x, xx) => IndividualTrailPage(),
-        //      transitionDuration: Duration.zero,
-        //      reverseTransitionDuration: Duration.zero,
-        //    ));
-        //  },
-        //);
+        return filteredTrails[index]; 
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
     );
