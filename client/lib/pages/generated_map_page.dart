@@ -12,7 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
-import 'generate_trail_page.dart'; 
+import 'generate_trail_page.dart';
 
 String totalDistance = 'No Route';
 bool inIntervall = false;
@@ -25,9 +25,7 @@ Map<String, double> distanceCache = {};
 bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
-bool natureTrail = true;
-
-String activityOption = ''; 
+String activityOption = '';
 
 late LatLng start;
 
@@ -217,11 +215,11 @@ Future<double> _getWalkingDistance(
   }
 
   if (activityOption == 'Running') {
-    activityOption = 'walking'; 
+    activityOption = 'walking';
   }
 
   if (activityOption == 'Cycling') {
-    activityOption = 'bicycling '; 
+    activityOption = 'bicycling ';
   }
 
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
@@ -275,7 +273,8 @@ LatLng _parseLatLng(String locationString) {
   return LatLng(lat, lon);
 }
 
-Future<List<PolylineWayPoint>> _getWayPoints(LatLng start, double inputDistance) async {
+Future<List<PolylineWayPoint>> _getWayPoints(
+    LatLng start, double inputDistance, bool statusEnvironment) async {
   List<PolylineWayPoint> wayPoints = [];
 
   double generatedDistance = 0;
@@ -285,7 +284,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start, double inputDistance)
   print("START");
   print(start);
 
-  if (natureTrail) {
+  if (statusEnvironment) {
     List<LatLng> path = await _getPath(radius);
     List<LatLng> sortedPath = await _sortPath(path);
 
@@ -320,7 +319,6 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start, double inputDistance)
 
     // Calculates each new waypoint
     for (int i = 1; i <= pointsCount; i++) {
-      //double angle = (pi * i) / (2 * pointsCount) + startDirection; // Quarter circle because pi/2
       double angle =
           (pi * i) / (pointsCount) + startDirection; // Half circle because pi
       double lat = start.latitude + radiusKM * sin(angle) / 110.574;
@@ -378,7 +376,8 @@ void _addPolyLine() {
   polylines[id] = polyline;
 }
 
-Future<void> _getPolyline(LatLng start, double inputDistance) async {
+Future<void> _getPolyline(LatLng start, double inputDistance,
+    bool statusEnvironment, bool avoidStairs) async {
   List<PolylineWayPoint> points = [];
   //while (!inIntervall) {
   //  points = await _getWayPoints(start);
@@ -386,14 +385,14 @@ Future<void> _getPolyline(LatLng start, double inputDistance) async {
   //TODO: for/while? ^
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
-      points = await _getWayPoints(start, inputDistance);
+      points = await _getWayPoints(start, inputDistance, statusEnvironment);
     }
 
-    if (stairsExist) {
+    if (stairsExist && avoidStairs) {
       print("STAIRS FOUND ON ROUTE, RETRYING...");
       stairsExist = false;
       inIntervall = false;
-      points = await _getWayPoints(start, inputDistance);
+      points = await _getWayPoints(start, inputDistance, statusEnvironment);
     }
   }
 
@@ -444,12 +443,12 @@ class MapsRoutesExample extends StatefulWidget {
 class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   late Completer<GoogleMapController> _controller = Completer();
 
-  double inputDistance = 0; 
-  //String activityOption = ''; 
-  String trailType = ''; 
-  String statusStartPoint = ''; 
-  String statusEnvironment = ''; 
-  bool stairsPresent = false; 
+  double inputDistance = 0;
+  //String activityOption = '';
+  bool generateCircleRoute = false;
+  bool userStartPoint = false;
+  bool statusEnvironment = false;
+  bool avoidStairs = false;
 
   Future<void> centerScreen(Position position) async {
     final GoogleMapController controller = await _controller.future;
@@ -460,12 +459,20 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   @override
   void initState() {
     super.initState();
-    activityOption = getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
-    trailType = getSelectedTrailType(); //'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg'
-    statusStartPoint = getSelectedStatusStartPoint(); //'Yes', 'No (choose from map)'
-    statusEnvironment = getSelectedStatusEnvironment(); //'Nature', 'City', 'Both'
-    stairsPresent = getCheckedValue(); 
-    inputDistance = double.parse(getInputDistance()); 
+    activityOption =
+        getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
+    generateCircleRoute = getSelectedTrailType() ==
+            'assets/images/img_circular_arrow.svg'
+        ? true
+        : false; //'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg' //TODO: startpoint != endpoint not implemented
+    userStartPoint = getSelectedStatusStartPoint() == 'Yes'
+        ? true
+        : false; //'Yes', 'No (choose from map)' //TODO: 'No' not implemented
+    statusEnvironment = getSelectedStatusEnvironment() == 'Nature'
+        ? true
+        : false; //'Nature', 'City', 'Both'
+    avoidStairs = getCheckedValue();
+    inputDistance = double.parse(getInputDistance());
 
     // Get current location
     _getLocation(inputDistance);
@@ -485,7 +492,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   }
 
   _asyncMethod(double inputDistance) async {
-    await _getPolyline(start, inputDistance);
+    await _getPolyline(start, inputDistance, statusEnvironment, avoidStairs);
 
     setState(() {});
 
@@ -551,7 +558,8 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
           inIntervall = false;
           stairsExist = false;
 
-          await _getPolyline(start, inputDistance);
+          await _getPolyline(
+              start, inputDistance, statusEnvironment, avoidStairs);
           centerScreen(await Geolocator.getCurrentPosition());
 
           setState(() {});
