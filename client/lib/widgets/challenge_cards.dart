@@ -30,9 +30,8 @@ class _CardState extends State<ChallengeCard> {
     if(widget.challenge.type == 'Checkpoints') {
       return GestureDetector(
         onTap:() {
-          // This is where we can add navigation to the page that will display more detailed information about the challenge
           Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-              pageBuilder: (context, x, xx) => IndividualChallengePage(widget.challenge),
+              pageBuilder: (context, x, xx) => IndividualChallengePage(challenge: widget.challenge,),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ));
@@ -94,10 +93,11 @@ class _CardState extends State<ChallengeCard> {
     else if(widget.challenge.type == 'Quiz') {
       return GestureDetector(
         onTap:() {
-          // This is where we can add navigation to the page that will display more detailed information about the challenge
-          setState(() {
-            count++;
-          });
+          Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => IndividualChallengePage(challenge: widget.challenge),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
         },
         child: Container(
           height: 150,
@@ -156,10 +156,11 @@ class _CardState extends State<ChallengeCard> {
     else if(widget.challenge.type == 'Orienteering') {
       return GestureDetector(
         onTap:() {
-          // This is where we can add navigation to the page that will display more detailed information about the challenge
-          setState(() {
-            count++;
-          });
+          Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => IndividualChallengePage(challenge:widget.challenge),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
         },
         child: Container(
           height: 150,

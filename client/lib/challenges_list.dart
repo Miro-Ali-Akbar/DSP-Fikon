@@ -6,37 +6,37 @@ List<Challenge> challenges = <Challenge>[
   Challenge(
     name: '10 statues in Uppsala', 
     type: 'Checkpoints', 
-    description: Text('Find these 10 statues'), 
+    description: 'All around Uppsala there are plenty of interesting statues. During this checkpoint trail you will explore 10 of them.', 
     status: 0,
   ),
   Challenge(
     name: 'Questions about birds', 
     type: 'Quiz', 
-    description: Text('Answer questions about birds'), 
+    description:'Answer questions about birds', 
     status: 2
   ),
   Challenge(
     name: 'Cool large rocks', 
     type: 'Checkpoints', 
-    description: Text('Visit cool large rocks in Uppsala'), 
+    description:'Visit cool large rocks in Uppsala', 
     status: 1,
   ),
   Challenge(
     name: 'Orienteering in Luthagen', 
     type: 'Orienteering', 
-    description: Text('Gather control points in Luthagen'), 
+    description:'Gather control points in Luthagen', 
     status: 1,
   ),
   Challenge(
     name: 'Questions about plants', 
     type: 'Quiz', 
-    description: Text('Answer questions about plants'), 
+    description:'Answer questions about plants', 
     status: 2,
   ),
   Challenge(
     name: 'Important buildings', 
     type: 'Quiz', 
-    description: Text('Answer questions about importnat buildings'), 
+    description:'Answer questions about importnat buildings', 
     status: 0
   ),
 ];

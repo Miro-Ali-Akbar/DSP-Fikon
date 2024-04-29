@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Challenge {
   final String type;
   final String name;
-  final Text description;
+  final String description;
   int status;
 
   Challenge({
