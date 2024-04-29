@@ -25,7 +25,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  channel = WebSocketChannel.connect(Uri.parse("ws://localhost:3000"));
+  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+
   runApp(const MainApp());
 }
 
@@ -36,9 +37,8 @@ class MainApp extends StatefulWidget {
   State<MainApp> createState() => _MainAppState();
 }
 
-
 class _MainAppState extends State<MainApp> {
-  int myIndex = 0; 
+  int myIndex = 0;
   final screens = [
     const StartPage(),
     TrailPage(),
@@ -49,14 +49,10 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
       debugShowCheckedModeBanner: false,
-
       theme: ThemeData(fontFamily: 'InterRegular'),
-
       home: Scaffold(
         body: screens[myIndex],
-
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
@@ -68,46 +64,63 @@ class _MainAppState extends State<MainApp> {
           backgroundColor: Colors.green.shade600,
           selectedItemColor: Colors.white,
           items: [
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/images/img_home.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
-            activeIcon: SvgPicture.asset('assets/images/img_home.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),),
-            label: 'Start'),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/images/img_trails.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
-            activeIcon: SvgPicture.asset('assets/images/img_trails.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-            label: 'Trails'),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/images/img_trophy.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
-            activeIcon: SvgPicture.asset('assets/images/img_trophy.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-            label: 'Challanges'),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/images/img_profile.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),),
-            activeIcon: SvgPicture.asset('assets/images/img_profile.svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-            label: 'Profile')
+            BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/images/img_home.svg',
+                  width: 40,
+                  height: 40,
+                  colorFilter:
+                      ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
+                ),
+                activeIcon: SvgPicture.asset(
+                  'assets/images/img_home.svg',
+                  width: 40,
+                  height: 40,
+                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                ),
+                label: 'Start'),
+            BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/images/img_trails.svg',
+                  width: 40,
+                  height: 40,
+                  colorFilter:
+                      ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
+                ),
+                activeIcon: SvgPicture.asset('assets/images/img_trails.svg',
+                    width: 40,
+                    height: 40,
+                    colorFilter:
+                        ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                label: 'Trails'),
+            BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/images/img_trophy.svg',
+                  width: 40,
+                  height: 40,
+                  colorFilter:
+                      ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
+                ),
+                activeIcon: SvgPicture.asset('assets/images/img_trophy.svg',
+                    width: 40,
+                    height: 40,
+                    colorFilter:
+                        ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                label: 'Challanges'),
+            BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/images/img_profile.svg',
+                  width: 40,
+                  height: 40,
+                  colorFilter:
+                      ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
+                ),
+                activeIcon: SvgPicture.asset('assets/images/img_profile.svg',
+                    width: 40,
+                    height: 40,
+                    colorFilter:
+                        ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                label: 'Profile')
           ],
         ),
       ),

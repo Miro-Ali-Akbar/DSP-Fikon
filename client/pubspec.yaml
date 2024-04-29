@@ -50,6 +50,10 @@ flutter:
     - assets/images/img_park.svg
     - assets/images/img_round_arrow.svg
     - assets/images/img_circular_arrow.svg
+    - assets/images/img_walking.svg
+    - assets/images/img_clock.svg
+    - assets/images/img_stairs.svg
+    - assets/images/img_arrow_up.svg
     
 #  fonts:
 #  - family: InterRegular

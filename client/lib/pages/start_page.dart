@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge_cards.dart';
 
 Future<dynamic> _requestLocationPermission() async {
   if (await Permission.location.request().isGranted) {
@@ -11,6 +13,8 @@ Future<dynamic> _requestLocationPermission() async {
     return Future.error("Location services were denied");
   }
 }
+
+
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -31,6 +35,8 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<ChallengeCard> ongoingChallenges = filterOngoing(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -44,32 +50,24 @@ class _StartPageState extends State<StartPage> {
             ),
           ),
         ),
-        body: Stack(
+        body: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(200),
+            child: AppBar(
+              flexibleSpace: ListView.separated(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.all(8),
+                itemCount: ongoingChallenges.length,
+                itemBuilder: (context, index) {
+                  return ongoingChallenges[index];
+                },
+                separatorBuilder: (_, __) => const Divider(),
+              ),
+            )
+          ),
+          body: Stack(
           children: [
-            // FIXME: Broken for som reason
-            // ListView(
-            //   scrollDirection: Axis.horizontal,
-            //   children: [
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     ),
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     ),
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     )
-            //   ],
-            // ),
             GoogleMap(
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -84,6 +82,26 @@ class _StartPageState extends State<StartPage> {
           ],
         ),
       ),
+      )
     );
   }
+}
+
+List<ChallengeCard> filterOngoing(BuildContext context) {
+  List<ChallengeCard> ongoing = [];
+  for(int i = 0; i < challenges.length; i++) {
+    if(challenges[i].status == 1) {
+      ongoing.add(challenges[i]);
+    }
+  }
+  if(ongoing.length == 0) {
+    ongoing.add(ChallengeCard(
+      description: Text('null'), 
+      name: 'null', 
+      type: 'null', 
+      status: 1, 
+      //timeLimit: false,
+    ));
+  }
+  return ongoing;
 }
