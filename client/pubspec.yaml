@@ -21,6 +21,7 @@ dependencies:
   http: ^0.13.6 
   flutter_polyline_points: ^1.0.0
   flutter_config: ^2.0.2
+  geofence_service: ^5.0.0
 
 dev_dependencies:
   flutter_test:
