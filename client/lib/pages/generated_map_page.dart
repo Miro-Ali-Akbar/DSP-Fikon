@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
-import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,7 +20,7 @@ List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
 
 bool stairsExist = false;
-String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
+String googleMapsApiKey = dotenv.get('GOOGLE_MAPS_API_KEY');
 
 
 late LatLng start;
