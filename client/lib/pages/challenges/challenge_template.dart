@@ -305,6 +305,8 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   final _geofenceStreamController = StreamController<Geofence>();
   late Completer<GoogleMapController> _controller = Completer();
 
+  int activeIndex = 0;
+
   final _geofenceService = GeofenceService.instance.setup(
       interval: 2000,
       accuracy: 10,
@@ -367,6 +369,22 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
     // Get current location
     _getLocation();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _geofenceService
+          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      _geofenceService.addLocationChangeListener(_onLocationChanged);
+      _geofenceService.addLocationServicesStatusChangeListener(
+          _onLocationServicesStatusChanged);
+      _geofenceService.addActivityChangeListener(_onActivityChanged);
+      _geofenceService.addStreamErrorListener(_onError);
+      _geofenceService.start().catchError(_onError);
+    });
+    // _geofenceService.addGeofence(Geofence(
+    //     id: "loc_$activeIndex",
+    //     latitude: points[activeIndex].latitude,
+    //     longitude: points[activeIndex].longitude,
+    //     radius: [GeofenceRadius(id: "radius_10m", length: 10)]));
   }
 
   void _getLocation() async {
