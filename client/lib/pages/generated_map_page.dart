@@ -12,6 +12,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
+import 'generate_trail_page.dart'; 
+
 String totalDistance = 'No Route';
 bool inIntervall = false;
 Map<MarkerId, Marker> markers = {};
@@ -24,6 +26,8 @@ bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
 bool natureTrail = true;
+
+String activityOption = ''; 
 
 late LatLng start;
 
@@ -82,7 +86,7 @@ Future<List<LatLng>> _sortPath(List<LatLng> path) async {
 
 Future<List<LatLng>> _getPath(double radius) async {
   final url =
-      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius * 1000},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius * 1000},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius * 1000},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;';
+      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;';
   final response = await http.get(Uri.parse(url));
 
   List<LatLng> path = [];
@@ -212,14 +216,21 @@ Future<double> _getWalkingDistance(
     return distanceCache[key]!;
   }
 
+  if (activityOption == 'Running') {
+    activityOption = 'walking'; 
+  }
+
+  if (activityOption == 'Cycling') {
+    activityOption = 'bicycling '; 
+  }
+
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
       'destination=${destination.latitude},${destination.longitude}&'
-      'mode=walking&'
+      'mode=${activityOption.toLowerCase()}&'
       'key=$googleMapsApiKey';
 
   final response = await http.get(Uri.parse(url));
-  print("API REQUEST");
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
@@ -264,12 +275,12 @@ LatLng _parseLatLng(String locationString) {
   return LatLng(lat, lon);
 }
 
-Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
+Future<List<PolylineWayPoint>> _getWayPoints(LatLng start, double inputDistance) async {
   List<PolylineWayPoint> wayPoints = [];
 
   double generatedDistance = 0;
-  double inputDistance = 4;
-  double radius = inputDistance / (pi + 2);
+  double radius = inputDistance / (pi + 2); //m
+  double radiusKM = radius / 1000; //km
 
   print("START");
   print(start);
@@ -287,7 +298,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       double distance =
           await _getWalkingDistance(origin, destination, noStairs);
 
-      if (generatedDistance < inputDistance * 1000) {
+      if (generatedDistance < inputDistance) {
         generatedDistance += distance;
         wayPoints.add(PolylineWayPoint(
             location: "${sortedPath[i].latitude},${sortedPath[i].longitude}"));
@@ -300,8 +311,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       }
     }
 
-    //TODO: add points if < inputDistance * 1000 - 500
-    if (generatedDistance < inputDistance * 1000 - 500) {}
+    //TODO: add points if < inputDistance - 500
+    if (generatedDistance < inputDistance - 500) {}
   } else {
     int pointsCount = 5; //TODO: increase!
     final random = Random();
@@ -312,9 +323,9 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       //double angle = (pi * i) / (2 * pointsCount) + startDirection; // Quarter circle because pi/2
       double angle =
           (pi * i) / (pointsCount) + startDirection; // Half circle because pi
-      double lat = start.latitude + radius * sin(angle) / 110.574;
+      double lat = start.latitude + radiusKM * sin(angle) / 110.574;
       double lon = start.longitude +
-          radius * cos(angle) / (111.320 * cos(lat * pi / 180));
+          radiusKM * cos(angle) / (111.320 * cos(lat * pi / 180));
 
       wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
     }
@@ -336,7 +347,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   print(generatedDistance);
 
   // Removes last points if distans is too long
-  while (generatedDistance > inputDistance * 1000 + 500) {
+  while (generatedDistance > inputDistance + 500) {
     LatLng origin = _parseLatLng(wayPoints[wayPoints.length - 2].location);
     LatLng destination = _parseLatLng(wayPoints[wayPoints.length - 1].location);
 
@@ -350,8 +361,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     print(distance);
   }
 
-  if (generatedDistance > inputDistance * 1000 - 500 &&
-      generatedDistance < inputDistance * 1000 + 500) {
+  if (generatedDistance > inputDistance - 500 &&
+      generatedDistance < inputDistance + 500) {
     inIntervall = true;
     totalDistance = generatedDistance
         .toString(); //TODO: place somewhere useful when such exists
@@ -367,7 +378,7 @@ void _addPolyLine() {
   polylines[id] = polyline;
 }
 
-Future<void> _getPolyline(LatLng start) async {
+Future<void> _getPolyline(LatLng start, double inputDistance) async {
   List<PolylineWayPoint> points = [];
   //while (!inIntervall) {
   //  points = await _getWayPoints(start);
@@ -375,14 +386,14 @@ Future<void> _getPolyline(LatLng start) async {
   //TODO: for/while? ^
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
-      points = await _getWayPoints(start);
+      points = await _getWayPoints(start, inputDistance);
     }
 
     if (stairsExist) {
       print("STAIRS FOUND ON ROUTE, RETRYING...");
       stairsExist = false;
       inIntervall = false;
-      points = await _getWayPoints(start);
+      points = await _getWayPoints(start, inputDistance);
     }
   }
 
@@ -433,6 +444,13 @@ class MapsRoutesExample extends StatefulWidget {
 class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   late Completer<GoogleMapController> _controller = Completer();
 
+  double inputDistance = 0; 
+  //String activityOption = ''; 
+  String trailType = ''; 
+  String statusStartPoint = ''; 
+  String statusEnvironment = ''; 
+  bool stairsPresent = false; 
+
   Future<void> centerScreen(Position position) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newLatLngZoom(
@@ -442,26 +460,32 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   @override
   void initState() {
     super.initState();
+    activityOption = getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
+    trailType = getSelectedTrailType(); //'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg'
+    statusStartPoint = getSelectedStatusStartPoint(); //'Yes', 'No (choose from map)'
+    statusEnvironment = getSelectedStatusEnvironment(); //'Nature', 'City', 'Both'
+    stairsPresent = getCheckedValue(); 
+    inputDistance = double.parse(getInputDistance()); 
 
     // Get current location
-    _getLocation();
+    _getLocation(inputDistance);
   }
 
-  void _getLocation() async {
+  void _getLocation(double inputDistance) async {
     try {
       Position position = await Geolocator.getCurrentPosition();
       setState(() {
         start = LatLng(position.latitude, position.longitude);
         _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
-        _asyncMethod();
+        _asyncMethod(inputDistance);
       });
     } catch (e) {
       print("Error getting current location: $e");
     }
   }
 
-  _asyncMethod() async {
-    await _getPolyline(start);
+  _asyncMethod(double inputDistance) async {
+    await _getPolyline(start, inputDistance);
 
     setState(() {});
 
@@ -527,7 +551,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
           inIntervall = false;
           stairsExist = false;
 
-          await _getPolyline(start);
+          await _getPolyline(start, inputDistance);
           centerScreen(await Geolocator.getCurrentPosition());
 
           setState(() {});
