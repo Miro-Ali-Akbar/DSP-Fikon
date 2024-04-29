@@ -18,6 +18,7 @@ Map<MarkerId, Marker> markers = {};
 Map<PolylineId, Polyline> polylines = {};
 List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
+Map<String, double> distanceCache = {};
 
 bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
@@ -49,23 +50,29 @@ Future<List<LatLng>> _sortPath(List<LatLng> path) async {
 
   if (path.length > 0) {
     sortedPath.add(path.removeAt(0));
-    print(sortedPath);
 
     while (path.isNotEmpty) {
       LatLng lastNode = sortedPath.last;
 
       List<double> distances = [];
 
-      await Future.forEach(path, (LatLng node) async {
-        double distance = await _getWalkingDistance(lastNode, node, true);
+      for (int i = 0; i < path.length; i++) {
+        double distance;
+        String key =
+            '${lastNode.latitude},${lastNode.longitude}-${path[i].latitude},${path[i].longitude}';
+        if (distanceCache.containsKey(key)) {
+          distance = distanceCache[key]!;
+        } else {
+          distance = await _getWalkingDistance(lastNode, path[i], true);
+          distanceCache[key] = distance;
+        }
         distances.add(distance);
-      });
+      }
 
-      // Find the index of the node with the shortest distance
+      // Find the index of the minimum distance
       int minDistanceIndex =
           distances.indexOf(distances.reduce((a, b) => a < b ? a : b));
 
-      // Add the node with the shortest distance to the sorted list
       sortedPath.add(path[minDistanceIndex]);
       path.removeAt(minDistanceIndex);
     }
@@ -198,6 +205,13 @@ Future<bool> _checkStairs(LatLng waypoint) async {
 
 Future<double> _getWalkingDistance(
     LatLng origin, LatLng destination, bool noStairs) async {
+  String key =
+      '${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}';
+
+  if (distanceCache.containsKey(key)) {
+    return distanceCache[key]!;
+  }
+
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
       'destination=${destination.latitude},${destination.longitude}&'
@@ -205,6 +219,7 @@ Future<double> _getWalkingDistance(
       'key=$googleMapsApiKey';
 
   final response = await http.get(Uri.parse(url));
+  print("API REQUEST");
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
@@ -227,7 +242,13 @@ Future<double> _getWalkingDistance(
         }
       }
 
-      return data['routes'][0]['legs'][0]['distance']['value'].toDouble();
+      double distance =
+          data['routes'][0]['legs'][0]['distance']['value'].toDouble();
+
+      // Cache the distance
+      distanceCache[key] = distance;
+
+      return distance;
     } else {
       throw Exception('Failed to fetch directions: ${data['status']}');
     }
