@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:trailquest/widgets/challenge_cards.dart';
+import 'package:trailquest/widgets/challenge.dart';
 
 class IndividualChallengePage extends StatefulWidget {
-  final Challenge challenge;
+  Challenge? challenge;
 
-  IndividualChallengePage({
-    super.key,
-    required this.challenge
-  });
+  IndividualChallengePage(Challenge c) {
+    this.challenge = c;
+  }
 
   @override
   State<IndividualChallengePage> createState() => _ChallengeState();

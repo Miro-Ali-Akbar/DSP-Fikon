@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/individual_challenge_page.dart';
+import 'package:trailquest/widgets/challenge.dart';
 
 final List<String> challengeTypes = <String>['Checkpoints', 'Quiz', 'Orienteering'];
 
@@ -9,38 +10,32 @@ final List<String> challengeTypes = <String>['Checkpoints', 'Quiz', 'Orienteerin
  * As of now, the accepted types are 'Checkpoints', 'Orienteering' and 'Quiz' but it's likely that Quiz will be substituted for 'Straight line'
  */
 
-class Challenge extends StatefulWidget{
-  final String type;
-  final String name;
-  final Text description;
-  final int status;
+class ChallengeCard extends StatefulWidget{
+  Challenge challenge;
 
-  const Challenge({
+  ChallengeCard(Challenge current, {
     super.key,
-    required this.name,
-    required this.type,
-    required this.description,
-    required this.status
+    required this.challenge
   });
 
   @override
-  State<Challenge> createState() => _CardState();
+  State<ChallengeCard> createState() => _CardState();
 }
 
-class _CardState extends State<Challenge> {
+class _CardState extends State<ChallengeCard> {
   int count = 0;
 
   @override
   Widget build(BuildContext context) {
-    if(widget.type == 'Checkpoints') {
+    if(widget.challenge.type == 'Checkpoints') {
       return GestureDetector(
         onTap:() {
           // This is where we can add navigation to the page that will display more detailed information about the challenge
-          /*Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-              pageBuilder: (context, x, xx) => IndividualChallengePage(),
+          Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => IndividualChallengePage(widget.challenge),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
-            ));*/
+            ));
         },
         child: Container(
           height: 150,
@@ -54,7 +49,7 @@ class _CardState extends State<Challenge> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.name}',
+                      '${widget.challenge.name}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30
@@ -96,7 +91,7 @@ class _CardState extends State<Challenge> {
         ),
       );
     }
-    else if(widget.type == 'Quiz') {
+    else if(widget.challenge.type == 'Quiz') {
       return GestureDetector(
         onTap:() {
           // This is where we can add navigation to the page that will display more detailed information about the challenge
@@ -116,7 +111,7 @@ class _CardState extends State<Challenge> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.name}',
+                      '${widget.challenge.name}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30
@@ -158,7 +153,7 @@ class _CardState extends State<Challenge> {
         ),
       );
     }
-    else if(widget.type == 'Orienteering') {
+    else if(widget.challenge.type == 'Orienteering') {
       return GestureDetector(
         onTap:() {
           // This is where we can add navigation to the page that will display more detailed information about the challenge
@@ -176,7 +171,7 @@ class _CardState extends State<Challenge> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
-                    '${widget.name}',
+                    '${widget.challenge.name}',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 30
@@ -234,7 +229,7 @@ class _CardState extends State<Challenge> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.name}',
+                      '${widget.challenge.name}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30

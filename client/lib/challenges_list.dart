@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
 List<Challenge> challenges = <Challenge>[

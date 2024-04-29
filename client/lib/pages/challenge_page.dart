@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
 /**
@@ -169,7 +170,7 @@ Widget scrollChallenges(BuildContext context) {
     padding: const EdgeInsets.all(8),
     itemCount: current.length,
     itemBuilder: (context, index) {
-      return current[index];
+      return ChallengeCard(current[index], challenge: current[index],);
     },
     separatorBuilder: (BuildContext context, int index) => const Divider(),
   );
