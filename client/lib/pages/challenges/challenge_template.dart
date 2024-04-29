@@ -413,75 +413,95 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('TrailQuest'),
-        elevation: 2,
-      ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: GoogleMap(
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
-              initialCameraPosition: CameraPosition(
-                zoom: 14.0,
-                target: LatLng(start.latitude, start.longitude),
-              ),
-              markers: Set<Marker>.of(markers.values),
-              polylines: Set<Polyline>.of(polylines.values),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: 200,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(totalDistance.toString(),
-                      style: const TextStyle(fontSize: 25.0)),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text("Retry?"),
-        onPressed: () async {
-          setState(() {
-            reset();
-          });
-
-          inIntervall = false;
-          stairsExist = false;
-
-          PolylineResult result = await _getPolyline(start);
-          _addMarker(
-              LatLng(result.points[(result.points.length / 2).round()].latitude,
-                  result.points[(result.points.length / 2).round()].longitude),
-              "Last",
-              BitmapDescriptor.defaultMarkerWithHue(50));
-          centerScreen(await Geolocator.getCurrentPosition());
-
-          setState(() {});
-
-          double hillines = await _getHilliness();
-          print("Total Hilliness:");
-          print(hillines);
+    return WillStartForegroundTask(
+        onWillStart: () async {
+          return _geofenceService.isRunningService;
         },
-      ),
-    );
+        androidNotificationOptions: AndroidNotificationOptions(
+          channelId: 'geofence_service_notification_channel',
+          channelName: 'Geofence Service Notification',
+          channelDescription:
+              'This notification appears when the geofence service is running in the background.',
+          channelImportance: NotificationChannelImportance.LOW,
+          priority: NotificationPriority.LOW,
+          isSticky: false,
+        ),
+        iosNotificationOptions: const IOSNotificationOptions(),
+        foregroundTaskOptions: const ForegroundTaskOptions(),
+        notificationTitle: 'Geofence Service is running',
+        notificationText: 'Tap to return to the app',
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('TrailQuest'),
+            elevation: 2,
+          ),
+          body: Stack(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: GoogleMap(
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    zoom: 14.0,
+                    target: LatLng(start.latitude, start.longitude),
+                  ),
+                  markers: Set<Marker>.of(markers.values),
+                  polylines: Set<Polyline>.of(polylines.values),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: 200,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(totalDistance.toString(),
+                          style: const TextStyle(fontSize: 25.0)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            label: Text("Retry?"),
+            onPressed: () async {
+              setState(() {
+                reset();
+              });
+
+              inIntervall = false;
+              stairsExist = false;
+
+              PolylineResult result = await _getPolyline(start);
+              _addMarker(
+                  LatLng(
+                      result
+                          .points[(result.points.length / 2).round()].latitude,
+                      result.points[(result.points.length / 2).round()]
+                          .longitude),
+                  "Last",
+                  BitmapDescriptor.defaultMarkerWithHue(50));
+              centerScreen(await Geolocator.getCurrentPosition());
+
+              setState(() {});
+
+              double hillines = await _getHilliness();
+              print("Total Hilliness:");
+              print(hillines);
+            },
+          ),
+        ));
   }
 }
