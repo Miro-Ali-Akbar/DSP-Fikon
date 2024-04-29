@@ -26,7 +26,7 @@ String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
 // TODO: Change or add value for the geofence radius
 List<GeofenceRadius> geofenceRadius = [
-  GeofenceRadius(id: "radius_10m", length: 10)
+  GeofenceRadius(id: "radius_20m", length: 20)
 ];
 
 late LatLng start;
@@ -183,7 +183,7 @@ LatLng _parseLatLng(String locationString) {
 Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   List<PolylineWayPoint> wayPoints = [];
 
-  const routeLength = 2;
+  const routeLength = 1;
   const radius = routeLength;
 
   wayPoints
@@ -446,14 +446,15 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               Align(
                 alignment: Alignment.center,
                 child: GoogleMap(
-                  myLocationEnabled: true,
+                  // TODO: Uncomment when debugging (for sanity)
+                  // myLocationEnabled: true,
                   zoomControlsEnabled: false,
                   initialCameraPosition: CameraPosition(
                     zoom: 14.0,
                     target: LatLng(start.latitude, start.longitude),
                   ),
                   markers: Set<Marker>.of(markers.values),
-                  polylines: Set<Polyline>.of(polylines.values),
+                  // polylines: Set<Polyline>.of(polylines.values),
                   onMapCreated: (GoogleMapController controller) {
                     _controller.complete(controller);
                   },

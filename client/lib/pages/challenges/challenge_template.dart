@@ -380,11 +380,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
       _geofenceService.addStreamErrorListener(_onError);
       _geofenceService.start().catchError(_onError);
     });
-    // _geofenceService.addGeofence(Geofence(
-    //     id: "loc_$activeIndex",
-    //     latitude: points[activeIndex].latitude,
-    //     longitude: points[activeIndex].longitude,
-    //     radius: [GeofenceRadius(id: "radius_10m", length: 10)]));
   }
 
   void _getLocation() async {
