@@ -1,7 +1,7 @@
+import 'package:flutter_config/flutter_config.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/challenge_page.dart';
@@ -18,7 +18,8 @@ WebSocketChannel? channel;
 void main() async {
   // https://pub.dev/packages/flutter_config
   WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
-  await dotenv.load();
+  await FlutterConfig.loadEnvVariables();
+  var googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
