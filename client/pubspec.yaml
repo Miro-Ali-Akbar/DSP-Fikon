@@ -50,6 +50,12 @@ flutter:
     - assets/icons/img_stairs.svg
     - assets/icons/img_arrow_up.svg
     - assets/images/img_image_1.png
+    - assets/images/Pelle_Svanslös-statyn.jpg
+    - assets/images/gardsmyg_johan-nilsson.jpg
+    - assets/images/FlyttblockSurte.jpg
+    - assets/images/Luthagen.jpg
+    - assets/images/wildflowers.jpg
+    - assets/images/Uppsala_domkyrka_flygbild.jpg
     
 #  fonts:
 #  - family: InterRegular
