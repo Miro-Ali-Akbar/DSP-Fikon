@@ -91,7 +91,7 @@ class _CardState extends State<ChallengeCard> {
         ),
       );
     }
-    else if(widget.challenge.type == 'Quiz') {
+    else if(widget.challenge.type == 'Treasure hunt') {
       return GestureDetector(
         onTap:() {
           Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(

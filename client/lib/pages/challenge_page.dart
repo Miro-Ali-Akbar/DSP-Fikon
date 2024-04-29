@@ -25,7 +25,7 @@ final List<bool> _selectedStatus = <bool>[false, false, false, true];
 //Filters for the type of challenge
 const List<Text> typeChallenge = <Text>[
   Text('Time limit'),
-  Text('Quiz'),
+  Text('Treasure hunt'),
   Text('Checkpoints'),
   Text('Orienteering')
 ];
@@ -127,7 +127,7 @@ class _ChallengeState extends State<ChallengePage> {
                         // If we want to add more filters, this is where we do it as well as the lists at the top
                         children: [
                           Text('Time limit'),
-                          Text('Quiz'),
+                          Text('Treasure hunt'),
                           Text('Checkpoints'),
                           Text('Orienteering')
                         ].asMap().entries.map((widget) {
