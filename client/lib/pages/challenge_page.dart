@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -74,7 +76,7 @@ class _ChallengeState extends State<ChallengePage> {
                       minimumSize: Size(30, 20)
                     ),
                     label: Text('clear', style: TextStyle(color: Colors.white),),
-                    icon: SvgPicture.asset('assets/images/img_cross.svg')
+                    icon: SvgPicture.asset('assets/icons/img_cross.svg')
                   )
                 )
               ],
@@ -93,7 +95,6 @@ class _ChallengeState extends State<ChallengePage> {
                           for (int i = 0; i < _selectedStatus.length; i++) {
                             _selectedStatus[i] = i == index;
                           }
-                           //_selectedStatus[index] = !_selectedStatus[index];
                         });
                       },
                       borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -186,6 +187,12 @@ List<Challenge> filterChallenges(BuildContext context, List<Challenge> list) {
       activeStatus = i;
     }    
   }
+
+  for(int i = 0; i < _selectedStatus.length; i++) {
+    if(_selectedStatus[i]) {
+      activeStatus = i;
+    }    
+  }
   
   for(int i = 0; i < _selectedType.length; i++) {
     if(_selectedType[i]) { 
@@ -210,17 +217,16 @@ List<Challenge> filterChallenges(BuildContext context, List<Challenge> list) {
     } else {
       for(int i = 0; i < list.length; i++) {
         if(list[i].status == activeStatus) {
-        filteredChallenges.add(list[i]);
-      } else {
+          filteredChallenges.add(list[i]);
+        } else {
           for(int j = 0; j < activeTypes.length; j++) {
             if(activeTypes[j] == list[i].type) {
               filteredChallenges.add(list[i]);
             }
           }
+        }
       }
     }
-    }
-
     if(filteredChallenges.length == 0) {
       return list;
     } else {

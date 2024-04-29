@@ -38,6 +38,7 @@ class _CardState extends State<ChallengeCard> {
         },
         child: Container(
           height: 150,
+          width: 380,
           color: const Color.fromARGB(255, 89, 164, 224),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -75,7 +76,7 @@ class _CardState extends State<ChallengeCard> {
                       child: Padding(
                         padding: EdgeInsets.only(right: 15),
                         child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
+                          'assets/icons/img_arrow_right.svg',
                           height: 20,
                           width: 20,
                           colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -101,6 +102,7 @@ class _CardState extends State<ChallengeCard> {
         },
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 250, 159, 74),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -138,7 +140,7 @@ class _CardState extends State<ChallengeCard> {
                       child: Padding(
                         padding: EdgeInsets.only(right: 15),
                         child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
+                          'assets/icons/img_arrow_right.svg',
                           height: 20,
                           width: 20,
                           colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -164,6 +166,7 @@ class _CardState extends State<ChallengeCard> {
         },
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 137, 70, 196),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -198,7 +201,7 @@ class _CardState extends State<ChallengeCard> {
                       child: Padding(
                         padding: EdgeInsets.only(right: 15),
                         child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
+                          'assets/icons/img_arrow_right.svg',
                           height: 20,
                           width: 20,
                           colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -219,6 +222,7 @@ class _CardState extends State<ChallengeCard> {
         onTap:() {},
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 92, 95, 97),
         
           child: Padding(
@@ -230,7 +234,7 @@ class _CardState extends State<ChallengeCard> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.challenge.name}',
+                      'No ongoing challenges',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30
@@ -239,33 +243,6 @@ class _CardState extends State<ChallengeCard> {
                   ),
                 ),
                 Padding(padding: EdgeInsets.all(35)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [ 
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        'no info',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 15),
-                        child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
-                          height: 20,
-                          width: 20,
-                          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                        ),
-                      )
-                    ),
-                  ],
-                )
               ],
             )
           )

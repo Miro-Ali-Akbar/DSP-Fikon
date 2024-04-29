@@ -58,14 +58,14 @@ class _MainAppState extends State<MainApp> {
           items: [
             BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  'assets/images/img_home.svg',
+                  'assets/icons/img_home.svg',
                   width: 40,
                   height: 40,
                   colorFilter:
                       ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
                 ),
                 activeIcon: SvgPicture.asset(
-                  'assets/images/img_home.svg',
+                  'assets/icons/img_home.svg',
                   width: 40,
                   height: 40,
                   colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -73,13 +73,13 @@ class _MainAppState extends State<MainApp> {
                 label: 'Start'),
             BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  'assets/images/img_trails.svg',
+                  'assets/icons/img_trails.svg',
                   width: 40,
                   height: 40,
                   colorFilter:
                       ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
                 ),
-                activeIcon: SvgPicture.asset('assets/images/img_trails.svg',
+                activeIcon: SvgPicture.asset('assets/icons/img_trails.svg',
                     width: 40,
                     height: 40,
                     colorFilter:
@@ -87,13 +87,13 @@ class _MainAppState extends State<MainApp> {
                 label: 'Trails'),
             BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  'assets/images/img_trophy.svg',
+                  'assets/icons/img_trophy.svg',
                   width: 40,
                   height: 40,
                   colorFilter:
                       ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
                 ),
-                activeIcon: SvgPicture.asset('assets/images/img_trophy.svg',
+                activeIcon: SvgPicture.asset('assets/icons/img_trophy.svg',
                     width: 40,
                     height: 40,
                     colorFilter:
@@ -101,13 +101,13 @@ class _MainAppState extends State<MainApp> {
                 label: 'Challanges'),
             BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  'assets/images/img_profile.svg',
+                  'assets/icons/img_profile.svg',
                   width: 40,
                   height: 40,
                   colorFilter:
                       ColorFilter.mode(Colors.green.shade900, BlendMode.srcIn),
                 ),
-                activeIcon: SvgPicture.asset('assets/images/img_profile.svg',
+                activeIcon: SvgPicture.asset('assets/icons/img_profile.svg',
                     width: 40,
                     height: 40,
                     colorFilter:

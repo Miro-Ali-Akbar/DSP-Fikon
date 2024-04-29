@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:trailquest/pages/profile_page.dart';
 import '../widgets/back_button.dart';
 import 'generated_map_page.dart'; 
 
@@ -31,7 +28,10 @@ class GenerateTrail extends StatelessWidget{
                 )
               )
             ),
-            CreateNewTrail(), 
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: CreateNewTrail(),
+            ), 
           ],
         )  
       ),
@@ -79,39 +79,74 @@ class _PageCenterState extends State<PageCenter> {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
         children: [
-          Text('What activity do you want to do?', style: TextStyle(fontSize: 15)), 
-          ActivityOptions(), 
-          Text('How long do you want the trail to be?', style: TextStyle(fontSize: 15)),
-          Container(
-            child: InputField(),
-            width: 300,
-            height: 70,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text('What activity do you want to do?', style: TextStyle(fontSize: 15)),
+          ), 
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: ActivityOptions(),
+          ), 
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text('How long do you want the trail to be?', style: TextStyle(fontSize: 15)),
           ),
-          Text(
-            'Do you want the end point to be the same as the start point?', 
-            style: TextStyle(fontSize: 15), 
-            textAlign: TextAlign.center,),
-          TrailType(),
-          Text(
-            'Do you want to start from your current position?', 
-            style: TextStyle(fontSize: 15), 
-            textAlign: TextAlign.center,),
-          StartPointOptions(),
-          Text('What kind of enviornment do you want?', style: TextStyle(fontSize: 15)),
-          EnviornmentOptions(),
-          Row(
-            children: [
-              Checkbox(
-                value: checkedvalue,
-                onChanged: (newValue) {
-                  setState(() {
-                    checkedvalue = newValue ?? false;
-                  });
-                },
-              ),
-              Text('Make the route accessible for wheelchair users'),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Container(
+              child: InputField(),
+              width: 300,
+              height: 70,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              'Do you want the end point to be the same as the start point?', 
+              style: TextStyle(fontSize: 15), 
+              textAlign: TextAlign.center,),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: TrailType(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              'Do you want to start from your current position?', 
+              style: TextStyle(fontSize: 15), 
+              textAlign: TextAlign.center,),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: StartPointOptions(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text('What kind of enviornment do you want?', style: TextStyle(fontSize: 15)),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: EnviornmentOptions(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: checkedvalue,
+                  onChanged: (newValue) {
+                    setState(() {
+                      checkedvalue = newValue ?? false;
+                    });
+                  },
+                ),
+                Text('Avoid staircases'),
+              ],
+            ),
           ),
         ],
       ), 
@@ -173,7 +208,7 @@ class _ActivityOptionsState extends State<ActivityOptions> {
 }
 
 const List<String> TrailTypes = <String>[
-  'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg'
+  'assets/icons/img_circular_arrow.svg', 'assets/icons/img_route.svg'
 ];
 
 final List<bool> _selectedStatusTrailTypes = <bool>[false, false];
@@ -296,9 +331,9 @@ class _StartPointOptionsState extends State<StartPointOptions> {
 }
 
 const List<String> EnviornmentIcons = <String>[
-  'assets/images/img_trees.svg',
-  'assets/images/img_city.svg',
-  'assets/images/img_park.svg',
+  'assets/icons/img_trees.svg',
+  'assets/icons/img_city.svg',
+  'assets/icons/img_park.svg',
 ];
 
 const List<String> Enviornments = <String>[
