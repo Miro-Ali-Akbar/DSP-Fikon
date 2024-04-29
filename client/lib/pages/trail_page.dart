@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
+import 'package:trailquest/my_trail_list.dart';
+import 'package:trailquest/widgets/trail_cards.dart';
 
 bool browsing = false;
 
@@ -11,8 +13,8 @@ class TrailPage extends StatefulWidget {
 
 class _TrailPageState extends State<TrailPage> {
 
-  final List<String> myTrails = ['Trail name', 'Different trail name', '3', '4', '5'];
-  final List<String> friendsTrails = ['friend trail', '3', '4', '5'];
+  final List<TrailCard> myTrails = MyTrailList;
+  final List<TrailCard> friendsTrails = FriendTrailList;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,8 @@ class _TrailPageState extends State<TrailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               ),
               Expanded(
-                child: Trails(trails: browsing ? friendsTrails : myTrails),
+                child: Trails(savedTrails: MyTrailList, friendTrails: FriendTrailList,),
+                //child: Trails(trails: MyTrailList),
               ),
             ],
           ),
@@ -108,7 +111,11 @@ class FilterButton extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: TextButton.icon(
-        onPressed: null,
+        onPressed: () => showDialog(context: context, builder: (BuildContext context) {
+          return AlertDialog(
+            content: FilterPopUp(),
+          );
+        }),
         style: TextButton.styleFrom(
           backgroundColor: Colors.green,
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
@@ -149,41 +156,94 @@ class CreateNewTrail extends StatelessWidget {
 }
 
 class Trails extends StatelessWidget {
-  final List<String> trails;
-
-  const Trails({Key? key, required this.trails}) : super(key: key);
+  List<TrailCard> savedTrails;
+  List<TrailCard> friendTrails; 
+  
+  Trails({Key? key, required this.savedTrails, required this.friendTrails}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
+    List<TrailCard> allTrails = new List.from(savedTrails)..addAll(friendTrails); 
+    
+    List<TrailCard> filteredTrails = browsing ? 
+      friendTrails : 
+      allTrails.where((trail) {
+        return trail.isSaved; 
+      }).toList();
+
     return ListView.separated(
       padding: const EdgeInsets.all(10),
-      itemCount: trails.length,
+      itemCount: filteredTrails.length,
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-          width: 350,
-          height: 120,
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-            color: Colors.green[400],
-          ),
-          child: Row(
-            children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  trails[index],
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+        return filteredTrails[index]; 
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
+    );
+  }
+}
+
+class FilterPopUp extends StatefulWidget {
+  FilterPopUp({super.key}); 
+
+  @override 
+  State<FilterPopUp> createState() => _FilterPopUpState();
+}
+
+class _FilterPopUpState extends State<FilterPopUp> {
+
+  bool value1 = false; 
+  bool value2 = false; 
+  bool value3 = false; 
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Checkbox(
+                  onChanged: (newValue) {
+                    setState(() {
+                      value1 = newValue ?? false;
+                    });
+                  }, 
+                  value: value1
+                ),
+                Text('Test'),
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  onChanged: (newValue) {
+                    setState(() {
+                      value2 = newValue ?? false;
+                    });
+                  }, 
+                  value: value2
+                ),
+                Text('Test'),
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  onChanged: (newValue) {
+                    setState(() {
+                      value3 = newValue ?? false;
+                    });
+                  }, 
+                  value: value3
+                ),
+                Text('Test'),
+              ],
+            ),
+          ],
+        ),
+        width: 40,
+        height: 150
     );
   }
 }
