@@ -19,14 +19,14 @@ const leaderboardRef = db.collection('leaderboard');
 // Server helper functions
 
 /**
- * @brief Updates alive-status of a socket.
+ * Updates alive-status of a socket.
  */
 function heartbeat() {
     this.isAlive = true;
 }
 
 /**
- * @brief ID generation for new websockets
+ * ID generation for new websockets
  * @returns generated user ID
  */
 function generateID() {
@@ -36,15 +36,18 @@ function generateID() {
 // Database helper functions
 
 /**
- * @brief Enters data into a given document in database
- * @param userData data given to the function from parsed JSON-string
+ * Enters data into a given document in database
+ * @param {String} username username used to index database
+ * @param {JSON} userData data given to the function from parsed JSON-string
  */
 async function putUser(username, userData) {
     await usersRef.doc(username).set(userData);
 }
 
 /**
- * @brief Gets document in collection from database
+ * Gets document in collection from database
+ * @param {String} collection 
+ * @param {String} document 
  * @returns data from database
  */
 async function get(collection, document) {
@@ -59,21 +62,21 @@ async function get(collection, document) {
 }
 
 /**
- * @brief Puts fields into document in collection in database
- * @param {*} collection - collection to be selected (what type of data are we entering) (e.g. userdata)
- * @param {*} document  - document to which data should be written (e.g. user whose data should be updated)
- * @param {*} fields - data to be updated (e.g. friend-request to be updated)
+ * Puts fields into document in collection in database
+ * @param {String} collection - collection to be selected (what type of data are we entering) (e.g. userdata)
+ * @param {String} document  - document to which data should be written (e.g. user whose data should be updated)
+ * @param {String} fields - data to be updated (e.g. friend-request to be updated)
  */
 async function put(collection, document, fields) {
     await collection.doc(document).set(fields);
 }
 
 /**
- * @brief sends data through websocket
- * @param {*} ws - websocket through which data will be sent
- * @param {*} msgID - id of message to be sent (depends on data)
- * @param {*} doc? - if a route is to be sent, what route should be sent
- * @param {*} index - route in doc to be sent
+ *  sends data through websocket
+ * @param {WebSocket} ws - websocket through which data will be sent
+ * @param {String} msgID - id of message to be sent (depends on data)
+ * @param {String} doc? - if a route is to be sent, what route should be sent
+ * @param {Number} index - route in doc to be sent
  */
 async function send(ws, msgID, doc, index) {
     let data;
@@ -91,8 +94,8 @@ async function send(ws, msgID, doc, index) {
         case "sendRoute":
             const route = await get(routesRef, doc);
             data = {
-                route: route[0],
-                color: route[1]
+                route: route.testArr[0].test,
+                color: route.testArr[0].color
             }
             break;
     }
