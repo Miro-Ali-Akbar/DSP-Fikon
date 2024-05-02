@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/challenge_page.dart';
-import 'package:trailquest/pages/profile_page.dart';
+import 'package:trailquest/pages/profilepage/auth_gate.dart';
 import 'package:trailquest/pages/start_page.dart';
 import 'package:trailquest/pages/trail_page.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 WebSocketChannel? channel;
 
@@ -18,7 +20,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
   await FlutterConfig.loadEnvVariables();
   var googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+
   runApp(const MainApp());
 }
 
@@ -34,8 +42,8 @@ class _MainAppState extends State<MainApp> {
   final screens = [
     const StartPage(),
     TrailPage(),
-    ChallengePage(),
-    const ProfilePage()
+    ChallengePage(), 
+    AuthGate(),
   ];
 
   @override

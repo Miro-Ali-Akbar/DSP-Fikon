@@ -21,6 +21,11 @@ dependencies:
   http: ^0.13.6 
   flutter_polyline_points: ^1.0.0
   flutter_config: ^2.0.2
+  firebase_core: any
+  firebase_ui_auth: any
+  google_sign_in: ^6.2.1
+  firebase_ui_oauth_google: ^1.2.10
+  firebase_auth: 4.12.0 #Remove = death. Needs to be 4.12 or else everything breaks see: https://stackoverflow.com/questions/77468892/error-authprovider-is-imported-from-both 
 
 dev_dependencies:
   flutter_test:

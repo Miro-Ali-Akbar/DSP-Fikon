@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "958551020940",
+    "project_id": "dsp-fikon",
+    "storage_bucket": "dsp-fikon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958551020940:android:42757c9515437ac9c532a9",
+        "android_client_info": {
+          "package_name": "com.example.trailquest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "958551020940-idrcg2v0ot7ul97gjo044np5sugt0skk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArDgW1lZvpHFvY49sd9VUBQYj7vXk6bbw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "958551020940-idrcg2v0ot7ul97gjo044np5sugt0skk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

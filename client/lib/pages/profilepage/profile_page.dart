@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+/// The profilepage of the user
+/// Note: Use authGate instead of this as it guaranties that the user is logged in.
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
   static const double? dropDownWidth = 500;
   static const edgeValue = 20.0;
 
@@ -10,6 +13,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  User? user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,11 +28,10 @@ class _ProfilePageState extends State<ProfilePage> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: ListView(
           children: [
             ProfileRow(),
-            Friendlist(),
+            ContainerButton((), "Friends"),
             DropdownTile(
               "Statistics",
               Column(
@@ -79,14 +82,59 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-            // TODO: add firebase api
-            // const SignOutButton(),
+            ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout"),
+            ElevatedButton(
+              onPressed: () {
+                print(FirebaseAuth.instance.currentUser);
+              },
+              // tooltip: 'Increment',
+              child: const Text("print user in debug"),
+            ),
           ],
         ),
       ),
     );
   }
 
+  /// Creates a button acording to our style
+  ///
+  /// [selectedFunction] a nullary function that does the prefered action
+  /// [string] the text displayed on the button
+  ///
+  /// Returns a button acording to our style
+  GestureDetector ContainerButton(selectedFunction, String string) {
+    return GestureDetector(
+      onTap: () {
+        selectedFunction();
+      },
+      child: Container(
+        padding: EdgeInsets.all(10 + 5), // +5 for some reason
+        margin: EdgeInsets.all(ProfilePage.edgeValue),
+        height: 60.0,
+        width: ProfilePage.dropDownWidth,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(
+            Radius.circular(ProfilePage.edgeValue),
+          ),
+          color: Colors.green,
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            string,
+            style: Theme.of(context)
+                .textTheme
+                .bodyLarge!
+                .copyWith(color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The header for the ProfilePage
+  ///
+  /// returns a avatar image from the logged in user along with thier name and level
   Row ProfileRow() {
     return Row(
       children: [
@@ -95,15 +143,17 @@ class _ProfilePageState extends State<ProfilePage> {
           child: //Container(
               CircleAvatar(
             radius: 48, // Image radius
-            backgroundImage: AssetImage('assets/icons/img_profile.svg'),
-            // foregroundImage: , // TODO: Here is the actual profile picture
+            backgroundImage: AssetImage('assets/images/img_profile.svg'),
+            foregroundImage: NetworkImage(user!
+                .photoURL!), // Display user's profile picture if user is not null
           ),
         ),
         Expanded(
           flex: 1,
           child: Column(
             children: [
-              Text("Username", style: Theme.of(context).textTheme.bodyLarge),
+              Text(user!.displayName!,
+                  style: Theme.of(context).textTheme.bodyLarge),
               Text("Level 1", style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
@@ -112,6 +162,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // TODO: Remove as this is legacy
   Container Friendlist() {
     // Check with others - I give up
     // Dropdown video
@@ -154,6 +205,12 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  /// Creates a dropdownmenu acording to our style
+  ///
+  /// [Name] The text displayed on the original button
+  /// [Buttons] The buttons that can be expanded: Is a usually a Row or Column with ListTile as buttons
+  ///
+  /// Returns a container that is the complete dropdownmenu
   Container DropdownTile(String Name, Column Buttons) {
     // https://api.flutter.dev/flutter/material/ExpansionTile-class.html
     return Container(
