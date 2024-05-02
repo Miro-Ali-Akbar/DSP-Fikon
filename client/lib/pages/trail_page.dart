@@ -138,7 +138,7 @@ class FilterButton extends StatelessWidget {
           ),
         ),
         label: const Text('Filter', style: TextStyle(color: Colors.white, fontSize: 15)),
-        icon: SvgPicture.asset('assets/images/img_filter.svg'),
+        icon: SvgPicture.asset('assets/icons/img_filter.svg'),
       ),
     );
   }
