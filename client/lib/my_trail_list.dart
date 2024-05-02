@@ -6,18 +6,20 @@ List<TrailCard> MyTrailList= <TrailCard>[
     stairs: false, 
     lengthDistance: 5000,
     lengthTime: 60,
-    natureStatus: 'Nature',
+    natureStatus: 'City',
     heightDifference: 30,
     isSaved: true,
+    isCircular: false,
   ),
   TrailCard(
     name: 'trail 2',
     stairs: false, 
     lengthDistance: 5000,
     lengthTime: 60,
-    natureStatus: 'Nature',
+    natureStatus: 'City',
     heightDifference: 30,
     isSaved: true,
+    isCircular: true,
   ),
   TrailCard(
     name: 'trail 3',
@@ -27,15 +29,17 @@ List<TrailCard> MyTrailList= <TrailCard>[
     natureStatus: 'Nature',
     heightDifference: 30,
     isSaved: true,
+    isCircular: true,
   ),
   TrailCard(
     name: 'trail 4',
-    stairs: false, 
+    stairs: true, 
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'Nature',
     heightDifference: 30,
     isSaved: true,
+    isCircular: false,
   ),
 ];
 
@@ -48,6 +52,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     natureStatus: 'City',
     heightDifference: 2,
     isSaved: false,
+    isCircular: true,
   ),
   TrailCard(
     name: 'trail B',
@@ -57,6 +62,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     natureStatus: 'Nature',
     heightDifference: 30,
     isSaved: false,
+    isCircular: false,
   ),
   TrailCard(
     name: 'trail C',
@@ -66,6 +72,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     natureStatus: 'Nature',
     heightDifference: 30,
     isSaved: false,
+    isCircular: true,
   ),
   TrailCard(
     name: 'trail D',
@@ -75,6 +82,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     natureStatus: 'Nature',
     heightDifference: 30,
     isSaved: false,
+    isCircular: false,
   ),
   TrailCard(
     name: 'trail E',
@@ -84,5 +92,6 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     natureStatus: 'Nature',
     heightDifference: 30,
     isSaved: false,
+    isCircular: false,
   ),
 ];
