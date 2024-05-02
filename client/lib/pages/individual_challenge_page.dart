@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
@@ -18,103 +19,81 @@ class IndividualChallengePage extends StatefulWidget {
 }
 
 class _IndividualChallengeState extends State<IndividualChallengePage> {
+
   Challenge challenge;
-  
 
   _IndividualChallengeState({required this.challenge});
 
   @override
   Widget build(BuildContext context) {
-    String type = challenge.type;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
+    String type = widget.challenge.type;
 
-      home: Scaffold(
-        body: Column( 
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-            ),
-            Row(
-              children: [
-                GoBackButton(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text('${widget.challenge.name}', 
-                    style: TextStyle(fontSize: 27)),
-                ),
-              ],
-            ),
-            Container(
-              width: 400,
-              child: Image(
-                fit: BoxFit.contain,
-                image: AssetImage(widget.challenge.image)
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(children: [GoBackButton(), Text(widget.challenge.name, style: TextStyle(fontSize: 20))],),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Image(
+                      width: 400,
+                      fit: BoxFit.contain,
+                      image: AssetImage(widget.challenge.image),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      widget.challenge.description,
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Instruction: $type',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            ChallengeInstruction(widget.challenge),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(top: 10),
-                  width: 370,
-                  child: Text(
-                    widget.challenge.description,
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                )
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(padding: EdgeInsets.only(top: 20)),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black)
-                  ),
-                  width: 370,
-                  child: Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Column(
-                      children:[
-                        Text('Instruction: $type',
-                          style: TextStyle(
-                            fontSize: 18
-                          ),
-                        ),
-                        ChallengeInstruction(widget.challenge)
-                      ]
-                    )
-                  )
-                )
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10)
-            ),
-            TextButton(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextButton(
               onPressed: () {
-                if(challenge.status == 0) {
-                  setState(() {
-                    challenge.status = 1;
-                  });
-                } else if(challenge.status == 1) {
-                  setState(() {
-                    challenge.status = 0;
-                  });
-                } else {
-                  setState(() {});
-                }
+                setState(() {
+                  if (widget.challenge.status == 0) {
+                    widget.challenge.status = 1;
+                  } else if (widget.challenge.status == 1) {
+                    widget.challenge.status = 0;
+                  }
+                });
               },
-              style: StyleStartStopChallenge(challenge),
-              child: TextStartStopChallenge(challenge),
-            )
-          ]
-        )
+              style: StyleStartStopChallenge(widget.challenge),
+              child: TextStartStopChallenge(widget.challenge),
+            ),
+          ),
+        ],
       ),
     );
   }
