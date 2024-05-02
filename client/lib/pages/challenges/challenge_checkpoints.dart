@@ -516,14 +516,27 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               PolylineResult result = await _getPolyline(start);
 
               // FIXME: A good start. Spaced by number of points, not distance
-              for (var i = 0; i < polylineCoordinates.length; i += 20) {
-                _geofenceService.addGeofence(Geofence(
-                    id: 'loc_$i',
-                    latitude: polylineCoordinates[i].latitude,
-                    longitude: polylineCoordinates[i].longitude,
-                    radius: geofenceRadiusList));
-                _addMarker(polylineCoordinates[i], "GeofenceCoord: $i",
-                    BitmapDescriptor.defaultMarkerWithHue(50));
+              if (polylineCoordinates.isNotEmpty) {
+                LatLng oldOrigin = polylineCoordinates.first;
+                int interval = (polylineCoordinates.length / 10).round();
+                for (var i = 1; i < polylineCoordinates.length; i += interval) {
+                  LatLng currentPoint = polylineCoordinates[i];
+
+                  // TODO: Change distance to more suitable number
+                  if (await _getWalkingDistance(
+                          oldOrigin, currentPoint, false) >
+                      100) {
+                    _geofenceService.addGeofence(Geofence(
+                        id: 'loc_$i',
+                        latitude: currentPoint.latitude,
+                        longitude: currentPoint.longitude,
+                        radius: geofenceRadiusList));
+                    _addMarker(currentPoint, "GeofenceCoord: $i",
+                        BitmapDescriptor.defaultMarkerWithHue(50));
+
+                    oldOrigin = currentPoint;
+                  }
+                }
               }
 
               centerScreen(await Geolocator.getCurrentPosition());
