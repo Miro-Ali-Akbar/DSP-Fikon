@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
@@ -90,6 +91,26 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
                   )
                 )
               ],
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10)
+            ),
+            TextButton(
+              onPressed: () {
+                if(challenge.status == 0) {
+                  setState(() {
+                    challenge.status = 1;
+                  });
+                } else if(challenge.status == 1) {
+                  setState(() {
+                    challenge.status = 0;
+                  });
+                } else {
+                  setState(() {});
+                }
+              },
+              style: StyleStartStopChallenge(challenge),
+              child: TextStartStopChallenge(challenge),
             )
           ]
         )
@@ -124,5 +145,43 @@ Widget ChallengeInstruction(Challenge challenge){
     ,);
   } else {
     return Text(' ');
+  }
+}
+
+ButtonStyle StyleStartStopChallenge(Challenge challenge) {
+  if(challenge.status == 0) {
+    return TextButton.styleFrom(
+      backgroundColor: Colors.green.shade600,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+    );
+  } else if (challenge.status == 1){
+    return TextButton.styleFrom(
+      backgroundColor: Colors.green.shade900,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+    );
+  } else {
+    return TextButton.styleFrom(
+      backgroundColor: Colors.black,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+    );
+  }
+}
+
+Text TextStartStopChallenge(Challenge challenge) {
+  if(challenge.status == 0) {
+    return Text('Start challenge', style: TextStyle(color: Colors.white, fontSize: 25));
+  } else if(challenge.status == 1) {
+    return Text('Stop challenge?', style: TextStyle(color: Colors.white, fontSize: 25));
+  } else {
+    return Text('Finished challenge!', style: TextStyle(color: Colors.white, fontSize: 25));
   }
 }

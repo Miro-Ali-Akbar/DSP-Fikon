@@ -128,7 +128,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 questions done',
+                        '$count/10 locations visited',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20
@@ -223,7 +223,7 @@ class _CardState extends State<ChallengeCard> {
         child: Container(
           height: 150,
           width: 380,
-          color: Color.fromARGB(255, 92, 95, 97),
+          color: Color.fromARGB(255, 134, 139, 143),
         
           child: Padding(
             padding: EdgeInsets.only(left: 10),
