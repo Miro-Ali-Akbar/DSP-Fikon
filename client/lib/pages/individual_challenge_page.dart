@@ -1,11 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/challenge.dart';
-import 'package:trailquest/widgets/challenge_cards.dart';
 
 class IndividualChallengePage extends StatefulWidget {
   Challenge challenge;
@@ -38,7 +33,9 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
               Padding(
                 padding: const EdgeInsets.only(top: 15.0),
                 child: Text(widget.challenge.name, style: TextStyle(fontSize: 25)),
-              )],),
+              )
+            ],
+          ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
