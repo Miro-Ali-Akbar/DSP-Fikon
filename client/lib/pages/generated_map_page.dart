@@ -18,7 +18,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart';
 
-String totalDistance = 'No Route';
+//String totalDistance = 'No Route';
+double totalDistance = 0;
 bool inIntervall = false;
 Map<MarkerId, Marker> markers = {};
 Map<PolylineId, Polyline> polylines = {};
@@ -366,8 +367,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
   if (generatedDistance > inputDistance - 500 &&
       generatedDistance < inputDistance + 500) {
     inIntervall = true;
-    totalDistance = generatedDistance
-        .toString(); //TODO: place somewhere useful when such exists
+    totalDistance = generatedDistance;
   }
 
   return wayPoints;
@@ -401,7 +401,7 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
   }
 
   if (!inIntervall) {
-    totalDistance = 'Failed';
+    points = await _getWayPoints(start, inputDistance + 500, statusEnvironment);
     points = [];
     reset();
   }
@@ -424,7 +424,14 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
 class GeneratedMap extends StatelessWidget {
   GeneratedMap({Key? key}) : super(key: key);
 
-  TrailCard trail = TrailCard(name: '', lengthDistance: 0, lengthTime: 0, natureStatus: '', stairs: false, heightDifference: 0, isSaved: false); 
+  TrailCard trail = TrailCard(
+      name: '',
+      lengthDistance: 0,
+      lengthTime: 0,
+      natureStatus: '',
+      stairs: false,
+      heightDifference: 0,
+      isSaved: false);
 
   @override
   Widget build(BuildContext context) {
@@ -434,13 +441,11 @@ class GeneratedMap extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //home: const MapsRoutesExample(title: 'GMR Demo Home'),
-      home: MapsRoutesGenerator(trail: trail, saved: false, onSaveChanged: (value){}),
+      home: MapsRoutesGenerator(
+          trail: trail, saved: false, onSaveChanged: (value) {}),
     );
   }
 }
-
-
-//TODO:
 
 class MapsRoutesGenerator extends StatefulWidget {
   TrailCard trail;
@@ -466,7 +471,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   _MapsRoutesGeneratorState(
       {Key? key, required this.trail, required this.saved});
 
-  
   late Completer<GoogleMapController> _controller = Completer();
 
   double inputDistance = 0;
@@ -499,10 +503,12 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     avoidStairs = getCheckedValue();
     inputDistance = double.parse(getInputDistance());
 
+    if (!getIsDistanceMeters()) {
+      inputDistance = inputDistance * 60 * 1.42;
+    }
+
     // Get current location
     _getLocation(inputDistance);
-
-    _buildTrailCard(); 
   }
 
   void _getLocation(double inputDistance) async {
@@ -511,27 +517,47 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
       setState(() {
         start = LatLng(position.latitude, position.longitude);
         _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
-        _asyncMethod(inputDistance);
+      });
+      await _asyncMethod(inputDistance);
+      setState(() {
+        _buildTrailCard();
       });
     } catch (e) {
       print("Error getting current location: $e");
     }
   }
 
+  double hillines = 0;
+
   _asyncMethod(double inputDistance) async {
     await _getPolyline(start, inputDistance, statusEnvironment, avoidStairs);
 
     setState(() {});
 
-    double hillines =
-        await _getHilliness(); //TODO: place somewhere useful when such exists
+    hillines = await _getHilliness();
     print("Total Hilliness:");
     print(hillines);
   }
 
-  //TODO: build the trailcard
+  double _distanceToTime(double distance) {
+    if (activityOption == 'Walking') {
+      return distance / 1.42 / 60;
+    } else if (activityOption == 'Running') {
+      return distance / 2.56 / 60;
+    } else {
+      return distance / 5.0 / 60;
+    }
+  }
+
   void _buildTrailCard() {
-    
+    trail.name = 'Your Trail';
+    trail.stairs = !avoidStairs;
+    trail.lengthDistance = totalDistance;
+    trail.lengthTime =
+        double.parse((_distanceToTime(totalDistance)).toStringAsFixed(1));
+    trail.natureStatus = getSelectedStatusEnvironment();
+    trail.heightDifference = double.parse((hillines).toStringAsFixed(1));
+    trail.isSaved = false;
   }
 
   @override
@@ -672,7 +698,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
-                        '${trail.heightDifference}',
+                        '${trail.heightDifference} m',
                         style: TextStyle(fontSize: 15),
                       ),
                     ),

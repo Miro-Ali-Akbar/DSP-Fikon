@@ -497,8 +497,13 @@ class UnitToggleButton extends StatefulWidget {
   _UnitToggleButtonState createState() => _UnitToggleButtonState();
 }
 
+bool isMeters = true;
+
+bool getIsDistanceMeters(){
+  return isMeters; 
+}
+
 class _UnitToggleButtonState extends State<UnitToggleButton> {
-  bool isMeters = true;
 
   void toggleUnit() {
     setState(() {
