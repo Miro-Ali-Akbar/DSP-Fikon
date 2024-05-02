@@ -1,8 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import '../widgets/back_button.dart';
 import 'generated_map_page.dart';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+
+late LatLng start;
 
 class GenerateTrail extends StatelessWidget {
   @override
@@ -63,10 +70,10 @@ class CreateNewTrail extends StatelessWidget {
   }
 }
 
-bool checkedvalue = false; 
+bool checkedvalue = false;
 
 bool getCheckedValue() {
-  return checkedvalue; 
+  return checkedvalue;
 }
 
 class PageCenter extends StatefulWidget {
@@ -77,6 +84,19 @@ class PageCenter extends StatefulWidget {
 }
 
 class _PageCenterState extends State<PageCenter> {
+  @override
+  void initState() {
+    super.initState();
+    _getLocation();
+  }
+
+  void _getLocation() async {
+    Position position = await Geolocator.getCurrentPosition();
+    setState(() {
+      start = LatLng(position.latitude, position.longitude);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -317,6 +337,12 @@ String getSelectedStatusStartPoint() {
   return 'Yes';
 }
 
+LatLng? userPickedLocation;
+
+LatLng getPickedLocation() {
+  return userPickedLocation!;
+}
+
 class StartPointOptions extends StatefulWidget {
   StartPointOptions({super.key});
 
@@ -325,8 +351,17 @@ class StartPointOptions extends StatefulWidget {
 }
 
 class _StartPointOptionsState extends State<StartPointOptions> {
+  late Completer<GoogleMapController> _controller = Completer();
+  late LatLng pickedLocation = LatLng(start.latitude, start.longitude);
+
+  Future<void> centerScreen(Position position) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newLatLngZoom(
+        LatLng(position.latitude, position.longitude), 14));
+  }
+
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ToggleButtons(
       renderBorder: false,
       fillColor: Colors.white,
@@ -339,36 +374,81 @@ class _StartPointOptionsState extends State<StartPointOptions> {
           }
         });
         if (_selectedStatusStartPoint[1]) {
-          //TODO: When this button is pressed a map should open to allow the user to choose a starting point.
-          // Uncomment the following code and add the destination after the arrow. The code is tested and should work :)
-          //Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          //  pageBuilder: (context, x, xx) => ,
-          //  transitionDuration: Duration.zero,
-          //  reverseTransitionDuration: Duration.zero,
-          //));
+          _openMapOverlay(context);
         }
       },
       children: List<Widget>.generate(
-          2,
-          (index) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      color: _selectedStatusStartPoint[index]
-                          ? Colors.black
-                          : Colors.white),
-                  padding: const EdgeInsets.all(5),
-                  width: 160,
-                  height: 30,
-                  alignment: Alignment.center,
-                  child: Text(index == 0 ? 'Yes' : 'No (choose from map)',
-                      style: TextStyle(
-                          color: _selectedStatusStartPoint[index]
-                              ? Colors.white
-                              : Colors.black))))),
+        2,
+        (index) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              color: _selectedStatusStartPoint[index]
+                  ? Colors.black
+                  : Colors.white,
+            ),
+            padding: const EdgeInsets.all(5),
+            width: 160,
+            height: 30,
+            alignment: Alignment.center,
+            child: Text(
+              index == 0 ? 'Yes' : 'No (choose from map)',
+              style: TextStyle(
+                color: _selectedStatusStartPoint[index]
+                    ? Colors.white
+                    : Colors.black,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  void _openMapOverlay(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      enableDrag: false,
+      builder: (BuildContext bc) {
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.75,
+            child: GoogleMap(
+                myLocationEnabled: true,
+                zoomControlsEnabled: false,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                },
+                initialCameraPosition: CameraPosition(
+                  zoom: 14.0,
+                  target: LatLng(start.latitude, start.longitude),
+                ),
+                markers: pickedLocation != null
+                    ? Set<Marker>.of([
+                        Marker(
+                          markerId: MarkerId('picked_location'),
+                          position: pickedLocation,
+                        ),
+                      ])
+                    : Set<Marker>(),
+                onTap: (LatLng location) {
+                  _pickLocation(location);
+                  setState(() {});
+                }),
+          );
+        });
+      },
+    );
+  }
+
+  void _pickLocation(LatLng location) {
+    setState(() {
+      pickedLocation = location;
+      userPickedLocation = location;
+    });
   }
 }
 
@@ -461,10 +541,10 @@ class InputField extends StatefulWidget {
   State<InputField> createState() => _InputFieldState();
 }
 
-String inputDistance = ''; 
+String inputDistance = '';
 
 String getInputDistance() {
-  return inputDistance; 
+  return inputDistance;
 }
 
 class _InputFieldState extends State<InputField> {
@@ -480,7 +560,7 @@ class _InputFieldState extends State<InputField> {
               FilteringTextInputFormatter.digitsOnly
             ],
             onSubmitted: (String value) {
-              inputDistance = value; 
+              inputDistance = value;
             },
           ),
         ),
@@ -499,12 +579,11 @@ class UnitToggleButton extends StatefulWidget {
 
 bool isMeters = true;
 
-bool getIsDistanceMeters(){
-  return isMeters; 
+bool getIsDistanceMeters() {
+  return isMeters;
 }
 
 class _UnitToggleButtonState extends State<UnitToggleButton> {
-
   void toggleUnit() {
     setState(() {
       isMeters = !isMeters;

@@ -496,15 +496,22 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
         : false; //'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg' //TODO: startpoint != endpoint not implemented
     userStartPoint = getSelectedStatusStartPoint() == 'Yes'
         ? true
-        : false; //'Yes', 'No (choose from map)' //TODO: 'No' not implemented
+        : false; //'Yes', 'No (choose from map)'
     statusEnvironment = getSelectedStatusEnvironment() == 'Nature'
         ? true
         : false; //'Nature', 'City', 'Both'
     avoidStairs = getCheckedValue();
     inputDistance = double.parse(getInputDistance());
 
+    // Time in meters
     if (!getIsDistanceMeters()) {
-      inputDistance = inputDistance * 60 * 1.42;
+      if (activityOption == 'Walking') {
+        inputDistance = inputDistance * 1.42 * 60;
+      } else if (activityOption == 'Running') {
+        inputDistance = inputDistance * 2.56 * 60;
+      } else {
+        inputDistance = inputDistance * 5.0 * 60;
+      }
     }
 
     // Get current location
@@ -515,8 +522,13 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     try {
       Position position = await Geolocator.getCurrentPosition();
       setState(() {
-        start = LatLng(position.latitude, position.longitude);
-        _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
+        if (userStartPoint) {
+          start = LatLng(position.latitude, position.longitude);
+          _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
+        } else {
+          start = getPickedLocation();
+          _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
+        }
       });
       await _asyncMethod(inputDistance);
       setState(() {
