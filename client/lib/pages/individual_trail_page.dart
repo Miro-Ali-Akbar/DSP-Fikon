@@ -145,26 +145,25 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Text('${trail.heightDifference}', style: TextStyle(fontSize: 15),),
                         ),
-                        if (saved) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(left: 80),
-                            child: RemoveTrail(
-                              onRemove: (value) {
-                                setState(() {
-                                  saved = value;
-                                  widget.onSaveChanged(false);
-                                });
-                              },
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
                 ],
               ), 
             ),
-            if (!saved) ...[
+            if (saved) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: RemoveTrail(
+                  onRemove: (value) {
+                    setState(() {
+                      saved = value;
+                      widget.onSaveChanged(false);
+                    });
+                  },
+                ),
+              ),
+            ] else ...[
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: SaveTrail(
@@ -176,7 +175,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                   },
                 ),
               ),
-            ],
+            ]
           ]
         )  
       ),
@@ -231,12 +230,12 @@ class _RemoveTrailState extends State<RemoveTrail> {
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.red,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
       ),
-      child: const Text('Remove Trail', style: TextStyle(color: Colors.white, fontSize: 10)),
+      child: const Text('Remove Trail', style: TextStyle(color: Colors.white, fontSize: 30)),
     );
   }
 }
