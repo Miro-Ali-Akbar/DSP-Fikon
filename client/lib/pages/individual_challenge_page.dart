@@ -32,7 +32,13 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [GoBackButton(), Text(widget.challenge.name, style: TextStyle(fontSize: 20))],),
+          Row(
+            children: [
+              GoBackButton(), 
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Text(widget.challenge.name, style: TextStyle(fontSize: 25)),
+              )],),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
