@@ -28,8 +28,6 @@ List<GeofenceRadius> geofenceRadiusList = [
   GeofenceRadius(id: "radius_20m", length: 20)
 ];
 
-List<LatLng> geofenceCoords = [];
-
 late LatLng start;
 
 void reset() {
@@ -275,8 +273,6 @@ Future<PolylineResult> _getPolyline(LatLng start) async {
 
   if (result.points.isNotEmpty) {
     result.points.forEach((PointLatLng point) {
-      // FIXME: Kinda broken. Adds all polylinepoints as geofencecoords
-      geofenceCoords.add(LatLng(point.latitude, point.longitude));
       polylineCoordinates.add(LatLng(point.latitude, point.longitude));
     });
   }
@@ -519,24 +515,17 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
               PolylineResult result = await _getPolyline(start);
 
-              // FIXME: Too many points. Essentially just polylinePoints
-              for (var i = 0; i < geofenceCoords.length; i++) {
+              // FIXME: A good start. Spaced by number of points, not distance
+              for (var i = 0; i < polylineCoordinates.length; i += 20) {
                 _geofenceService.addGeofence(Geofence(
                     id: 'loc_$i',
-                    latitude: geofenceCoords[i].latitude,
-                    longitude: geofenceCoords[i].longitude,
+                    latitude: polylineCoordinates[i].latitude,
+                    longitude: polylineCoordinates[i].longitude,
                     radius: geofenceRadiusList));
-                _addMarker(geofenceCoords[i], "GeofenceCoord: $i",
+                _addMarker(polylineCoordinates[i], "GeofenceCoord: $i",
                     BitmapDescriptor.defaultMarkerWithHue(50));
               }
-              // _addMarker(
-              //     LatLng(
-              //         result
-              //             .points[(result.points.length / 2).round()].latitude,
-              //         result.points[(result.points.length / 2).round()]
-              //             .longitude),
-              //     "Last",
-              //     BitmapDescriptor.defaultMarkerWithHue(50));
+
               centerScreen(await Geolocator.getCurrentPosition());
 
               setState(() {});
