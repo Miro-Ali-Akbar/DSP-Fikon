@@ -346,13 +346,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
         activeIndex++;
       });
 
-      // // FIXME: Change to next checkpoint
-      // _geofenceService.addGeofence(Geofence(
-      //     id: 'loc_$activeIndex',
-      //     latitude: geofenceCoords[activeIndex].latitude,
-      //     longitude: geofenceCoords[activeIndex].longitude,
-      //     radius: geofenceRadiusList));
-
       // TODO: Add game logic
     } else if (geofenceStatus.toString() == "GeofenceStatus.EXIT") {
       print("Left area");
@@ -513,7 +506,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               inIntervall = false;
               stairsExist = false;
 
-              PolylineResult result = await _getPolyline(start);
+              await _getPolyline(start);
 
               // FIXME: A good start. Spaced by number of points, not distance
               if (polylineCoordinates.isNotEmpty) {
