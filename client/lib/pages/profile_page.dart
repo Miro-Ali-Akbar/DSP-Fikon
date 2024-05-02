@@ -95,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: //Container(
               CircleAvatar(
             radius: 48, // Image radius
-            backgroundImage: AssetImage('assets/images/img_profile.svg'),
+            backgroundImage: AssetImage('assets/icons/img_profile.svg'),
             // foregroundImage: , // TODO: Here is the actual profile picture
           ),
         ),

@@ -1,47 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
-List<ChallengeCard> challenges = <ChallengeCard>[
-  ChallengeCard(
+List<Challenge> challenges = <Challenge>[
+  Challenge(
     name: '10 statues in Uppsala', 
     type: 'Checkpoints', 
-    description: Text('Find these 10 statues'), 
-    //timeLimit: true,
+    description: 'All around Uppsala there are plenty of interesting statues. During this checkpoint trail you will explore 10 of them.', 
     status: 0,
+    image: 'assets/images/Pelle_Svanslös-statyn.jpg'
   ),
-  ChallengeCard(
-    name: 'Questions about birds', 
-    type: 'Quiz', 
-    description: Text('Answer questions about birds'), 
-    //timeLimit: true,
-    status: 2
+  Challenge(
+    name: 'Birds', 
+    type: 'Orienteering', 
+    description:'Visit all marked control points and maybe you will get to see some cool birds. No gurantee though, despite the name of the challenge.', 
+    status: 2,
+    image: 'assets/images/gardsmyg_johan-nilsson.jpg'
   ),
-  ChallengeCard(
+  Challenge(
     name: 'Cool large rocks', 
-    type: 'Checkpoints', 
-    description: Text('Visit cool large rocks in Uppsala'), 
-    //timeLimit: false,
+    type: 'Treasure hunt', 
+    description:'We have found som very cool large rocks around Uppsala. Are you willing to take on the quest to find them all?', 
     status: 1,
+    image: 'assets/images/FlyttblockSurte.jpg'
   ),
-  ChallengeCard(
+  Challenge(
     name: 'Orienteering in Luthagen', 
     type: 'Orienteering', 
-    description: Text('Gather control points in Luthagen'), 
-    //timeLimit: false,
+    description:"Gather control points in Luthagen. Why? It's pretty nice here actually.", 
     status: 1,
+    image: 'assets/images/Luthagen.jpg'
   ),
-  ChallengeCard(
-    name: 'Questions about plants', 
-    type: 'Quiz', 
-    description: Text('Answer questions about plants'), 
-    //timeLimit: true,
+  Challenge(
+    name: 'Pretty flowers', 
+    type: 'Checkpoints', 
+    description:'Walk the trail and look at the pretty flowers at each checkpoint. Maybe smell them too?', 
     status: 2,
+    image: 'assets/images/wildflowers.jpg'
   ),
-  ChallengeCard(
+  Challenge(
     name: 'Important buildings', 
-    type: 'Quiz', 
-    description: Text('Answer questions about importnat buildings'), 
-    //timeLimit: false,
-    status: 0
+    type: 'Treasure hunt', 
+    description:"This will take you to some of the important buildings in Uppsala. You won't know which ones beforehand so follow the trails and see where they lead. Can you guess all the buildings?", 
+    status: 0,
+    image: 'assets/images/Uppsala_domkyrka_flygbild.jpg'
   ),
 ];

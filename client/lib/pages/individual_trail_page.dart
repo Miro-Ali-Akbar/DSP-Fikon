@@ -72,7 +72,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          'assets/images/img_walking.svg', 
+                          'assets/icons/img_walking.svg', 
                           colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
                             height: 35,
                             width: 50,),
@@ -88,7 +88,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          'assets/images/img_clock.svg', 
+                          'assets/icons/img_clock.svg', 
                           colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
                             height: 35,
                             width: 50,),
@@ -104,7 +104,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          'assets/images/img_trees.svg', 
+                          'assets/icons/img_trees.svg', 
                           colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
                             height: 35,
                             width: 50,),
@@ -120,7 +120,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          'assets/images/img_stairs.svg', 
+                          'assets/icons/img_stairs.svg', 
                           colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
                             height: 35,
                             width: 50,),
@@ -137,7 +137,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          'assets/images/img_arrow_up.svg', 
+                          'assets/icons/img_arrow_up.svg', 
                           colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
                             height: 35,
                             width: 50,),
