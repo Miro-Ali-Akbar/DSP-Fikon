@@ -1,11 +1,15 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
-import 'package:trailquest/pages/individual_trail_page.dart';
+import 'package:trailquest/my_trail_list.dart';
+import 'package:trailquest/widgets/trail_cards.dart';
 
 bool browsing = false;
+
+// Filters: 
+// 0 = noStairs, 1 = onlyNature, 2 = circularRoutes, 3 = maxDistance, 4 = minDistance
+List filters = [false, false, false, double.infinity, 0];
 
 class TrailPage extends StatefulWidget {
   @override
@@ -14,8 +18,8 @@ class TrailPage extends StatefulWidget {
 
 class _TrailPageState extends State<TrailPage> {
 
-  final List<String> myTrails = ['Trail name', 'Different trail name', '3', '4', '5'];
-  final List<String> friendsTrails = ['friend trail', '3', '4', '5'];
+  final List<TrailCard> myTrails = MyTrailList;
+  final List<TrailCard> friendsTrails = FriendTrailList;
 
   @override
   Widget build(BuildContext context) {
@@ -35,18 +39,23 @@ class _TrailPageState extends State<TrailPage> {
                       browsing = value;
                     });
                   }),
-                  FilterButton(),
+                  FilterButton(rebuildTrailPage: rebuildTrailPage),
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               ),
               Expanded(
-                child: Trails(trails: browsing ? friendsTrails : myTrails),
+                child: Trails(savedTrails: MyTrailList, friendTrails: FriendTrailList,),
+                //child: Trails(trails: MyTrailList),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void rebuildTrailPage() {
+    setState(() {}); // Triggers a rebuild of the entire widget tree
   }
 }
 
@@ -104,7 +113,9 @@ class AnimatedButtons extends StatelessWidget {
 }
 
 class FilterButton extends StatelessWidget {
-  const FilterButton({Key? key}) : super(key: key);
+  final Function rebuildTrailPage; 
+
+  const FilterButton({Key? key, required this.rebuildTrailPage}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +124,10 @@ class FilterButton extends StatelessWidget {
       child: TextButton.icon(
         onPressed: () => showDialog(context: context, builder: (BuildContext context) {
           return AlertDialog(
-            content: FilterPopUp(),
+            content: Container(
+              child: FilterPopUp(rebuildTrailPage: rebuildTrailPage), 
+              width: double.maxFinite, 
+            ),
           );
         }),
         style: TextButton.styleFrom(
@@ -124,7 +138,7 @@ class FilterButton extends StatelessWidget {
           ),
         ),
         label: const Text('Filter', style: TextStyle(color: Colors.white, fontSize: 15)),
-        icon: SvgPicture.asset('assets/images/img_filter.svg'),
+        icon: SvgPicture.asset('assets/icons/img_filter.svg'),
       ),
     );
   }
@@ -156,56 +170,78 @@ class CreateNewTrail extends StatelessWidget {
 }
 
 class Trails extends StatelessWidget {
-  final List<String> trails;
-
-  const Trails({Key? key, required this.trails}) : super(key: key);
+  List<TrailCard> savedTrails;
+  List<TrailCard> friendTrails; 
+  
+  Trails({Key? key, required this.savedTrails, required this.friendTrails}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
+    List<TrailCard> allTrails = new List.from(savedTrails)..addAll(friendTrails); 
+    
+    // get either all saved trails or all friend trails, depending on the tab
+    List<TrailCard> filteredTrails = browsing ? 
+      friendTrails : 
+      allTrails.where((trail) {
+        return trail.isSaved; 
+      }).toList();
+
+    // filter trails according to the filters selected 
+    filteredTrails = filterTrails(filteredTrails);
+
     return ListView.separated(
       padding: const EdgeInsets.all(10),
-      itemCount: trails.length,
+      itemCount: filteredTrails.length,
       itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-          child: Container(
-            width: 350,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              color: Colors.green[400],
-            ),
-            child: Row(
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    trails[index],
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          onTap: () {
-            Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-              pageBuilder: (context, x, xx) => IndividualTrailPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
-          },
-        );
+        return filteredTrails[index]; 
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
     );
   }
+
+  List<TrailCard> filterTrails(List<TrailCard> list) {
+    List<TrailCard> newList = list; 
+
+    // Filter no stairs
+    if (filters[0]) {
+      newList = newList.where((trail) {
+        return !trail.stairs; 
+      }).toList();
+    }
+
+    // Filter only nature
+    if (filters[1]) {
+      newList = newList.where((trail) {
+        return trail.natureStatus == "Nature"; 
+      }).toList();
+    }
+
+    // Filter only circular routes
+    if (filters[2]) {
+      newList = newList.where((trail) {
+        return trail.isCircular; 
+      }).toList();
+    }
+
+    // Filter max distance
+    newList = newList.where((trail) {
+      return trail.lengthDistance <= filters[3]; 
+    }).toList();
+
+    // Filter min distance
+    newList = newList.where((trail) {
+      return trail.lengthDistance >= filters[4]; 
+    }).toList();
+
+    return newList; 
+  }
 }
 
 class FilterPopUp extends StatefulWidget {
-  FilterPopUp({super.key}); 
+  final Function rebuildTrailPage; 
+
+   const FilterPopUp({Key? key, required this.rebuildTrailPage}) : super(key: key);
 
   @override 
   State<FilterPopUp> createState() => _FilterPopUpState();
@@ -213,58 +249,145 @@ class FilterPopUp extends StatefulWidget {
 
 class _FilterPopUpState extends State<FilterPopUp> {
 
-  bool value1 = false; 
-  bool value2 = false; 
-  bool value3 = false; 
-
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Checkbox(
-                  onChanged: (newValue) {
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Checkbox(
+                onChanged: (newValue) {
+                  setState(() {
+                    filters[0] = newValue ?? false;
+                  });
+                }, 
+                value: filters[0]
+              ),
+              Flexible(
+                child: Text('Exclude routes which could contain stairs'),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Checkbox(
+                onChanged: (newValue) {
+                  setState(() {
+                    filters[1] = newValue ?? false;
+                  });
+                }, 
+                value: filters[1]
+              ),
+              Flexible(
+                child: Text('Only include routes with a lot of nature'),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Checkbox(
+                onChanged: (newValue) {
+                  setState(() {
+                    filters[2] = newValue ?? false;
+                  });
+                }, 
+                value: filters[2]
+              ),
+              Flexible(
+                child: Text('Only include routes with the same start- and endpoint'),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('Max distance: '),
+              Container(
+                width: 80, // Specify the desired width
+                height: 40, // Specify the desired height
+                child: TextField(
+                  
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  onSubmitted: (value) {
                     setState(() {
-                      value1 = newValue ?? false;
+                      filters[3] = double.parse(value);
                     });
-                  }, 
-                  value: value1
+                  },
                 ),
-                Text('Test'),
+              ),
+              Text('meters'),
+            ], // Only numbers can be entered
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('Min distance: '),
+              Container(
+                width: 80,
+                height: 40,
+                child: TextField(
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      filters[4] = double.parse(value);
+                    });
+                  },
+                ),
+              ),
+              Text('meters'),
+            ], // Only numbers can be entered
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    widget.rebuildTrailPage(); 
+                    Navigator.pop(context); 
+                  }, 
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    side: BorderSide(color: Colors.black),
+                  ),
+                  child: Text("Apply", style: TextStyle(color: Colors.black),),
+                ),
+                TextButton(
+                  onPressed: () {
+                    filters = [false, false, false, double.infinity, 0];
+                    rebuildFilter(); 
+                    widget.rebuildTrailPage();
+                  }, 
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    side: BorderSide(color: Colors.black),
+                  ),
+                  child: Text("Clear", style: TextStyle(color: Colors.black),),
+                ),
               ],
             ),
-            Row(
-              children: [
-                Checkbox(
-                  onChanged: (newValue) {
-                    setState(() {
-                      value2 = newValue ?? false;
-                    });
-                  }, 
-                  value: value2
-                ),
-                Text('Test'),
-              ],
-            ),
-            Row(
-              children: [
-                Checkbox(
-                  onChanged: (newValue) {
-                    setState(() {
-                      value3 = newValue ?? false;
-                    });
-                  }, 
-                  value: value3
-                ),
-                Text('Test'),
-              ],
-            ),
-          ],
-        ),
-        width: 40,
-        height: 150
+          ),
+        ],
+      ),
     );
+  }
+
+  void rebuildFilter() {
+    setState(() {}); 
   }
 }

@@ -3,14 +3,25 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge.dart';
+import 'package:trailquest/widgets/challenge_cards.dart';
 
-Future<dynamic> _requestLocationPermission() async {
+Future<dynamic> _requestPermissions() async {
   if (await Permission.location.request().isGranted) {
-    print("Permission granted");
+    print("Location services permission granted");
   } else {
-    return Future.error("Location services were denied");
+    return Future.error("Location services permission were denied");
+  }
+  
+  if (await Permission.activityRecognition.request().isGranted) {
+    print("Activity recognition permission granted");
+  } else {
+    return Future.error("Activity recognition permission denied");
   }
 }
+
+
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -26,11 +37,13 @@ class _StartPageState extends State<StartPage> {
 
   @override
   void initState() {
-    _requestLocationPermission().catchError(print);
+    _requestPermissions().catchError(print);
   }
 
   @override
   Widget build(BuildContext context) {
+    List<Challenge> ongoingChallenges = filterOngoing(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -44,32 +57,24 @@ class _StartPageState extends State<StartPage> {
             ),
           ),
         ),
-        body: Stack(
+        body: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(200),
+            child: AppBar(
+              flexibleSpace: ListView.separated(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.all(8),
+                itemCount: ongoingChallenges.length,
+                itemBuilder: (context, index) {
+                  return ChallengeCard(ongoingChallenges[index], challenge: ongoingChallenges[index]);
+                },
+                separatorBuilder: (_, __) => const Divider(),
+              ),
+            )
+          ),
+          body: Stack(
           children: [
-            // FIXME: Broken for som reason
-            // ListView(
-            //   scrollDirection: Axis.horizontal,
-            //   children: [
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     ),
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     ),
-            //     Card(
-            //       child: Placeholder(
-            //         fallbackHeight: 50,
-            //         fallbackWidth: 20,
-            //       ),
-            //     )
-            //   ],
-            // ),
             GoogleMap(
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -84,6 +89,27 @@ class _StartPageState extends State<StartPage> {
           ],
         ),
       ),
+      )
     );
   }
+}
+
+List<Challenge> filterOngoing(BuildContext context) {
+  List<Challenge> ongoing = [];
+  for(int i = 0; i < challenges.length; i++) {
+    if(challenges[i].status == 1) {
+      ongoing.add(challenges[i]);
+    }
+  }
+  if(ongoing.length == 0) {
+    Challenge noOngoing = Challenge(
+      type:'null',
+      name: 'null', 
+      description: 'null', 
+      status: 1,
+      image: 'null'
+    );
+    ongoing.add(noOngoing);
+  }
+  return ongoing;
 }
