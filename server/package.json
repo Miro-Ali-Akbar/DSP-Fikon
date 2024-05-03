@@ -5,7 +5,7 @@
     "ws": "^8.16.0"
   },
   "name": "server",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Server API for TrailQuest",
   "main": "index.js",
   "scripts": {

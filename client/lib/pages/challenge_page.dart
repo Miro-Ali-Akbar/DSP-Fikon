@@ -1,13 +1,16 @@
 import 'dart:core';
 
 import 'package:flutter/cupertino.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/challenge.dart';
+import 'package:trailquest/pages/leaderboard_page.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
-
-/**
+import 'package:trailquest/main.dart';
+import 'dart:convert';/**
  * The page where all challenge cards are displayed
 */
 
@@ -32,7 +35,7 @@ const List<Text> typeChallenge = <Text>[
 
 final List<bool> _selectedType = <bool>[false, false, false, false];
 
-class ChallengePage extends StatefulWidget{
+class ChallengePage extends StatefulWidget {
   ChallengePage({super.key});
 
   @override
@@ -42,14 +45,46 @@ class ChallengePage extends StatefulWidget{
 class _ChallengeState extends State<ChallengePage> {
   bool selected = false;
   
+  int score = 1000;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          // should be substituted for the leaderboard button and the user's score
-          title: const Text('Challenges'),
+          title: AutoSizeText(
+                'Your score is $score',
+                style: TextStyle(fontSize: 20.0),
+                maxLines: 2,
+                minFontSize: 15.0,
+                overflow: TextOverflow.ellipsis,
+              ),
+              actions: <Widget>[
+                TextButton.icon(
+                    onPressed: () {
+                      channel?.sink.add('{"msgID": "getLeaderboard"}');
+                      Navigator.of(context, rootNavigator: true)
+                          .push(PageRouteBuilder(
+                        pageBuilder: (context, x, xx) => Leaderboard(dataList),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ));
+                    },
+                    label: Text(
+                      'Leaderboard',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    icon: SvgPicture.asset('assets/icons/img_group.svg'),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.green.shade600,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 30),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    )),
+              ],
         ),
         body: Scaffold(
           appBar: PreferredSize(
