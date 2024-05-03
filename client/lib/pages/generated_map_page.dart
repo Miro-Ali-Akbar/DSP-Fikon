@@ -18,7 +18,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart';
 
-//String totalDistance = 'No Route';
 double totalDistance = 0;
 bool inIntervall = false;
 Map<MarkerId, Marker> markers = {};
@@ -35,14 +34,14 @@ String activityOption = '';
 late LatLng start;
 
 void reset() {
-  totalDistance = 0; 
-  inIntervall = false; 
+  totalDistance = 0;
+  inIntervall = false;
   markers = {};
   polylines = {};
   polylineCoordinates = [];
   polylinePoints = PolylinePoints();
   stairsExist = false;
-  activityOption = ''; 
+  activityOption = '';
 }
 
 void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
@@ -427,14 +426,15 @@ class GeneratedMap extends StatelessWidget {
   GeneratedMap({Key? key}) : super(key: key);
 
   TrailCard trail = TrailCard(
-      name: '',
-      lengthDistance: 0,
-      lengthTime: 0,
-      natureStatus: '',
-      stairs: false,
-      heightDifference: 0,
-      isSaved: false,
-      isCircular: false,);
+    name: '',
+    lengthDistance: 0,
+    lengthTime: 0,
+    natureStatus: '',
+    stairs: false,
+    heightDifference: 0,
+    isSaved: false,
+    isCircular: false,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -443,7 +443,6 @@ class GeneratedMap extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      //home: const MapsRoutesExample(title: 'GMR Demo Home'),
       home: MapsRoutesGenerator(
           trail: trail, saved: false, onSaveChanged: (value) {}),
     );
@@ -491,7 +490,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   @override
   void initState() {
     super.initState();
-    reset(); 
+    reset();
     activityOption =
         getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
     generateCircleRoute = getSelectedTrailType() ==
@@ -718,26 +717,25 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                         style: TextStyle(fontSize: 15),
                       ),
                     ),
-                    if (saved) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(left: 80),
-                        child: RemoveTrail(
-                          onRemove: (value) {
-                            setState(() {
-                              saved = value;
-                              widget.onSaveChanged(false);
-                            });
-                          },
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
             ],
           ),
         ),
-        if (!saved) ...[
+        if (saved) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: RemoveTrail(
+              onRemove: (value) {
+                setState(() {
+                  saved = value;
+                  widget.onSaveChanged(false);
+                });
+              },
+            ),
+          ),
+        ] else ...[
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
             child: SaveTrail(
@@ -749,7 +747,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
               },
             ),
           ),
-        ],
+        ]
       ])),
     );
   }
@@ -769,6 +767,7 @@ class _SaveTrailState extends State<SaveTrail> {
     return TextButton(
       onPressed: () {
         widget.onSave(true);
+        setState(() {});
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.green,
@@ -801,14 +800,13 @@ class _RemoveTrailState extends State<RemoveTrail> {
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.red,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
       ),
       child: const Text('Remove Trail',
-          style: TextStyle(color: Colors.white, fontSize: 10)),
+          style: TextStyle(color: Colors.white, fontSize: 30)),
     );
   }
 }
-
