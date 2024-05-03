@@ -24,7 +24,6 @@ PolylinePoints polylinePoints = PolylinePoints();
 bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
-// TODO: Change or add value for the geofence radius
 List<GeofenceRadius> geofenceRadiusList = [
   GeofenceRadius(id: "radius_20m", length: 20)
 ];
@@ -69,8 +68,8 @@ Future<double> _getElevation(LatLng coordinates) async {
 }
 
 Future<double> _getHilliness() async {
-  print("polyListLength:");
-  print(polylineCoordinates.length); // Usually about 80-150 points
+  // Usually about 80-150 points. Depends on distance
+  print("polyListLength: ${polylineCoordinates.length}");
 
   double smallestElevation = await _getElevation(polylineCoordinates[0]);
   double largestElevation = smallestElevation;
@@ -183,14 +182,14 @@ LatLng _parseLatLng(String locationString) {
 Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   List<PolylineWayPoint> wayPoints = [];
 
-  const routeLength = 1;
-  const radius = routeLength;
+  const routeLength = 4;
+  const radius = routeLength / (pi + 2);
 
   wayPoints
       .add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
   print(start);
 
-  int pointsCount = 1; //TODO: increase!
+  int pointsCount = 10; //TODO: increase!
   final random = Random();
   double startDirection = random.nextDouble() * (2 * pi + 1.0);
 
@@ -310,6 +309,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   final _geofenceStreamController = StreamController<Geofence>();
   late Completer<GoogleMapController> _controller = Completer();
 
+  bool isInArea = false;
   int activeIndex = 0;
 
   final _geofenceService = GeofenceService.instance.setup(
@@ -338,10 +338,23 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     print('geofenceStatus: ${geofenceStatus.toString()}');
     _geofenceStreamController.sink.add(geofence);
 
-    if (geofenceStatus.toString() == "GeofenceStatus.ENTER") {
+    if (geofenceStatus.toString() == "GeofenceStatus.ENTER" &&
+        geofence.toJson().toString().contains(RegExp('loc_$activeIndex'))) {
       print("Entered area");
+      setState(() {
+        isInArea = true;
+        activeIndex++;
+      });
 
-      // TODO: Add logic for orienteering. Adding points, send user back to home, etc.
+      // TODO: Add game logic
+    } else if (geofenceStatus.toString() == "GeofenceStatus.EXIT") {
+      print("Left area");
+
+      _geofenceService.removeGeofenceById('loc_$activeIndex');
+
+      setState(() {
+        isInArea = false;
+      });
     }
   }
 
@@ -446,15 +459,14 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               Align(
                 alignment: Alignment.center,
                 child: GoogleMap(
-                  // TODO: Uncomment when debugging (for sanity)
-                  // myLocationEnabled: true,
+                  myLocationEnabled: true,
                   zoomControlsEnabled: false,
                   initialCameraPosition: CameraPosition(
                     zoom: 14.0,
                     target: LatLng(start.latitude, start.longitude),
                   ),
                   markers: Set<Marker>.of(markers.values),
-                  // polylines: Set<Polyline>.of(polylines.values),
+                  polylines: Set<Polyline>.of(polylines.values),
                   onMapCreated: (GoogleMapController controller) {
                     _controller.complete(controller);
                   },
@@ -488,26 +500,38 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                 // Removes all geofences
                 _geofenceService.clearGeofenceList();
                 reset();
+                activeIndex = 0;
               });
 
               inIntervall = false;
               stairsExist = false;
 
-              PolylineResult result = await _getPolyline(start);
-              // TODO: Redefine end position
-              // End position is defined as the middlemost point in the generated list
-              LatLng endPosition = LatLng(
-                  result.points[(result.points.length / 2).round()].latitude,
-                  result.points[(result.points.length / 2).round()].longitude);
+              await _getPolyline(start);
 
-              _geofenceService.addGeofence(Geofence(
-                  id: "locId",
-                  latitude: endPosition.latitude,
-                  longitude: endPosition.longitude,
-                  radius: geofenceRadiusList));
+              // FIXME: A good start. Spaced by number of points, not distance
+              if (polylineCoordinates.isNotEmpty) {
+                LatLng oldOrigin = polylineCoordinates.first;
+                int interval = (polylineCoordinates.length / 10).round();
+                for (var i = 1; i < polylineCoordinates.length; i += interval) {
+                  LatLng currentPoint = polylineCoordinates[i];
 
-              _addMarker(endPosition, "Last",
-                  BitmapDescriptor.defaultMarkerWithHue(50));
+                  // TODO: Change distance to more suitable number
+                  if (await _getWalkingDistance(
+                          oldOrigin, currentPoint, false) >
+                      100) {
+                    _geofenceService.addGeofence(Geofence(
+                        id: 'loc_$i',
+                        latitude: currentPoint.latitude,
+                        longitude: currentPoint.longitude,
+                        radius: geofenceRadiusList));
+                    _addMarker(currentPoint, "GeofenceCoord: $i",
+                        BitmapDescriptor.defaultMarkerWithHue(50));
+
+                    oldOrigin = currentPoint;
+                  }
+                }
+              }
+
               centerScreen(await Geolocator.getCurrentPosition());
 
               setState(() {});

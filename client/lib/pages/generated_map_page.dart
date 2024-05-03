@@ -392,7 +392,6 @@ Future<void> _getPolyline(LatLng start) async {
     reset();
   }
 
-  // Circle
   // From start to start through points generated
   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
     googleMapsApiKey,
