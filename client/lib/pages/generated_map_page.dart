@@ -177,7 +177,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   List<PolylineWayPoint> wayPoints = [];
 
   const routeLength = 4;
-  const radius = routeLength;
+  const radius = routeLength / (pi + 2);
 
   wayPoints
       .add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
@@ -247,11 +247,11 @@ Future<void> _getPolyline(LatLng start) async {
     }
   }
 
-  // if (!inIntervall) {
-  //   totalDistance = 'Failed';
-  //   points = [];
-  //   reset();
-  // }
+  if (!inIntervall) {
+    totalDistance = 'Failed';
+    points = [];
+    reset();
+  }
 
   // Circle
   // From start to start through points generated
