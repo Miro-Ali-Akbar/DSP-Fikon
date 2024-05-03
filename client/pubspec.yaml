@@ -21,6 +21,11 @@ dependencies:
   http: ^0.13.6 
   flutter_polyline_points: ^1.0.0
   flutter_config: ^2.0.2
+  firebase_core: any
+  firebase_ui_auth: any
+  google_sign_in: ^6.2.1
+  firebase_ui_oauth_google: ^1.2.10
+  firebase_auth: 4.12.0 #Remove = death. Needs to be 4.12 or else everything breaks see: https://stackoverflow.com/questions/77468892/error-authprovider-is-imported-from-both 
   geofence_service: ^5.0.0
 
 dev_dependencies:
@@ -31,25 +36,32 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/img_home.svg
-    - assets/images/img_trails.svg
-    - assets/images/img_trophy.svg
-    - assets/images/img_profile.svg
-    - assets/images/arrow-sm-left-svgrepo-com (1).svg
-    - assets/images/img_filter.svg
-    - assets/images/img_arrow_right.svg
-    - assets/images/img_cross.svg
-    - assets/images/img_route.svg
-    - assets/images/img_trees.svg
-    - assets/images/img_city.svg
-    - assets/images/img_house_and_tree.svg
-    - assets/images/img_park.svg
-    - assets/images/img_round_arrow.svg
-    - assets/images/img_circular_arrow.svg
-    - assets/images/img_walking.svg
-    - assets/images/img_clock.svg
-    - assets/images/img_stairs.svg
-    - assets/images/img_arrow_up.svg
+    - assets/icons/img_home.svg
+    - assets/icons/img_trails.svg
+    - assets/icons/img_trophy.svg
+    - assets/icons/img_profile.svg
+    - assets/icons/arrow-sm-left-svgrepo-com (1).svg
+    - assets/icons/img_filter.svg
+    - assets/icons/img_arrow_right.svg
+    - assets/icons/img_cross.svg
+    - assets/icons/img_route.svg
+    - assets/icons/img_trees.svg
+    - assets/icons/img_city.svg
+    - assets/icons/img_house_and_tree.svg
+    - assets/icons/img_park.svg
+    - assets/icons/img_round_arrow.svg
+    - assets/icons/img_circular_arrow.svg
+    - assets/icons/img_walking.svg
+    - assets/icons/img_clock.svg
+    - assets/icons/img_stairs.svg
+    - assets/icons/img_arrow_up.svg
+    - assets/images/img_image_1.png
+    - assets/images/Pelle_Svanslös-statyn.jpg
+    - assets/images/gardsmyg_johan-nilsson.jpg
+    - assets/images/FlyttblockSurte.jpg
+    - assets/images/Luthagen.jpg
+    - assets/images/wildflowers.jpg
+    - assets/images/Uppsala_domkyrka_flygbild.jpg
     
 #  fonts:
 #  - family: InterRegular

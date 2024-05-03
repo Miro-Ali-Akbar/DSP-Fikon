@@ -1,7 +1,10 @@
+import 'dart:core';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
 /**
@@ -22,7 +25,7 @@ final List<bool> _selectedStatus = <bool>[false, false, false, true];
 //Filters for the type of challenge
 const List<Text> typeChallenge = <Text>[
   Text('Time limit'),
-  Text('Quiz'),
+  Text('Treasure hunt'),
   Text('Checkpoints'),
   Text('Orienteering')
 ];
@@ -73,7 +76,7 @@ class _ChallengeState extends State<ChallengePage> {
                       minimumSize: Size(30, 20)
                     ),
                     label: Text('clear', style: TextStyle(color: Colors.white),),
-                    icon: SvgPicture.asset('assets/images/img_cross.svg')
+                    icon: SvgPicture.asset('assets/icons/img_cross.svg')
                   )
                 )
               ],
@@ -92,7 +95,6 @@ class _ChallengeState extends State<ChallengePage> {
                           for (int i = 0; i < _selectedStatus.length; i++) {
                             _selectedStatus[i] = i == index;
                           }
-                           //_selectedStatus[index] = !_selectedStatus[index];
                         });
                       },
                       borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -125,7 +127,7 @@ class _ChallengeState extends State<ChallengePage> {
                         // If we want to add more filters, this is where we do it as well as the lists at the top
                         children: [
                           Text('Time limit'),
-                          Text('Quiz'),
+                          Text('Treasure hunt'),
                           Text('Checkpoints'),
                           Text('Orienteering')
                         ].asMap().entries.map((widget) {
@@ -164,21 +166,27 @@ class _ChallengeState extends State<ChallengePage> {
 
 // Creates the scrollable view of challenge cards
 Widget scrollChallenges(BuildContext context) {
-  List<ChallengeCard> current = filterChallenges(context, challenges);
+  List<Challenge> current = filterChallenges(context, challenges);
   return ListView.separated(
     padding: const EdgeInsets.all(8),
     itemCount: current.length,
     itemBuilder: (context, index) {
-      return current[index];
+      return ChallengeCard(current[index], challenge: current[index],);
     },
     separatorBuilder: (BuildContext context, int index) => const Divider(),
   );
 }
 
 // Filters the list of challenges depending on what filters are true (active) in the filter buttons
-List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> list) {
+List<Challenge> filterChallenges(BuildContext context, List<Challenge> list) {
   List<String?> activeTypes = [];
   int activeStatus = 3; //defalut is 'all'
+
+  for(int i = 0; i < _selectedStatus.length; i++) {
+    if(_selectedStatus[i]) {
+      activeStatus = i;
+    }    
+  }
 
   for(int i = 0; i < _selectedStatus.length; i++) {
     if(_selectedStatus[i]) {
@@ -197,7 +205,7 @@ List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> l
     return list;
 
   } else {
-    List<ChallengeCard> filteredChallenges = [];
+    List<Challenge> filteredChallenges = [];
     if(activeTypes.length > 0 && activeStatus < 3) {
       for(int i = 0; i < list.length; i++) {
         for(int j = 0; j < activeTypes.length; j++) {
@@ -219,7 +227,6 @@ List<ChallengeCard> filterChallenges(BuildContext context, List<ChallengeCard> l
         }
       }
     }
-
     if(filteredChallenges.length == 0) {
       return list;
     } else {
