@@ -433,7 +433,8 @@ class GeneratedMap extends StatelessWidget {
       natureStatus: '',
       stairs: false,
       heightDifference: 0,
-      isSaved: false);
+      isSaved: false,
+      isCircular: false);
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +497,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     generateCircleRoute = getSelectedTrailType() ==
             'assets/images/img_circular_arrow.svg'
         ? true
-        : false; //'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg' //TODO: startpoint != endpoint not implemented
+        : false; //'assets/icons/img_circular_arrow.svg', 'assets/icons/img_route.svg' //TODO: startpoint != endpoint not implemented
     userStartPoint = getSelectedStatusStartPoint() == 'Yes'
         ? true
         : false; //'Yes', 'No (choose from map)'
