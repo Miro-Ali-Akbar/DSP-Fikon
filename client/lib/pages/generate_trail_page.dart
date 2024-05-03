@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import '../widgets/back_button.dart';
-import 'generated_map_page.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:trailquest/pages/generated_map_page.dart';
+// import 'package:trailquest/pages/challenges/challenge_template.dart';
+// import 'package:trailquest/pages/challenges/challenge_orienteering.dart';
+// import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
 
 late LatLng start;
 

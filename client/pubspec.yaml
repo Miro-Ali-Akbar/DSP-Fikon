@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  auto_size_text: ^3.0.0
   flutter_svg: ^2.0.9
   flutter_animated_button: ^2.0.3
   web_socket_channel: ^2.1.0
@@ -26,6 +27,7 @@ dependencies:
   google_sign_in: ^6.2.1
   firebase_ui_oauth_google: ^1.2.10
   firebase_auth: 4.12.0 #Remove = death. Needs to be 4.12 or else everything breaks see: https://stackoverflow.com/questions/77468892/error-authprovider-is-imported-from-both 
+  geofence_service: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +56,7 @@ flutter:
     - assets/icons/img_clock.svg
     - assets/icons/img_stairs.svg
     - assets/icons/img_arrow_up.svg
+    - assets/icons/img_group.svg
     - assets/images/img_image_1.png
     - assets/images/Pelle_Svanslös-statyn.jpg
     - assets/images/gardsmyg_johan-nilsson.jpg
