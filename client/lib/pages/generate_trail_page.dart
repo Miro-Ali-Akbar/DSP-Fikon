@@ -464,9 +464,9 @@ class _StartPointOptionsState extends State<StartPointOptions> {
 }
 
 const List<String> EnviornmentIcons = <String>[
-  'assets/images/img_trees.svg',
-  'assets/images/img_city.svg',
-  'assets/images/img_park.svg',
+  'assets/icons/img_trees.svg',
+  'assets/icons/img_city.svg',
+  'assets/icons/img_park.svg',
 ];
 
 const List<String> Enviornments = <String>['Nature', 'City', 'Both'];

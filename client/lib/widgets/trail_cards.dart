@@ -15,6 +15,7 @@ class TrailCard extends StatefulWidget{
   late bool stairs; 
   late double heightDifference; 
   bool isSaved; 
+  bool isCircular; 
   //final ValueChanged<bool> onSaveChanged;
   //final Image image; 
   //TODO: Add list of coordinates 
@@ -28,6 +29,7 @@ class TrailCard extends StatefulWidget{
     required this.stairs, 
     required this.heightDifference,
     required this.isSaved, 
+    required this.isCircular,
     //required this.onSaveChanged, // Callback function
     });
     //required this.image
