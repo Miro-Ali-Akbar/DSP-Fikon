@@ -247,11 +247,11 @@ Future<void> _getPolyline(LatLng start) async {
     }
   }
 
-  // if (!inIntervall) {
-  //   totalDistance = 'Failed';
-  //   points = [];
-  //   reset();
-  // }
+  if (!inIntervall) {
+    totalDistance = 'Failed';
+    points = [];
+    reset();
+  }
 
   // Circle
   // From start to start through points generated
