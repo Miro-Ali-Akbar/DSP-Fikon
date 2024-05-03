@@ -183,7 +183,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       .add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
   print(start);
 
-  int pointsCount = 1; //TODO: increase!
+  int pointsCount = 4; //TODO: increase!
   final random = Random();
   double startDirection = random.nextDouble() * (2 * pi + 1.0);
 
