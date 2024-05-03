@@ -87,7 +87,18 @@ class _PageCenterState extends State<PageCenter> {
   @override
   void initState() {
     super.initState();
+    reset();
     _getLocation();
+  }
+
+  void reset() {
+    checkedvalue = false;
+    _selectedStatusActivities = <bool>[false, false, false];
+    _selectedStatusTrailTypes = <bool>[false, false];
+    _selectedStatusStartPoint = <bool>[false, false];
+    _selectedStatusEnviornment = <bool>[false, false, false];
+    inputDistance = '';
+    isMeters = true;
   }
 
   void _getLocation() async {
@@ -184,7 +195,7 @@ class _PageCenterState extends State<PageCenter> {
 
 const List<String> Activities = <String>['Walking', 'Running', 'Cycling'];
 
-final List<bool> _selectedStatusActivities = <bool>[false, false, false];
+List<bool> _selectedStatusActivities = <bool>[false, false, false];
 
 String getSelectedActivity() {
   final List<String> activities = ['Walking', 'Running', 'Cycling'];
@@ -249,7 +260,7 @@ const List<String> TrailTypes = <String>[
   'assets/images/img_route.svg'
 ];
 
-final List<bool> _selectedStatusTrailTypes = <bool>[false, false];
+List<bool> _selectedStatusTrailTypes = <bool>[false, false];
 
 String getSelectedTrailType() {
   final List<String> trailTypes = [
@@ -324,7 +335,7 @@ class _TrailTypeState extends State<TrailType> {
   }
 }
 
-final List<bool> _selectedStatusStartPoint = <bool>[false, false];
+List<bool> _selectedStatusStartPoint = <bool>[false, false];
 
 String getSelectedStatusStartPoint() {
   final List<String> statusStartPoint = ['Yes', 'No (choose from map)'];
@@ -460,7 +471,7 @@ const List<String> EnviornmentIcons = <String>[
 
 const List<String> Enviornments = <String>['Nature', 'City', 'Both'];
 
-final List<bool> _selectedStatusEnviornment = <bool>[false, false, false];
+List<bool> _selectedStatusEnviornment = <bool>[false, false, false];
 
 String getSelectedStatusEnvironment() {
   final List<String> statusEnvironment = ['Nature', 'City', 'Both'];

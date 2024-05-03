@@ -35,14 +35,14 @@ String activityOption = '';
 late LatLng start;
 
 void reset() {
+  totalDistance = 0; 
+  inIntervall = false; 
   markers = {};
   polylines = {};
   polylineCoordinates = [];
   polylinePoints = PolylinePoints();
   stairsExist = false;
-
-  // Origin marker
-  _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
+  activityOption = ''; 
 }
 
 void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
@@ -488,6 +488,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   @override
   void initState() {
     super.initState();
+    reset(); 
     activityOption =
         getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
     generateCircleRoute = getSelectedTrailType() ==
@@ -807,3 +808,4 @@ class _RemoveTrailState extends State<RemoveTrail> {
     );
   }
 }
+
