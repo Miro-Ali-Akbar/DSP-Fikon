@@ -23,10 +23,10 @@ class ChallengeCard extends StatefulWidget{
 }
 
 class _CardState extends State<ChallengeCard> {
-  int count = 0;
-
   @override
   Widget build(BuildContext context) {
+    int complete = widget.challenge.complete;
+    int progress = widget.challenge.progress;
     if(widget.challenge.type == 'Checkpoints') {
       return GestureDetector(
         onTap:() {
@@ -64,7 +64,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 checkpoints',
+                        '$progress/$complete checkpoints',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20
@@ -128,7 +128,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 locations visited',
+                        '$progress/$complete locations visited',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20
@@ -189,7 +189,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 control points',
+                        '$progress/$complete control points',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20

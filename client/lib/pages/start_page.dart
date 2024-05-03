@@ -101,7 +101,8 @@ List<Challenge> filterOngoing(BuildContext context) {
       name: 'null', 
       description: 'null', 
       status: 1,
-      image: 'null'
+      image: 'null',
+      complete: 1
     );
     ongoing.add(noOngoing);
   }
