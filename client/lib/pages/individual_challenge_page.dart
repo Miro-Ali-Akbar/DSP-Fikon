@@ -76,6 +76,10 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ProgressTracker(challenge)
+                  )
                 ],
               ),
             ),
@@ -128,6 +132,58 @@ Widget ChallengeInstruction(Challenge challenge){
     ,);
   } else {
     return Text(' ');
+  }
+}
+
+Widget ProgressTracker(Challenge challenge) {
+  String type = challenge.type;
+  int progress = challenge.progress;
+  int complete = challenge.complete;
+
+  if(type == 'Checkpoints') {
+    return Container(
+      height: 80,
+      color: const Color.fromARGB(255, 89, 164, 224),
+      child: Center(
+        child: Text(
+          '$progress/$complete checkpoints',
+          style: TextStyle(
+            fontSize: 25,
+            color: Colors.white
+          ),
+          textAlign: TextAlign.center,),
+      ),
+    );
+  } else if(type == 'Treasure hunt') {
+    return Container(
+      height: 80,
+      color: const Color.fromARGB(255, 250, 159, 74),
+      child: Center(
+        child: Text(
+          '$progress/$complete locations visited',
+          style: TextStyle(
+            fontSize: 25,
+            color: Colors.white
+          ),
+          textAlign: TextAlign.center,),
+      ),
+    );
+  } else if(type == 'Orienteering') {
+    return Container(
+      height: 80,
+      color: const Color.fromARGB(255, 137, 70, 196),
+      child: Center(
+        child: Text(
+          '$progress/$complete control points',
+          style: TextStyle(
+            fontSize: 25,
+            color: Colors.white
+          ),
+          textAlign: TextAlign.center,),
+      ),
+    );
+  } else {
+    return Container();
   }
 }
 
