@@ -197,6 +197,9 @@ class _SaveTrailState extends State<SaveTrail> {
     return TextButton(
       
       onPressed: () {
+        setState(() {
+          
+        });
         widget.onSave(true);
       },
       style: TextButton.styleFrom(
@@ -226,6 +229,9 @@ class _RemoveTrailState extends State<RemoveTrail> {
     return TextButton(
       
       onPressed: () {
+        setState(() {
+          
+        });
         widget.onRemove(false);
       },
       style: TextButton.styleFrom(

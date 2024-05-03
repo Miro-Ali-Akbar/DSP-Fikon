@@ -256,16 +256,16 @@ class _ActivityOptionsState extends State<ActivityOptions> {
 }
 
 const List<String> TrailTypes = <String>[
-  'assets/images/img_circular_arrow.svg',
-  'assets/images/img_route.svg'
+  'assets/icons/img_circular_arrow.svg',
+  'assets/icons/img_route.svg'
 ];
 
 List<bool> _selectedStatusTrailTypes = <bool>[false, false];
 
 String getSelectedTrailType() {
   final List<String> trailTypes = [
-    'assets/images/img_circular_arrow.svg',
-    'assets/images/img_route.svg'
+    'assets/icons/img_circular_arrow.svg',
+    'assets/icons/img_route.svg'
   ];
 
   for (int i = 0; i < _selectedStatusTrailTypes.length; i++) {
@@ -273,7 +273,7 @@ String getSelectedTrailType() {
       return trailTypes[i];
     }
   }
-  return 'assets/images/img_circular_arrow.svg';
+  return 'assets/icons/img_circular_arrow.svg';
 }
 
 class TrailType extends StatefulWidget {

@@ -493,9 +493,9 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     activityOption =
         getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
     generateCircleRoute = getSelectedTrailType() ==
-            'assets/images/img_circular_arrow.svg'
+            'assets/icons/img_circular_arrow.svg'
         ? true
-        : false; //'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg' //TODO: startpoint != endpoint not implemented
+        : false; //'assets/icons/img_circular_arrow.svg', 'assets/icons/img_route.svg' //TODO: startpoint != endpoint not implemented
     userStartPoint = getSelectedStatusStartPoint() == 'Yes'
         ? true
         : false; //'Yes', 'No (choose from map)'
@@ -617,7 +617,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/images/img_walking.svg',
+                      'assets/icons/img_walking.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
@@ -638,7 +638,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/images/img_clock.svg',
+                      'assets/icons/img_clock.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
@@ -659,7 +659,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/images/img_trees.svg',
+                      'assets/icons/img_trees.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
@@ -680,7 +680,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/images/img_stairs.svg',
+                      'assets/icons/img_stairs.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
@@ -703,7 +703,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/images/img_arrow_up.svg',
+                      'assets/icons/img_arrow_up.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
