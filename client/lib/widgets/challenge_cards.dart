@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:trailquest/pages/individual_challenge_page.dart';
+import 'package:trailquest/widgets/challenge.dart';
 
 final List<String> challengeTypes = <String>['Checkpoints', 'Quiz', 'Orienteering'];
 
+/**
+ * Creates the cards that will be visible on the challenge page and start page.
+ * As of now, the accepted types are 'Checkpoints', 'Orienteering' and 'Quiz' but it's likely that Quiz will be substituted for 'Straight line'
+ */
 
 class ChallengeCard extends StatefulWidget{
-  final String type;
-  final String name;
-  final Text description;
-  final bool timeLimit;
+  Challenge challenge;
 
-  const ChallengeCard({
+  ChallengeCard(Challenge current, {
     super.key,
-    required this.name,
-    required this.type,
-    required this.description,
-    required this.timeLimit
+    required this.challenge
   });
 
   @override
@@ -27,15 +27,18 @@ class _CardState extends State<ChallengeCard> {
 
   @override
   Widget build(BuildContext context) {
-    if(widget.type == 'Checkpoints') {
+    if(widget.challenge.type == 'Checkpoints') {
       return GestureDetector(
         onTap:() {
-          setState(() {
-            count++;
-          });
+          Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => IndividualChallengePage(challenge: widget.challenge,),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
         },
         child: Container(
           height: 150,
+          width: 380,
           color: const Color.fromARGB(255, 89, 164, 224),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -46,7 +49,7 @@ class _CardState extends State<ChallengeCard> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.name}',
+                      '${widget.challenge.name}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30
@@ -73,7 +76,7 @@ class _CardState extends State<ChallengeCard> {
                       child: Padding(
                         padding: EdgeInsets.only(right: 15),
                         child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
+                          'assets/icons/img_arrow_right.svg',
                           height: 20,
                           width: 20,
                           colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -88,15 +91,18 @@ class _CardState extends State<ChallengeCard> {
         ),
       );
     }
-    else if(widget.type == 'Quiz') {
+    else if(widget.challenge.type == 'Treasure hunt') {
       return GestureDetector(
         onTap:() {
-          setState(() {
-            count++;
-          });
+          Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => IndividualChallengePage(challenge: widget.challenge),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
         },
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 250, 159, 74),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -107,7 +113,7 @@ class _CardState extends State<ChallengeCard> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.name}',
+                      '${widget.challenge.name}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30
@@ -122,7 +128,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 questions done',
+                        '$count/10 locations visited',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20
@@ -134,7 +140,7 @@ class _CardState extends State<ChallengeCard> {
                       child: Padding(
                         padding: EdgeInsets.only(right: 15),
                         child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
+                          'assets/icons/img_arrow_right.svg',
                           height: 20,
                           width: 20,
                           colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -149,15 +155,18 @@ class _CardState extends State<ChallengeCard> {
         ),
       );
     }
-    else if(widget.type == 'Orienteering') {
+    else if(widget.challenge.type == 'Orienteering') {
       return GestureDetector(
         onTap:() {
-          setState(() {
-            count++;
-          });
+          Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => IndividualChallengePage(challenge:widget.challenge),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
         },
         child: Container(
           height: 150,
+          width: 380,
           color: Color.fromARGB(255, 137, 70, 196),
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -166,7 +175,7 @@ class _CardState extends State<ChallengeCard> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
-                    '${widget.name}',
+                    '${widget.challenge.name}',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 30
@@ -192,7 +201,7 @@ class _CardState extends State<ChallengeCard> {
                       child: Padding(
                         padding: EdgeInsets.only(right: 15),
                         child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
+                          'assets/icons/img_arrow_right.svg',
                           height: 20,
                           width: 20,
                           colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -208,11 +217,13 @@ class _CardState extends State<ChallengeCard> {
       );
     }
     else {
+      // A default challenge that does not belong to any of the given types, not meant to actually be used
       return GestureDetector(
         onTap:() {},
         child: Container(
           height: 150,
-          color: Color.fromARGB(255, 92, 95, 97),
+          width: 380,
+          color: Color.fromARGB(255, 134, 139, 143),
         
           child: Padding(
             padding: EdgeInsets.only(left: 10),
@@ -223,7 +234,7 @@ class _CardState extends State<ChallengeCard> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 5),
                     child: Text(
-                      '${widget.name}',
+                      'No ongoing challenges',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30
@@ -232,33 +243,6 @@ class _CardState extends State<ChallengeCard> {
                   ),
                 ),
                 Padding(padding: EdgeInsets.all(35)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [ 
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        'no info',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 15),
-                        child: SvgPicture.asset(
-                          'assets/images/img_arrow_right.svg',
-                          height: 20,
-                          width: 20,
-                          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                        ),
-                      )
-                    ),
-                  ],
-                )
               ],
             )
           )
