@@ -14,6 +14,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 WebSocketChannel? channel;
+List<Friend> friendsList = [];
 
 void _sendMessage(String message) {
   print(message);
@@ -140,4 +141,36 @@ class _MainAppState extends State<MainApp> {
       ),
     );
   }
+}
+
+class Friend extends StatelessWidget{
+
+  final String type;
+  final String name;
+  final Text description;
+  final List<String> recentChallenges;
+  final int score;
+
+
+  const Friend({
+    super.key,
+    required this.name,
+    required this.type,
+    required this.description,
+    required this.recentChallenges,
+    required this.score
+  });
+  @override
+  Widget build(BuildContext context) {
+
+    throw UnimplementedError();
+  }
+}
+
+void navigate(Widget page, context) {
+  Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+          pageBuilder: (context, x, xx) => page,
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ));
 }

@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:trailquest/main.dart';
+import 'package:trailquest/pages/friend_page.dart';
 
 /// The profilepage of the user
 /// Note: Use authGate instead of this as it guaranties that the user is logged in.
@@ -31,7 +33,11 @@ class _ProfilePageState extends State<ProfilePage> {
         body: ListView(
           children: [
             ProfileRow(),
-            ContainerButton((), "Friends"),
+            ContainerButton(Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => Friendpage(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            )), "Friends"),
             DropdownTile(
               "Statistics",
               Column(

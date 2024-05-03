@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:trailquest/main.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
@@ -42,16 +42,16 @@ class Friendpage extends StatelessWidget {
               ),
            ]
         ),
-        // body: Expanded(child: 
-        //       ListView.builder(
-        //           itemCount: friendsList.length,
-        //           itemBuilder: (context, index) {
-        //             return ListTile(
-        //               title: Text(friendsList[index]),
-        //             );
-        //           }
-        //         ),
-        // )
+        body: Expanded(child: 
+              ListView.builder(
+                  itemCount: friendsList.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(friendsList[index].name),
+                    );
+                  }
+                ),
+        )
       )
     );
 
@@ -59,28 +59,7 @@ class Friendpage extends StatelessWidget {
 
 }//end class
 
-// class Friends extends StatelessWidget{
 
-//   final String type;
-//   final String name;
-//   final Text description;
-//   final List<ChallengeCard> recentChallenges;
-//   final List
-
-
-//   const Friends({
-//     super.key,
-//     required this.name,
-//     required this.type,
-//     required this.description,
-//     required this.recentChallenges
-//   });
-//   @override
-//   Widget build(BuildContext context) {
-
-//     throw UnimplementedError();
-//   }
-// }
 void showFriendRequest(BuildContext context) {
   showDialog(
     context: context,
