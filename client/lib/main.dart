@@ -15,6 +15,20 @@ import 'firebase_options.dart';
 
 WebSocketChannel? channel;
 
+void _sendMessage(String message) {
+  print(message);
+
+  try {
+    channel?.sink.add(message);
+    channel?.stream.listen((message) {
+      print(message);
+      channel?.sink.close();
+    });
+  } catch (e) {
+    print(e);
+  }
+}
+
 void main() async {
   // https://pub.dev/packages/flutter_config
   WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
