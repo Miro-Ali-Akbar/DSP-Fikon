@@ -7,11 +7,17 @@ import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
-Future<dynamic> _requestLocationPermission() async {
+Future<dynamic> _requestPermissions() async {
   if (await Permission.location.request().isGranted) {
-    print("Permission granted");
+    print("Location services permission granted");
   } else {
-    return Future.error("Location services were denied");
+    return Future.error("Location services permission were denied");
+  }
+  
+  if (await Permission.activityRecognition.request().isGranted) {
+    print("Activity recognition permission granted");
+  } else {
+    return Future.error("Activity recognition permission denied");
   }
 }
 
@@ -31,7 +37,7 @@ class _StartPageState extends State<StartPage> {
 
   @override
   void initState() {
-    _requestLocationPermission().catchError(print);
+    _requestPermissions().catchError(print);
   }
 
   @override

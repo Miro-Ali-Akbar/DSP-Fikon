@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import 'package:flutter_config/flutter_config.dart';
+import 'package:geofence_service/geofence_service.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:trailquest/main.dart';
 
 String totalDistance = 'No Route';
 bool inIntervall = false;
@@ -18,12 +20,9 @@ Map<MarkerId, Marker> markers = {};
 Map<PolylineId, Polyline> polylines = {};
 List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
-Map<String, double> distanceCache = {};
 
 bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
-
-bool natureTrail = true;
 
 late LatLng start;
 
@@ -43,81 +42,6 @@ void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
   Marker marker =
       Marker(markerId: markerId, icon: descriptor, position: position);
   markers[markerId] = marker;
-}
-
-Future<List<LatLng>> _sortPath(List<LatLng> path) async {
-  List<LatLng> sortedPath = [];
-
-  if (path.length > 0) {
-    sortedPath.add(path.removeAt(0));
-
-    while (path.isNotEmpty) {
-      LatLng lastNode = sortedPath.last;
-
-      List<double> distances = [];
-
-      for (int i = 0; i < path.length; i++) {
-        double distance;
-        String key =
-            '${lastNode.latitude},${lastNode.longitude}-${path[i].latitude},${path[i].longitude}';
-        if (distanceCache.containsKey(key)) {
-          distance = distanceCache[key]!;
-        } else {
-          distance = await _getWalkingDistance(lastNode, path[i], true);
-          distanceCache[key] = distance;
-        }
-        distances.add(distance);
-      }
-
-      // Find the index of the minimum distance
-      int minDistanceIndex =
-          distances.indexOf(distances.reduce((a, b) => a < b ? a : b));
-
-      sortedPath.add(path[minDistanceIndex]);
-      path.removeAt(minDistanceIndex);
-    }
-  }
-  return sortedPath;
-}
-
-Future<List<LatLng>> _getPath(double radius) async {
-  final url =
-      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius * 1000},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius * 1000},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius * 1000},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;';
-  final response = await http.get(Uri.parse(url));
-
-  List<LatLng> path = [];
-
-  if (response.statusCode == 200) {
-    final decoded = json.decode(response.body);
-    List<dynamic> elements = decoded['elements'];
-
-    // Parse nodes
-    Map<int, LatLng> nodes = {};
-    for (var item in elements) {
-      if (item['type'] == 'node') {
-        nodes[item['id']] = LatLng(item['lat'], item['lon']);
-      }
-    }
-
-    print(elements.length);
-    print(elements.length - nodes.length);
-
-    final random = Random();
-
-    int interval = ((elements.length - nodes.length) / 10).ceil();
-    int start = random.nextInt(interval) + 1;
-
-    // Add last node of a way within each interval
-    for (int i = start; i < elements.length; i += interval) {
-      var item = elements[i];
-      if (item['type'] == 'way') {
-        List<dynamic> wayNodes = item['nodes'];
-        var lastNode = wayNodes[wayNodes.length - 1];
-        path.add(nodes[lastNode]!);
-      }
-    }
-  }
-  return path;
 }
 
 Future<double> _getElevation(LatLng coordinates) async {
@@ -146,8 +70,8 @@ Future<double> _getHilliness() async {
   double smallestElevation = await _getElevation(polylineCoordinates[0]);
   double largestElevation = smallestElevation;
 
-  // Increments of 10 in polyline list for suitable points
   for (int i = 1; i < polylineCoordinates.length; i += 10) {
+    // Increments of 10 in polyline list
     double elevation = await _getElevation(polylineCoordinates[i]);
     if (elevation < smallestElevation) {
       smallestElevation = elevation;
@@ -205,13 +129,6 @@ Future<bool> _checkStairs(LatLng waypoint) async {
 
 Future<double> _getWalkingDistance(
     LatLng origin, LatLng destination, bool noStairs) async {
-  String key =
-      '${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}';
-
-  if (distanceCache.containsKey(key)) {
-    return distanceCache[key]!;
-  }
-
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
       'destination=${destination.latitude},${destination.longitude}&'
@@ -219,7 +136,6 @@ Future<double> _getWalkingDistance(
       'key=$googleMapsApiKey';
 
   final response = await http.get(Uri.parse(url));
-  print("API REQUEST");
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
@@ -240,15 +156,10 @@ Future<double> _getWalkingDistance(
           }
           if (stairsExist) break;
         }
+        print(stairsExist);
       }
 
-      double distance =
-          data['routes'][0]['legs'][0]['distance']['value'].toDouble();
-
-      // Cache the distance
-      distanceCache[key] = distance;
-
-      return distance;
+      return data['routes'][0]['legs'][0]['distance']['value'].toDouble();
     } else {
       throw Exception('Failed to fetch directions: ${data['status']}');
     }
@@ -267,93 +178,49 @@ LatLng _parseLatLng(String locationString) {
 Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   List<PolylineWayPoint> wayPoints = [];
 
-  double generatedDistance = 0;
-  double inputDistance = 4;
-  double radius = inputDistance / (pi + 2);
+  const routeLength = 2;
+  const radius = routeLength;
 
-  print("START");
+  wayPoints
+      .add(PolylineWayPoint(location: "${start.latitude},${start.longitude}"));
   print(start);
 
-  if (natureTrail) {
-    List<LatLng> path = await _getPath(radius);
-    List<LatLng> sortedPath = await _sortPath(path);
+  int pointsCount = 1; //TODO: increase!
+  final random = Random();
+  double startDirection = random.nextDouble() * (2 * pi + 1.0);
 
-    for (int i = 0; i < sortedPath.length - 1; i++) {
-      LatLng origin = sortedPath[i];
-      LatLng destination = sortedPath[i + 1];
+  double routeDistance = 0;
 
-      bool noStairs = await _checkStairs(origin);
+  // Calculates each new waypoint
+  for (int i = 1; i <= pointsCount; i++) {
+    double angle = (pi * i) / (2 * pointsCount) + startDirection;
+    double lat = start.latitude + radius * sin(angle) / 110.574;
+    double long =
+        start.longitude + radius * cos(angle) / (111.320 * cos(lat * pi / 180));
 
-      double distance =
-          await _getWalkingDistance(origin, destination, noStairs);
-
-      if (generatedDistance < inputDistance * 1000) {
-        generatedDistance += distance;
-        wayPoints.add(PolylineWayPoint(
-            location: "${sortedPath[i].latitude},${sortedPath[i].longitude}"));
-        _addMarker(
-            LatLng(sortedPath[i].latitude, sortedPath[i].longitude),
-            i.toString(),
-            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
-      } else {
-        break;
-      }
-    }
-
-    //TODO: add points if < inputDistance * 1000 - 500
-    if (generatedDistance < inputDistance * 1000 - 500) {}
-  } else {
-    int pointsCount = 5; //TODO: increase!
-    final random = Random();
-    double startDirection = random.nextDouble() * (2 * pi + 1.0);
-
-    // Calculates each new waypoint
-    for (int i = 1; i <= pointsCount; i++) {
-      //double angle = (pi * i) / (2 * pointsCount) + startDirection; // Quarter circle because pi/2
-      double angle =
-          (pi * i) / (pointsCount) + startDirection; // Half circle because pi
-      double lat = start.latitude + radius * sin(angle) / 110.574;
-      double lon = start.longitude +
-          radius * cos(angle) / (111.320 * cos(lat * pi / 180));
-
-      wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
-    }
-
-    // Calculates distance between each waypoint
-    for (int i = 0; i < wayPoints.length - 1; i++) {
-      LatLng origin = _parseLatLng(wayPoints[i].location);
-      LatLng destination = _parseLatLng(wayPoints[i + 1].location);
-
-      bool noStairs = await _checkStairs(origin);
-
-      double distance =
-          await _getWalkingDistance(origin, destination, noStairs);
-
-      generatedDistance += distance;
-    }
+    wayPoints.add(PolylineWayPoint(location: "$lat,$long"));
   }
-  print("GENERATED DISTANCE:");
-  print(generatedDistance);
 
-  // Removes last points if distans is too long
-  while (generatedDistance > inputDistance * 1000 + 500) {
-    LatLng origin = _parseLatLng(wayPoints[wayPoints.length - 2].location);
-    LatLng destination = _parseLatLng(wayPoints[wayPoints.length - 1].location);
+  // Calculates distance between each waypoint
+  for (int i = 0; i < wayPoints.length - 1; i++) {
+    LatLng origin = _parseLatLng(wayPoints[i].location);
+    LatLng destination = _parseLatLng(wayPoints[i + 1].location);
 
     bool noStairs = await _checkStairs(origin);
 
     double distance = await _getWalkingDistance(origin, destination, noStairs);
 
-    wayPoints.removeAt(wayPoints.length - 1);
-    generatedDistance -= distance;
-    print("REMOVED DISTANCE: ");
-    print(distance);
+    print("Distance between waypoint $i and ${i + 1}: $distance meters");
+    routeDistance += distance;
   }
 
-  if (generatedDistance > inputDistance * 1000 - 500 &&
-      generatedDistance < inputDistance * 1000 + 500) {
+  print(routeDistance);
+
+  if (routeDistance > routeLength * 1000 - 500 &&
+      routeDistance < routeLength * 1000 + 500) {
+    // +- 500m //TODO: edit!
     inIntervall = true;
-    totalDistance = generatedDistance
+    totalDistance = routeDistance
         .toString(); //TODO: place somewhere useful when such exists
   }
 
@@ -367,12 +234,8 @@ void _addPolyLine() {
   polylines[id] = polyline;
 }
 
-Future<void> _getPolyline(LatLng start) async {
+Future<PolylineResult> _getPolyline(LatLng start) async {
   List<PolylineWayPoint> points = [];
-  //while (!inIntervall) {
-  //  points = await _getWayPoints(start);
-  //}
-  //TODO: for/while? ^
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
       points = await _getWayPoints(start);
@@ -386,12 +249,15 @@ Future<void> _getPolyline(LatLng start) async {
     }
   }
 
+  // If failed will use the last generated route
   if (!inIntervall) {
+    print("Found no route");
     totalDistance = 'Failed';
     points = [];
     reset();
   }
 
+  // Circle
   // From start to start through points generated
   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
     googleMapsApiKey,
@@ -407,6 +273,8 @@ Future<void> _getPolyline(LatLng start) async {
     });
   }
   _addPolyLine();
+
+  return result;
 }
 
 class GeneratedMap extends StatelessWidget {
@@ -433,12 +301,66 @@ class MapsRoutesExample extends StatefulWidget {
 }
 
 class _MapsRoutesExampleState extends State<MapsRoutesExample> {
+  final _activityStreamController = StreamController<Activity>();
+  final _geofenceStreamController = StreamController<Geofence>();
   late Completer<GoogleMapController> _controller = Completer();
+
+  int activeIndex = 0;
+
+  final _geofenceService = GeofenceService.instance.setup(
+      interval: 2000,
+      accuracy: 10,
+      loiteringDelayMs: 60000,
+      statusChangeDelayMs: 10000,
+      useActivityRecognition: true,
+      allowMockLocations: true,
+      printDevLog: false,
+      geofenceRadiusSortType: GeofenceRadiusSortType.DESC);
 
   Future<void> centerScreen(Position position) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newLatLngZoom(
-        LatLng(position.latitude, position.longitude), 14));
+        LatLng(position.latitude, position.longitude), 15));
+  }
+
+  Future<void> _onGeofenceStatusChanged(
+      Geofence geofence,
+      GeofenceRadius geofenceRadius,
+      GeofenceStatus geofenceStatus,
+      Location location) async {
+    print('geofence: ${geofence.toJson()}');
+    print('geofenceRadius: ${geofenceRadius.toJson()}');
+    print('geofenceStatus: ${geofenceStatus.toString()}');
+    _geofenceStreamController.sink.add(geofence);
+  }
+
+  // This function is to be called when the activity has changed.
+  void _onActivityChanged(Activity prevActivity, Activity currActivity) {
+    print('prevActivity: ${prevActivity.toJson()}');
+    print('currActivity: ${currActivity.toJson()}');
+    _activityStreamController.sink.add(currActivity);
+  }
+
+  // This function is to be called when the location has changed.
+  void _onLocationChanged(Location location) {
+    print('location: ${location.toJson()}');
+  }
+
+  // This function is to be called when a location services status change occurs
+  // since the service was started.
+  void _onLocationServicesStatusChanged(bool status) {
+    print('isLocationServicesEnabled: $status');
+  }
+
+  // This function is used to handle errors that occur in the service.
+  void _onError(error) {
+    final errorCode = getErrorCodesFromError(error);
+    if (errorCode == null) {
+      print('Undefined error: $error');
+      return;
+    }
+
+    print('ErrorCode: $errorCode');
   }
 
   @override
@@ -447,6 +369,17 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
     // Get current location
     _getLocation();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _geofenceService
+          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      _geofenceService.addLocationChangeListener(_onLocationChanged);
+      _geofenceService.addLocationServicesStatusChangeListener(
+          _onLocationServicesStatusChanged);
+      _geofenceService.addActivityChangeListener(_onActivityChanged);
+      _geofenceService.addStreamErrorListener(_onError);
+      _geofenceService.start().catchError(_onError);
+    });
   }
 
   void _getLocation() async {
@@ -463,7 +396,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   }
 
   _asyncMethod() async {
-    await _getPolyline(start);
+    PolylineResult result = await _getPolyline(start);
 
     setState(() {});
 
@@ -475,70 +408,87 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('TrailQuest'),
-        elevation: 2,
-      ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: GoogleMap(
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
-              initialCameraPosition: CameraPosition(
-                zoom: 14.0,
-                target: LatLng(start.latitude, start.longitude),
-              ),
-              markers: Set<Marker>.of(markers.values),
-              polylines: Set<Polyline>.of(polylines.values),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: 200,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(totalDistance.toString(),
-                      style: const TextStyle(fontSize: 25.0)),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text("Retry?"),
-        onPressed: () async {
-          setState(() {
-            reset();
-          });
-
-          inIntervall = false;
-          stairsExist = false;
-
-          await _getPolyline(start);
-          centerScreen(await Geolocator.getCurrentPosition());
-
-          setState(() {});
-
-          double hillines = await _getHilliness();
-          print("Total Hilliness:");
-          print(hillines);
+    return WillStartForegroundTask(
+        onWillStart: () async {
+          return _geofenceService.isRunningService;
         },
-      ),
-    );
+        androidNotificationOptions: AndroidNotificationOptions(
+          channelId: 'geofence_service_notification_channel',
+          channelName: 'Geofence Service Notification',
+          channelDescription:
+              'This notification appears when the geofence service is running in the background.',
+          channelImportance: NotificationChannelImportance.LOW,
+          priority: NotificationPriority.LOW,
+          isSticky: false,
+        ),
+        iosNotificationOptions: const IOSNotificationOptions(),
+        foregroundTaskOptions: const ForegroundTaskOptions(),
+        notificationTitle: 'Geofence Service is running',
+        notificationText: 'Tap to return to the app',
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('TrailQuest'),
+            elevation: 2,
+          ),
+          body: Stack(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: GoogleMap(
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    zoom: 14.0,
+                    target: LatLng(start.latitude, start.longitude),
+                  ),
+                  markers: Set<Marker>.of(markers.values),
+                  polylines: Set<Polyline>.of(polylines.values),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: 200,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(totalDistance.toString(),
+                          style: const TextStyle(fontSize: 25.0)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            label: Text("Retry?"),
+            onPressed: () async {
+              setState(() {
+                reset();
+              });
+
+              inIntervall = false;
+              stairsExist = false;
+
+              PolylineResult result = await _getPolyline(start);
+              centerScreen(await Geolocator.getCurrentPosition());
+
+              setState(() {});
+
+              double hillines = await _getHilliness();
+              print("Total Hilliness:");
+              print(hillines);
+            },
+          ),
+        ));
   }
 }
