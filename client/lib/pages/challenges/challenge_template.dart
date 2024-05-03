@@ -480,14 +480,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               stairsExist = false;
 
               PolylineResult result = await _getPolyline(start);
-              _addMarker(
-                  LatLng(
-                      result
-                          .points[(result.points.length / 2).round()].latitude,
-                      result.points[(result.points.length / 2).round()]
-                          .longitude),
-                  "Last",
-                  BitmapDescriptor.defaultMarkerWithHue(50));
               centerScreen(await Geolocator.getCurrentPosition());
 
               setState(() {});
