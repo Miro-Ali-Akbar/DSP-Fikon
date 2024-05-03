@@ -12,7 +12,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
-String totalDistance = 'No Route';
+import 'generate_trail_page.dart';
+
+import 'package:flutter_svg/svg.dart';
+import 'package:trailquest/widgets/trail_cards.dart';
+import '../widgets/back_button.dart';
+
+//String totalDistance = 'No Route';
+double totalDistance = 0;
 bool inIntervall = false;
 Map<MarkerId, Marker> markers = {};
 Map<PolylineId, Polyline> polylines = {};
@@ -23,19 +30,19 @@ Map<String, double> distanceCache = {};
 bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
-bool natureTrail = true;
+String activityOption = '';
 
 late LatLng start;
 
 void reset() {
+  totalDistance = 0; 
+  inIntervall = false; 
   markers = {};
   polylines = {};
   polylineCoordinates = [];
   polylinePoints = PolylinePoints();
   stairsExist = false;
-
-  // Origin marker
-  _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
+  activityOption = ''; 
 }
 
 void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
@@ -82,7 +89,7 @@ Future<List<LatLng>> _sortPath(List<LatLng> path) async {
 
 Future<List<LatLng>> _getPath(double radius) async {
   final url =
-      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius * 1000},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius * 1000},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius * 1000},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;';
+      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;';
   final response = await http.get(Uri.parse(url));
 
   List<LatLng> path = [];
@@ -212,14 +219,21 @@ Future<double> _getWalkingDistance(
     return distanceCache[key]!;
   }
 
+  if (activityOption == 'Running') {
+    activityOption = 'walking';
+  }
+
+  if (activityOption == 'Cycling') {
+    activityOption = 'bicycling ';
+  }
+
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
       'destination=${destination.latitude},${destination.longitude}&'
-      'mode=walking&'
+      'mode=${activityOption.toLowerCase()}&'
       'key=$googleMapsApiKey';
 
   final response = await http.get(Uri.parse(url));
-  print("API REQUEST");
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
@@ -264,17 +278,18 @@ LatLng _parseLatLng(String locationString) {
   return LatLng(lat, lon);
 }
 
-Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
+Future<List<PolylineWayPoint>> _getWayPoints(
+    LatLng start, double inputDistance, bool statusEnvironment) async {
   List<PolylineWayPoint> wayPoints = [];
 
   double generatedDistance = 0;
-  double inputDistance = 4;
-  double radius = inputDistance / (pi + 2);
+  double radius = inputDistance / (pi + 2); //m
+  double radiusKM = radius / 1000; //km
 
   print("START");
   print(start);
 
-  if (natureTrail) {
+  if (statusEnvironment) {
     List<LatLng> path = await _getPath(radius);
     List<LatLng> sortedPath = await _sortPath(path);
 
@@ -287,7 +302,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       double distance =
           await _getWalkingDistance(origin, destination, noStairs);
 
-      if (generatedDistance < inputDistance * 1000) {
+      if (generatedDistance < inputDistance) {
         generatedDistance += distance;
         wayPoints.add(PolylineWayPoint(
             location: "${sortedPath[i].latitude},${sortedPath[i].longitude}"));
@@ -300,8 +315,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
       }
     }
 
-    //TODO: add points if < inputDistance * 1000 - 500
-    if (generatedDistance < inputDistance * 1000 - 500) {}
+    //TODO: add points if < inputDistance - 500
+    if (generatedDistance < inputDistance - 500) {}
   } else {
     int pointsCount = 5; //TODO: increase!
     final random = Random();
@@ -309,12 +324,11 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
 
     // Calculates each new waypoint
     for (int i = 1; i <= pointsCount; i++) {
-      //double angle = (pi * i) / (2 * pointsCount) + startDirection; // Quarter circle because pi/2
       double angle =
           (pi * i) / (pointsCount) + startDirection; // Half circle because pi
-      double lat = start.latitude + radius * sin(angle) / 110.574;
+      double lat = start.latitude + radiusKM * sin(angle) / 110.574;
       double lon = start.longitude +
-          radius * cos(angle) / (111.320 * cos(lat * pi / 180));
+          radiusKM * cos(angle) / (111.320 * cos(lat * pi / 180));
 
       wayPoints.add(PolylineWayPoint(location: "$lat,$lon"));
     }
@@ -336,7 +350,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
   print(generatedDistance);
 
   // Removes last points if distans is too long
-  while (generatedDistance > inputDistance * 1000 + 500) {
+  while (generatedDistance > inputDistance + 500) {
     LatLng origin = _parseLatLng(wayPoints[wayPoints.length - 2].location);
     LatLng destination = _parseLatLng(wayPoints[wayPoints.length - 1].location);
 
@@ -350,11 +364,10 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
     print(distance);
   }
 
-  if (generatedDistance > inputDistance * 1000 - 500 &&
-      generatedDistance < inputDistance * 1000 + 500) {
+  if (generatedDistance > inputDistance - 500 &&
+      generatedDistance < inputDistance + 500) {
     inIntervall = true;
-    totalDistance = generatedDistance
-        .toString(); //TODO: place somewhere useful when such exists
+    totalDistance = generatedDistance;
   }
 
   return wayPoints;
@@ -367,7 +380,8 @@ void _addPolyLine() {
   polylines[id] = polyline;
 }
 
-Future<void> _getPolyline(LatLng start) async {
+Future<void> _getPolyline(LatLng start, double inputDistance,
+    bool statusEnvironment, bool avoidStairs) async {
   List<PolylineWayPoint> points = [];
   //while (!inIntervall) {
   //  points = await _getWayPoints(start);
@@ -375,19 +389,19 @@ Future<void> _getPolyline(LatLng start) async {
   //TODO: for/while? ^
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
-      points = await _getWayPoints(start);
+      points = await _getWayPoints(start, inputDistance, statusEnvironment);
     }
 
-    if (stairsExist) {
+    if (stairsExist && avoidStairs) {
       print("STAIRS FOUND ON ROUTE, RETRYING...");
       stairsExist = false;
       inIntervall = false;
-      points = await _getWayPoints(start);
+      points = await _getWayPoints(start, inputDistance, statusEnvironment);
     }
   }
 
   if (!inIntervall) {
-    totalDistance = 'Failed';
+    points = await _getWayPoints(start, inputDistance + 500, statusEnvironment);
     points = [];
     reset();
   }
@@ -410,7 +424,17 @@ Future<void> _getPolyline(LatLng start) async {
 }
 
 class GeneratedMap extends StatelessWidget {
-  const GeneratedMap({Key? key}) : super(key: key);
+  GeneratedMap({Key? key}) : super(key: key);
+
+  TrailCard trail = TrailCard(
+      name: '',
+      lengthDistance: 0,
+      lengthTime: 0,
+      natureStatus: '',
+      stairs: false,
+      heightDifference: 0,
+      isSaved: false,
+      isCircular: false);
 
   @override
   Widget build(BuildContext context) {
@@ -419,21 +443,44 @@ class GeneratedMap extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MapsRoutesExample(title: 'GMR Demo Home'),
+      //home: const MapsRoutesExample(title: 'GMR Demo Home'),
+      home: MapsRoutesGenerator(
+          trail: trail, saved: false, onSaveChanged: (value) {}),
     );
   }
 }
 
-class MapsRoutesExample extends StatefulWidget {
-  const MapsRoutesExample({Key? key, required this.title}) : super(key: key);
-  final String title;
+class MapsRoutesGenerator extends StatefulWidget {
+  TrailCard trail;
+  bool saved;
+  final ValueChanged<bool> onSaveChanged; // Callback function
+
+  MapsRoutesGenerator({
+    Key? key,
+    required this.trail,
+    required this.saved,
+    required this.onSaveChanged, // Callback function
+  }) : super(key: key);
 
   @override
-  _MapsRoutesExampleState createState() => _MapsRoutesExampleState();
+  State<MapsRoutesGenerator> createState() =>
+      _MapsRoutesGeneratorState(trail: trail, saved: saved);
 }
 
-class _MapsRoutesExampleState extends State<MapsRoutesExample> {
+class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
+  bool saved = false;
+  TrailCard trail;
+
+  _MapsRoutesGeneratorState(
+      {Key? key, required this.trail, required this.saved});
+
   late Completer<GoogleMapController> _controller = Completer();
+
+  double inputDistance = 0;
+  bool generateCircleRoute = false;
+  bool userStartPoint = false;
+  bool statusEnvironment = false;
+  bool avoidStairs = false;
 
   Future<void> centerScreen(Position position) async {
     final GoogleMapController controller = await _controller.future;
@@ -444,46 +491,108 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
   @override
   void initState() {
     super.initState();
+    reset(); 
+    activityOption =
+        getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
+    generateCircleRoute = getSelectedTrailType() ==
+            'assets/images/img_circular_arrow.svg'
+        ? true
+        : false; //'assets/icons/img_circular_arrow.svg', 'assets/icons/img_route.svg' //TODO: startpoint != endpoint not implemented
+    userStartPoint = getSelectedStatusStartPoint() == 'Yes'
+        ? true
+        : false; //'Yes', 'No (choose from map)'
+    statusEnvironment = getSelectedStatusEnvironment() == 'Nature'
+        ? true
+        : false; //'Nature', 'City', 'Both'
+    avoidStairs = getCheckedValue();
+    inputDistance = double.parse(getInputDistance());
+
+    // Time in meters
+    if (!getIsDistanceMeters()) {
+      if (activityOption == 'Walking') {
+        inputDistance = inputDistance * 1.42 * 60;
+      } else if (activityOption == 'Running') {
+        inputDistance = inputDistance * 2.56 * 60;
+      } else {
+        inputDistance = inputDistance * 5.0 * 60;
+      }
+    }
 
     // Get current location
-    _getLocation();
+    _getLocation(inputDistance);
   }
 
-  void _getLocation() async {
+  void _getLocation(double inputDistance) async {
     try {
       Position position = await Geolocator.getCurrentPosition();
       setState(() {
-        start = LatLng(position.latitude, position.longitude);
-        _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
-        _asyncMethod();
+        if (userStartPoint) {
+          start = LatLng(position.latitude, position.longitude);
+          _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
+        } else {
+          start = getPickedLocation();
+          _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
+        }
+      });
+      await _asyncMethod(inputDistance);
+      setState(() {
+        _buildTrailCard();
       });
     } catch (e) {
       print("Error getting current location: $e");
     }
   }
 
-  _asyncMethod() async {
-    await _getPolyline(start);
+  double hillines = 0;
+
+  _asyncMethod(double inputDistance) async {
+    await _getPolyline(start, inputDistance, statusEnvironment, avoidStairs);
 
     setState(() {});
 
-    double hillines =
-        await _getHilliness(); //TODO: place somewhere useful when such exists
+    hillines = await _getHilliness();
     print("Total Hilliness:");
     print(hillines);
   }
 
+  double _distanceToTime(double distance) {
+    if (activityOption == 'Walking') {
+      return distance / 1.42 / 60;
+    } else if (activityOption == 'Running') {
+      return distance / 2.56 / 60;
+    } else {
+      return distance / 5.0 / 60;
+    }
+  }
+
+  void _buildTrailCard() {
+    trail.name = 'Your Trail';
+    trail.stairs = !avoidStairs;
+    trail.lengthDistance = totalDistance;
+    trail.lengthTime =
+        double.parse((_distanceToTime(totalDistance)).toStringAsFixed(1));
+    trail.natureStatus = getSelectedStatusEnvironment();
+    trail.heightDifference = double.parse((hillines).toStringAsFixed(1));
+    trail.isSaved = false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('TrailQuest'),
-        elevation: 2,
-      ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.center,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+          body: Column(children: [
+        Row(
+          children: [
+            GoBackButton(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
+            ),
+          ],
+        ),
+        Expanded(
+          child: Center(
             child: GoogleMap(
               myLocationEnabled: true,
               zoomControlsEnabled: false,
@@ -498,47 +607,208 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: 200,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(totalDistance.toString(),
-                      style: const TextStyle(fontSize: 25.0)),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_walking.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.lengthDistance / 1000} km',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_clock.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.lengthTime} min',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_trees.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.natureStatus}',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_stairs.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        trail.stairs
+                            ? 'This route could contain stairs'
+                            : 'This route does not contain any stairs',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/img_arrow_up.svg',
+                      colorFilter:
+                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 50,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Text(
+                        '${trail.heightDifference} m',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                    if (saved) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 80),
+                        child: RemoveTrail(
+                          onRemove: (value) {
+                            setState(() {
+                              saved = value;
+                              widget.onSaveChanged(false);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!saved) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: SaveTrail(
+              onSave: (value) {
+                setState(() {
+                  saved = value;
+                  widget.onSaveChanged(true);
+                });
+              },
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text("Retry?"),
-        onPressed: () async {
-          setState(() {
-            reset();
-          });
-
-          inIntervall = false;
-          stairsExist = false;
-
-          await _getPolyline(start);
-          centerScreen(await Geolocator.getCurrentPosition());
-
-          setState(() {});
-
-          double hillines = await _getHilliness();
-          print("Total Hilliness:");
-          print(hillines);
-        },
-      ),
+      ])),
     );
   }
 }
+
+class SaveTrail extends StatefulWidget {
+  final Function(bool) onSave;
+
+  const SaveTrail({Key? key, required this.onSave}) : super(key: key);
+  @override
+  State<SaveTrail> createState() => _SaveTrailState();
+}
+
+class _SaveTrailState extends State<SaveTrail> {
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        widget.onSave(true);
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.green,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+      ),
+      child: const Text('Save Trail +',
+          style: TextStyle(color: Colors.white, fontSize: 30)),
+    );
+  }
+}
+
+class RemoveTrail extends StatefulWidget {
+  final Function(bool) onRemove;
+
+  const RemoveTrail({Key? key, required this.onRemove}) : super(key: key);
+
+  @override
+  State<RemoveTrail> createState() => _RemoveTrailState();
+}
+
+class _RemoveTrailState extends State<RemoveTrail> {
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        widget.onRemove(false);
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.red,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+      ),
+      child: const Text('Remove Trail',
+          style: TextStyle(color: Colors.white, fontSize: 10)),
+    );
+  }
+}
+
