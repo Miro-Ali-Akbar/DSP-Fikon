@@ -211,7 +211,7 @@ class _ActivityOptionsState extends State<ActivityOptions> {
 }
 
 const List<String> TrailTypes = <String>[
-  'assets/images/img_circular_arrow.svg', 'assets/images/img_route.svg'
+  'assets/icons/img_circular_arrow.svg', 'assets/icons/img_route.svg'
 ];
 
 final List<bool> _selectedStatusTrailTypes = <bool>[false, false];
@@ -334,9 +334,9 @@ class _StartPointOptionsState extends State<StartPointOptions> {
 }
 
 const List<String> EnviornmentIcons = <String>[
-  'assets/images/img_trees.svg',
-  'assets/images/img_city.svg',
-  'assets/images/img_park.svg',
+  'assets/icons/img_trees.svg',
+  'assets/icons/img_city.svg',
+  'assets/icons/img_park.svg',
 ];
 
 const List<String> Enviornments = <String>[

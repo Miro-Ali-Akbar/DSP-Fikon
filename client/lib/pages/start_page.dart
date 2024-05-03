@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:trailquest/challenges_list.dart';
+import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
 Future<dynamic> _requestPermissions() async {
@@ -41,7 +42,7 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<ChallengeCard> ongoingChallenges = filterOngoing(context);
+    List<Challenge> ongoingChallenges = filterOngoing(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -66,7 +67,7 @@ class _StartPageState extends State<StartPage> {
                 padding: const EdgeInsets.all(8),
                 itemCount: ongoingChallenges.length,
                 itemBuilder: (context, index) {
-                  return ongoingChallenges[index];
+                  return ChallengeCard(ongoingChallenges[index], challenge: ongoingChallenges[index]);
                 },
                 separatorBuilder: (_, __) => const Divider(),
               ),
@@ -93,21 +94,22 @@ class _StartPageState extends State<StartPage> {
   }
 }
 
-List<ChallengeCard> filterOngoing(BuildContext context) {
-  List<ChallengeCard> ongoing = [];
+List<Challenge> filterOngoing(BuildContext context) {
+  List<Challenge> ongoing = [];
   for(int i = 0; i < challenges.length; i++) {
     if(challenges[i].status == 1) {
       ongoing.add(challenges[i]);
     }
   }
   if(ongoing.length == 0) {
-    ongoing.add(ChallengeCard(
-      description: Text('null'), 
+    Challenge noOngoing = Challenge(
+      type:'null',
       name: 'null', 
-      type: 'null', 
-      status: 1, 
-      //timeLimit: false,
-    ));
+      description: 'null', 
+      status: 1,
+      image: 'null'
+    );
+    ongoing.add(noOngoing);
   }
   return ongoing;
 }
