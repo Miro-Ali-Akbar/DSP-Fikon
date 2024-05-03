@@ -75,7 +75,7 @@ class _ChallengeState extends State<ChallengePage> {
                       'Leaderboard',
                       style: TextStyle(color: Colors.white),
                     ),
-                    icon: SvgPicture.asset('assets/images/img_group.svg'),
+                    icon: SvgPicture.asset('assets/icons/img_group.svg'),
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.green.shade600,
                       padding: const EdgeInsets.symmetric(
