@@ -406,6 +406,7 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
     reset();
   }
 
+  // From start to start through points generated
   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
     googleMapsApiKey,
     PointLatLng(start.latitude, start.longitude),
@@ -413,6 +414,7 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
     travelMode: TravelMode.walking,
     wayPoints: points,
   );
+
   if (result.points.isNotEmpty) {
     result.points.forEach((PointLatLng point) {
       polylineCoordinates.add(LatLng(point.latitude, point.longitude));
