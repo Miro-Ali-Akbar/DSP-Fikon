@@ -11,6 +11,7 @@ import 'package:trailquest/pages/generated_map_page.dart';
 // import 'package:trailquest/pages/challenges/challenge_template.dart';
 // import 'package:trailquest/pages/challenges/challenge_orienteering.dart';
 // import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
+// import 'package:trailquest/pages/challenges/challenge_treasure_hunt.dart';
 
 late LatLng start;
 
