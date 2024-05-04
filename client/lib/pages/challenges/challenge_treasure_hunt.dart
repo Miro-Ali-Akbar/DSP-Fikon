@@ -222,7 +222,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(LatLng start) async {
 
   print(routeDistance);
 
-  if (true) {
+  if (routeDistance > routeLength * 1000 - 500 &&
+      routeDistance < routeLength * 1000 + 500) {
     // +- 500m //TODO: edit!
     inIntervall = true;
     totalDistance = routeDistance
@@ -484,7 +485,7 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
                     target: LatLng(start.latitude, start.longitude),
                   ),
                   markers: Set<Marker>.of(markers.values),
-                  // polylines: Set<Polyline>.of(polylines.values),
+                  polylines: Set<Polyline>.of(polylines.values),
                   onMapCreated: (GoogleMapController controller) {
                     _controller.complete(controller);
                   },
