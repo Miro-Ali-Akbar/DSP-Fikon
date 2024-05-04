@@ -8,12 +8,12 @@ final List<String> natureOptions = <String>['Nature', 'City', 'Both'];
  */
 
 class TrailCard extends StatefulWidget{
-  final String name;
-  final double lengthDistance; 
-  final double lengthTime; 
-  final String natureStatus; 
-  final bool stairs; 
-  final double heightDifference; 
+  late String name;
+  late double lengthDistance; 
+  late double lengthTime; 
+  late String natureStatus; 
+  late bool stairs; 
+  late double heightDifference; 
   bool isSaved; 
   bool isCircular; 
   //final ValueChanged<bool> onSaveChanged;
