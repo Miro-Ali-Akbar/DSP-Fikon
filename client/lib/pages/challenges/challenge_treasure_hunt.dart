@@ -352,7 +352,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
         return;
       }
 
-
       setState(() {
         markers.remove(activeIndex);
         isInArea = true;
@@ -365,7 +364,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
             "GeofenceCoord active: $activeIndex",
             BitmapDescriptor.defaultMarkerWithHue(50));
       });
-
     } else if (geofenceStatus.toString() == "GeofenceStatus.EXIT") {
       print("Left area");
       setState(() {
