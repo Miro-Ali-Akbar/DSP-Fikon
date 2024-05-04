@@ -344,6 +344,15 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
     if (geofenceStatus.toString() == "GeofenceStatus.ENTER" &&
         geofence.toJson().toString().contains(RegExp('loc_$activeIndex'))) {
       print("Entered area");
+
+      // TODO: Add game logic
+      if (activeIndex == geofenceCoords.length) {
+        // TODO: Add finish-line logic
+        print("Finished!");
+        return;
+      }
+
+
       setState(() {
         markers.remove(activeIndex);
         isInArea = true;
@@ -357,7 +366,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
             BitmapDescriptor.defaultMarkerWithHue(50));
       });
 
-      // TODO: Add game logic
     } else if (geofenceStatus.toString() == "GeofenceStatus.EXIT") {
       print("Left area");
       setState(() {
