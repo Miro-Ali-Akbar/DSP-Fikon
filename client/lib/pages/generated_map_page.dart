@@ -18,33 +18,38 @@ import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart';
 
-//String totalDistance = 'No Route';
 double totalDistance = 0;
 bool inIntervall = false;
 Map<MarkerId, Marker> markers = {};
 Map<PolylineId, Polyline> polylines = {};
 List<LatLng> polylineCoordinates = [];
 PolylinePoints polylinePoints = PolylinePoints();
+bool stairsExist = false;
+String activityOption = '';
+
 Map<String, double> distanceCache = {};
 
-bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
-
-String activityOption = '';
 
 late LatLng start;
 
+/// Resets global variables used by generated_map_page
 void reset() {
-  totalDistance = 0; 
-  inIntervall = false; 
+  totalDistance = 0;
+  inIntervall = false;
   markers = {};
   polylines = {};
   polylineCoordinates = [];
   polylinePoints = PolylinePoints();
   stairsExist = false;
-  activityOption = ''; 
+  activityOption = '';
 }
 
+/// Adds a marker to the list of markers the map will display
+///
+/// [position] the coordinates of the marker
+/// [id] an identifier for the marker
+/// [descriptor] used to set the image of the marker
 void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
   MarkerId markerId = MarkerId(id);
   Marker marker =
@@ -52,6 +57,18 @@ void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
   markers[markerId] = marker;
 }
 
+/// Sorts a list of coordinates based on walking distance.
+///
+/// Given a list of LatLng points representing a path, this function sorts
+/// the path by minimizing the walking distance between consecutive points.
+///
+/// Example: The second element in the list is the coordinate which has the
+/// shortest walking/running/cycling distance to the first coordinate out
+/// of all elements.
+///
+/// [path] the list of coordinates to be sorted
+///
+/// Returns a sorted list of LatLng points
 Future<List<LatLng>> _sortPath(List<LatLng> path) async {
   List<LatLng> sortedPath = [];
 
@@ -63,6 +80,8 @@ Future<List<LatLng>> _sortPath(List<LatLng> path) async {
 
       List<double> distances = [];
 
+      // Calculates (or finds) the (cached) walking distance between the last node and
+      // each point in the remaining path, storing the distances in a list for further processing.
       for (int i = 0; i < path.length; i++) {
         double distance;
         String key =
@@ -87,6 +106,16 @@ Future<List<LatLng>> _sortPath(List<LatLng> path) async {
   return sortedPath;
 }
 
+/// Fetches a path of LatLng points from OpenStreetMap within a specified radius.
+///
+/// Queries OpenStreetMap's Overpass API for natural features like parks, forests,
+/// and footways near the starting point, based on the given [radius].
+///
+/// Independently of the number of elements the query returns a path of 10 coordinates.
+///
+/// [radius] the search radius (in meters) around the starting point.
+///
+/// Returns list of LatLng points representing the path.
 Future<List<LatLng>> _getPath(double radius) async {
   final url =
       'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];((way["natural"](around:${radius},${start.latitude},${start.longitude});way["leisure"="park"](around:${radius},${start.latitude},${start.longitude});way["landuse"="forest"](around:${radius},${start.latitude},${start.longitude}););(way["highway"~"^(footway|path|cycleway)"](area);););(._;>;);out;';
@@ -109,8 +138,8 @@ Future<List<LatLng>> _getPath(double radius) async {
     print(elements.length);
     print(elements.length - nodes.length);
 
+    // A randon number is chosen whithin the length of a interval to be the offset for each interval
     final random = Random();
-
     int interval = ((elements.length - nodes.length) / 10).ceil();
     int start = random.nextInt(interval) + 1;
 
@@ -127,6 +156,13 @@ Future<List<LatLng>> _getPath(double radius) async {
   return path;
 }
 
+/// Fetches the elevation of a set of coordinates from Google Maps
+///
+/// [coordinates] the set of coordinates fo find the elevation of.
+///
+/// Returns the height (over sea level) for the set of coordinates.
+///
+/// Throws an [Exception] if there was an error in fetching or loading the data.
 Future<double> _getElevation(LatLng coordinates) async {
   final url =
       'https://maps.googleapis.com/maps/api/elevation/json?locations=${coordinates.latitude},${coordinates.longitude}&key=$googleMapsApiKey';
@@ -146,6 +182,9 @@ Future<double> _getElevation(LatLng coordinates) async {
   }
 }
 
+/// Calculates the difference in height of a route based on elevation data.
+///
+/// Returns the height difference between the point with the smallest elevation and the largest.
 Future<double> _getHilliness() async {
   print("polyListLength:");
   print(polylineCoordinates.length); // Usually about 80-150 points
@@ -154,6 +193,7 @@ Future<double> _getHilliness() async {
   double largestElevation = smallestElevation;
 
   // Increments of 10 in polyline list for suitable points
+  // Identifies the points with the smallest and largest elevation
   for (int i = 1; i < polylineCoordinates.length; i += 10) {
     double elevation = await _getElevation(polylineCoordinates[i]);
     if (elevation < smallestElevation) {
@@ -170,6 +210,17 @@ Future<double> _getHilliness() async {
   return largestElevation - smallestElevation;
 }
 
+/// Checks if there are stairs around 100m of a coordinate.
+///
+/// Checks if there are stairs near the specified waypoint.
+///
+/// Queries OpenStreetMap to search for highway steps within
+/// a 100-meter radius of the given [waypoint]. (TODO: Remove?: If stairs are found, markers
+/// are added to the map to indicate their locations.)
+///
+/// [waypoint] the coordinate to check for stairs.
+///
+/// Returns true if no stairs are found near the waypoint, and false otherwise.
 Future<bool> _checkStairs(LatLng waypoint) async {
   final url =
       'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="steps"](around:100, ${waypoint.latitude}, ${waypoint.longitude});(._;>;);out;';
@@ -210,6 +261,18 @@ Future<bool> _checkStairs(LatLng waypoint) async {
   return markers.length > 1 ? false : true;
 }
 
+/// Retrieves the walking/running/ cycling distance between the origin and destination coordinates.
+///
+/// Uses the Google Maps Directions API to calculate the walking distance
+/// between the specified [origin] and [destination] coordinates.
+///
+/// [origin] the LatLng coordinate representing the starting point.
+/// [destination] the LatLng coordinate representing the destination point.
+/// [noStairs] a boolean indicating whether stairs are on or in the vicinity of the route.
+///
+/// Returns the walking distance in meters between the origin and destination.
+///
+/// Trows [Exception] if an error occcurs when fetching the directions.
 Future<double> _getWalkingDistance(
     LatLng origin, LatLng destination, bool noStairs) async {
   String key =
@@ -238,6 +301,8 @@ Future<double> _getWalkingDistance(
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
     if (data['status'] == 'OK') {
+      // If the check for possible stairs returns true then the instructions of the
+      // route are searched to establish if they are exactly on the route
       if (!noStairs) {
         // Search for the phrase in html_instructions field
         for (var route in data['routes']) {
@@ -271,6 +336,11 @@ Future<double> _getWalkingDistance(
   }
 }
 
+/// Parses a string of coordinates into a LatLng object.
+///
+/// [locationString] the sting to parse.
+///
+/// Returns a LatLng of coordinates from [locationString].
 LatLng _parseLatLng(String locationString) {
   List<String> coordinates = locationString.split(',');
   double lat = double.parse(coordinates[0]);
@@ -278,6 +348,20 @@ LatLng _parseLatLng(String locationString) {
   return LatLng(lat, lon);
 }
 
+/// Retrieves a list of polyline waypoints for a given starting point and distance.
+///
+/// Calculates polyline waypoints based on the specified [start] point and [inputDistance].
+///
+/// If [statusEnvironment] is true, it generates waypoints along a path obtained from
+/// OpenStreetMap data, considering environmental factors - the nature route generation.
+/// Otherwise, it generates waypoints in a circular pattern around the starting point - the
+/// normal route generation.
+///
+/// [start] the LatLng coordinate representing the starting point.
+/// [inputDistance] the distance (in meters) for which waypoints are generated.
+/// [statusEnvironment] a boolean indicating whether to consider a natura favored route.
+///
+/// Returns a list of polyline waypoints.
 Future<List<PolylineWayPoint>> _getWayPoints(
     LatLng start, double inputDistance, bool statusEnvironment) async {
   List<PolylineWayPoint> wayPoints = [];
@@ -289,6 +373,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
   print("START");
   print(start);
 
+  // Nature favored route generation if chosen, else normal generation
   if (statusEnvironment) {
     List<LatLng> path = await _getPath(radius);
     List<LatLng> sortedPath = await _sortPath(path);
@@ -302,6 +387,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
       double distance =
           await _getWalkingDistance(origin, destination, noStairs);
 
+      // Add waypoint and distance if the input distance hasn't been reached
       if (generatedDistance < inputDistance) {
         generatedDistance += distance;
         wayPoints.add(PolylineWayPoint(
@@ -322,10 +408,9 @@ Future<List<PolylineWayPoint>> _getWayPoints(
     final random = Random();
     double startDirection = random.nextDouble() * (2 * pi + 1.0);
 
-    // Calculates each new waypoint
+    // Calculates each new waypoint on a half circle, taking roughly consideration of the earths curvature
     for (int i = 1; i <= pointsCount; i++) {
-      double angle =
-          (pi * i) / (pointsCount) + startDirection; // Half circle because pi
+      double angle = (pi * i) / (pointsCount) + startDirection;
       double lat = start.latitude + radiusKM * sin(angle) / 110.574;
       double lon = start.longitude +
           radiusKM * cos(angle) / (111.320 * cos(lat * pi / 180));
@@ -349,7 +434,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
   print("GENERATED DISTANCE:");
   print(generatedDistance);
 
-  // Removes last points if distans is too long
+  // Removes last points if the generated distance is to long
   while (generatedDistance > inputDistance + 500) {
     LatLng origin = _parseLatLng(wayPoints[wayPoints.length - 2].location);
     LatLng destination = _parseLatLng(wayPoints[wayPoints.length - 1].location);
@@ -364,6 +449,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
     print(distance);
   }
 
+  // Check if the generated route is within an interval of what the user requested
   if (generatedDistance > inputDistance - 500 &&
       generatedDistance < inputDistance + 500) {
     inIntervall = true;
@@ -373,6 +459,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
   return wayPoints;
 }
 
+/// Creates a polyline with id, color and coordinates
 void _addPolyLine() {
   PolylineId id = PolylineId("poly");
   Polyline polyline =
@@ -380,33 +467,44 @@ void _addPolyLine() {
   polylines[id] = polyline;
 }
 
+/// Retrieves and draws a polyline route on the map.
+///
+/// [start] the LatLng coordinate representing the starting point.
+/// [inputDistance] the distance (in meters) for generating waypoints.
+/// [statusEnvironment] a boolean indicating whether to favor nature.
+/// [avoidStairs] a boolean indicating whether to avoid routes with stairs.
+///
 Future<void> _getPolyline(LatLng start, double inputDistance,
     bool statusEnvironment, bool avoidStairs) async {
   List<PolylineWayPoint> points = [];
-  //while (!inIntervall) {
-  //  points = await _getWayPoints(start);
-  //}
-  //TODO: for/while? ^
+
+  int increaseRoute = 0;
+  // Five tries to generate an acceptable route, each try increases the distance
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
-      points = await _getWayPoints(start, inputDistance, statusEnvironment);
+      points = await _getWayPoints(
+          start, inputDistance + increaseRoute, statusEnvironment);
     }
 
+    // If stairs exist on the route and the user requested no stairs the route generation is retried
     if (stairsExist && avoidStairs) {
       print("STAIRS FOUND ON ROUTE, RETRYING...");
       stairsExist = false;
       inIntervall = false;
       points = await _getWayPoints(start, inputDistance, statusEnvironment);
     }
+
+    increaseRoute += 500;
   }
 
+  // TODO: Error handling if route generation failed
   if (!inIntervall) {
-    points = await _getWayPoints(start, inputDistance + 500, statusEnvironment);
+    print("ERROR IN GENERATION ROUTE");
     points = [];
     reset();
   }
 
-  // From start to start through points generated
+  // Creates polyline from start to start through the generated points
   PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
     googleMapsApiKey,
     PointLatLng(start.latitude, start.longitude),
@@ -415,6 +513,7 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
     wayPoints: points,
   );
 
+  // Adds the point to the object used by the map to display the polyline
   if (result.points.isNotEmpty) {
     result.points.forEach((PointLatLng point) {
       polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -423,6 +522,26 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
   _addPolyLine();
 }
 
+/// Calculates how long it would take to walk/run/cycle a distance,
+/// based on average speeds for the categories.
+///
+/// [distance] the distance to convert to time.
+///
+/// Returns the time in minutes it would take to travel the distance.
+double _distanceToTime(double distance) {
+  if (activityOption == 'Walking') {
+    return distance / 1.42 / 60;
+  } else if (activityOption == 'Running') {
+    return distance / 2.56 / 60;
+  } else {
+    return distance / 5.0 / 60;
+  }
+}
+
+/// A StatelessWidget that displays a generated map.
+///
+/// Displays a generated map using the MapsRoutesGenerator widget,
+/// configured with a default TrailCard and options to save the route.
 class GeneratedMap extends StatelessWidget {
   GeneratedMap({Key? key}) : super(key: key);
 
@@ -443,13 +562,16 @@ class GeneratedMap extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      //home: const MapsRoutesExample(title: 'GMR Demo Home'),
       home: MapsRoutesGenerator(
           trail: trail, saved: false, onSaveChanged: (value) {}),
     );
   }
 }
 
+/// A StatefulWidget for generating maps routes.
+///
+/// This widget allows the generation of map routes based on the provided [trail],
+/// [saved] status, and a callback function [onSaveChanged] to handle save state changes.
 class MapsRoutesGenerator extends StatefulWidget {
   TrailCard trail;
   bool saved;
@@ -467,6 +589,10 @@ class MapsRoutesGenerator extends StatefulWidget {
       _MapsRoutesGeneratorState(trail: trail, saved: saved);
 }
 
+/// The state for the MapsRoutesGenerator widget.
+///
+/// Manages the state of the map generation process, including user options,
+/// location retrieval, polyline generation, and UI updates.
 class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   bool saved = false;
   TrailCard trail;
@@ -491,7 +617,10 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   @override
   void initState() {
     super.initState();
-    reset(); 
+    // Resets all global variables
+    reset();
+
+    // Fetches the users input data to use as filters for the route generation
     activityOption =
         getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
     generateCircleRoute = getSelectedTrailType() ==
@@ -522,6 +651,15 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     _getLocation(inputDistance);
   }
 
+  /// Retrieves the current location and initiates map generation.
+  ///
+  /// Retrieves the current device location using Geolocator. If [userStartPoint]
+  /// is true, sets the starting point as the current location. Otherwise, uses the
+  /// picked location. Adds a marker to the map at the starting point. Initiates the
+  /// generation of the map route asynchronously using the [_asyncMethod]. Updates the
+  /// UI to display the generated trail card.
+  ///
+  /// [inputDistance] the distance (in meters) for generating waypoints.
   void _getLocation(double inputDistance) async {
     try {
       Position position = await Geolocator.getCurrentPosition();
@@ -534,7 +672,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
           _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
         }
       });
-      await _asyncMethod(inputDistance);
+      await _asyncPolylineandHilliness(inputDistance);
       setState(() {
         _buildTrailCard();
       });
@@ -545,7 +683,15 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
 
   double hillines = 0;
 
-  _asyncMethod(double inputDistance) async {
+  /// Asynchronously generates the polyline route and calculates hilliness.
+  ///
+  /// Generates the polyline route asynchronously using the [_getPolyline] method
+  /// based on the provided [start] point, [inputDistance], [statusEnvironment], and
+  /// [avoidStairs]. Updates the UI to reflect the generated route. Calculates the
+  /// hilliness of the route asynchronously using the [_getHilliness] method.
+  ///
+  /// [inputDistance] the distance (in meters) for generating waypoints.
+  Future<void> _asyncPolylineandHilliness(double inputDistance) async {
     await _getPolyline(start, inputDistance, statusEnvironment, avoidStairs);
 
     setState(() {});
@@ -555,16 +701,8 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     print(hillines);
   }
 
-  double _distanceToTime(double distance) {
-    if (activityOption == 'Walking') {
-      return distance / 1.42 / 60;
-    } else if (activityOption == 'Running') {
-      return distance / 2.56 / 60;
-    } else {
-      return distance / 5.0 / 60;
-    }
-  }
-
+  // Builds the trailcard based on the generated route
+  // The trailcard is used as reference for displaying the data
   void _buildTrailCard() {
     trail.name = 'Your Trail';
     trail.stairs = !avoidStairs;
@@ -755,6 +893,11 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   }
 }
 
+/// A StatefulWidget for saving a trail.
+///
+/// This widget provides a button for saving a trail. It triggers the [onSave]
+/// callback function when pressed, passing a boolean value indicating whether
+/// the trail is saved or not.
 class SaveTrail extends StatefulWidget {
   final Function(bool) onSave;
 
@@ -763,6 +906,11 @@ class SaveTrail extends StatefulWidget {
   State<SaveTrail> createState() => _SaveTrailState();
 }
 
+/// The state for the SaveTrail widget.
+///
+/// Manages the state and UI for the SaveTrail widget, which provides a button
+/// for saving a trail. When pressed, it triggers the [onSave] callback function
+/// to indicate that the trail is saved.
 class _SaveTrailState extends State<SaveTrail> {
   @override
   Widget build(BuildContext context) {
@@ -783,6 +931,11 @@ class _SaveTrailState extends State<SaveTrail> {
   }
 }
 
+/// A StatefulWidget for removing a trail.
+///
+/// This widget provides a button for removing a saved trail. It triggers the [onRemove]
+/// callback function when pressed, passing a boolean value indicating whether
+/// the trail should be removed or not.
 class RemoveTrail extends StatefulWidget {
   final Function(bool) onRemove;
 
@@ -792,6 +945,11 @@ class RemoveTrail extends StatefulWidget {
   State<RemoveTrail> createState() => _RemoveTrailState();
 }
 
+/// The state for the RemoveTrail widget.
+///
+/// Manages the state and UI for the RemoveTrail widget, which provides a button
+/// for removing a saved trail. When pressed, it triggers the [onRemove] callback function
+/// to indicate that the trail should be removed.
 class _RemoveTrailState extends State<RemoveTrail> {
   @override
   Widget build(BuildContext context) {
@@ -811,4 +969,3 @@ class _RemoveTrailState extends State<RemoveTrail> {
     );
   }
 }
-
