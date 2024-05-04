@@ -11,6 +11,7 @@ import 'package:flutter_config/flutter_config.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
 
 import 'generate_trail_page.dart';
 
@@ -30,6 +31,8 @@ bool stairsExist = false;
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
 String activityOption = '';
+
+var routeToDatabase = <String>{};
 
 late LatLng start;
 
@@ -422,6 +425,16 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
   _addPolyLine();
 }
 
+double _distanceToTime(double distance) {
+  if (activityOption == 'Walking') {
+    return distance / 1.42 / 60;
+  } else if (activityOption == 'Running') {
+    return distance / 2.56 / 60;
+  } else {
+    return distance / 5.0 / 60;
+  }
+}
+
 class GeneratedMap extends StatelessWidget {
   GeneratedMap({Key? key}) : super(key: key);
 
@@ -552,16 +565,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     hillines = await _getHilliness();
     print("Total Hilliness:");
     print(hillines);
-  }
-
-  double _distanceToTime(double distance) {
-    if (activityOption == 'Walking') {
-      return distance / 1.42 / 60;
-    } else if (activityOption == 'Running') {
-      return distance / 2.56 / 60;
-    } else {
-      return distance / 5.0 / 60;
-    }
   }
 
   void _buildTrailCard() {
@@ -745,6 +748,11 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                   widget.onSaveChanged(true);
                 });
               },
+              trail: trail,
+              avoidStairs: avoidStairs,
+              totalDistance: totalDistance,
+              statusEnvironment: getSelectedStatusEnvironment(),
+              hillines: hillines,
             ),
           ),
         ]
@@ -755,8 +763,22 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
 
 class SaveTrail extends StatefulWidget {
   final Function(bool) onSave;
+  final TrailCard trail;
+  final bool avoidStairs;
+  final double totalDistance;
+  final String statusEnvironment;
+  final double hillines;
 
-  const SaveTrail({Key? key, required this.onSave}) : super(key: key);
+  const SaveTrail({
+    Key? key,
+    required this.onSave,
+    required this.trail,
+    required this.avoidStairs,
+    required this.totalDistance,
+    required this.statusEnvironment,
+    required this.hillines,
+  }) : super(key: key);
+
   @override
   State<SaveTrail> createState() => _SaveTrailState();
 }
@@ -767,7 +789,10 @@ class _SaveTrailState extends State<SaveTrail> {
     return TextButton(
       onPressed: () {
         widget.onSave(true);
+        _trailCardInfo();
         setState(() {});
+        //TODO: Send off to database!
+        //saveRouteToServer(trailToServer);
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.green,
@@ -779,6 +804,18 @@ class _SaveTrailState extends State<SaveTrail> {
       child: const Text('Save Trail +',
           style: TextStyle(color: Colors.white, fontSize: 30)),
     );
+  }
+
+  void _trailCardInfo() {
+    routeToDatabase.add(widget.trail.name);
+    routeToDatabase.add(totalDistance.toString());
+    routeToDatabase.add(_distanceToTime(totalDistance).toStringAsFixed(1));
+    routeToDatabase.add(widget.statusEnvironment);
+    routeToDatabase.add(widget.avoidStairs ? 'Yes' : 'No');
+    routeToDatabase.add(widget.hillines.toStringAsFixed(1));
+
+    print(routeToDatabase); 
+    //TODO: add polylines
   }
 }
 
@@ -808,5 +845,21 @@ class _RemoveTrailState extends State<RemoveTrail> {
       child: const Text('Remove Trail',
           style: TextStyle(color: Colors.white, fontSize: 30)),
     );
+  }
+}
+
+void saveRouteToServer(List<String> routeData) async {
+  String serverUrl = 'http://trocader.duckdns.org'; //TODO: correct??
+
+  String jsonString = jsonEncode(routeData);
+
+  var response =
+      await http.post(Uri.parse(serverUrl), body: {'routeData': jsonString});
+
+  if (response.statusCode == 200) {
+    print('Route data sent to server successfully!');
+  } else {
+    print(
+        'Failed to send route data to server. Error: ${response.reasonPhrase}');
   }
 }
