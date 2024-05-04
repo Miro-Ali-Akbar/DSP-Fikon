@@ -33,7 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
         body: ListView(
           children: [
             ProfileRow(),
-            ContainerButton(Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+            ContainerButton(() => Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
               pageBuilder: (context, x, xx) => Friendpage(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,

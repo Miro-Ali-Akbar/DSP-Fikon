@@ -15,6 +15,8 @@ import 'firebase_options.dart';
 
 WebSocketChannel? channel;
 List<Friend> friendsList = [];
+List<String> friendRequests = [];
+String feedBack = "";
 
 void _sendMessage(String message) {
   print(message);
