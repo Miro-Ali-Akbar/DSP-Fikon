@@ -56,7 +56,7 @@ wss.on('connection', ws => {
                 send(ws, 'leaderboard');
                 console.log('sent leaderboard');
                 break;
-            case "outGoingRequest": // TODO: Change to correct msgID if needed
+            case "addFriend": // TODO: Change to correct msgID if needed
                 handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers);
                 console.log('sent friend request');
                 break;

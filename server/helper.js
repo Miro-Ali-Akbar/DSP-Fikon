@@ -111,7 +111,7 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
     const doc = await usersRef.doc(target).get();
     if ( !doc.exists ) {
         // TODO: Change msgID to match client listener
-        ws.send(JSON.stringify({ msgID: 'error404', data: { msg: 'This user does not exist' }}));
+        ws.send(JSON.stringify({ msgID: 'outgoingRequest', data: { error: 1 }}));
     } else if ( doc.data.online ) {
         for ( let i = 0; i < wsArr.length; i++ ) {
             const socket = wsArr[i];
