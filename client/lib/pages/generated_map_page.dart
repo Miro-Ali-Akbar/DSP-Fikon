@@ -282,18 +282,27 @@ Future<double> _getWalkingDistance(
     return distanceCache[key]!;
   }
 
-  if (activityOption == 'Running') {
-    activityOption = 'walking';
-  }
-
-  if (activityOption == 'Cycling') {
-    activityOption = 'bicycling ';
+  String distanceActivityOption;
+  switch (activityOption) {
+    case 'Walking':
+      distanceActivityOption = 'walking';
+      break;
+    case 'Running':
+      distanceActivityOption = 'walking';
+      break;
+    case 'Cycling':
+      distanceActivityOption = 'bicycling';
+      break;
+    default:
+      distanceActivityOption = '';
+      print("Activity unrecognized!");
+      print("Nothing set!");
   }
 
   String url = 'https://maps.googleapis.com/maps/api/directions/json?'
       'origin=${origin.latitude},${origin.longitude}&'
       'destination=${destination.latitude},${destination.longitude}&'
-      'mode=${activityOption.toLowerCase()}&'
+      'mode=${distanceActivityOption.toLowerCase()}&'
       'key=$googleMapsApiKey';
 
   final response = await http.get(Uri.parse(url));
@@ -528,18 +537,20 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
 ///
 /// Returns the time in minutes it would take to travel the distance.
 double _distanceToTime(double distance) {
-  if (activityOption == 'Walking') {
-    return distance / 1.42 / 60;
-  } else if (activityOption == 'Running') {
-    return distance / 2.56 / 60;
-  } else if (activityOption == 'Cycling') {
-    return distance / 5.0 / 60;
-  } else {
-    // If not walking/running/cycling a default value is used
-    double defaultTime = distance / 60;
-    print("Activity unrecognized!");
-    print("Time set to $defaultTime");
-    return defaultTime;
+  print("Activity option == $activityOption");
+  switch (activityOption) {
+    case 'Walking':
+      return distance / 1.42 / 60;
+    case 'Running':
+      return distance / 2.56 / 60;
+    case 'Cycling':
+      return distance / 5.0 / 60;
+    default:
+      // If not walking/running/cycling a default value is used
+      double defaultTime = distance / 60;
+      print("Activity unrecognized!");
+      print("Time set to $defaultTime");
+      return defaultTime;
   }
 }
 
@@ -643,15 +654,19 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
 
     // Time in meters
     if (!getIsDistanceMeters()) {
-      if (activityOption == 'Walking') {
-        inputDistance = inputDistance * 1.42 * 60;
-      } else if (activityOption == 'Running') {
-        inputDistance = inputDistance * 2.56 * 60;
-      } else if (activityOption == 'Cycling') {
-        inputDistance = inputDistance * 5.0 * 60;
-      } else {
-        print("Activity unrecognized!");
-        print("inputDistance untouched");
+      switch (activityOption) {
+        case 'Walking':
+          inputDistance = inputDistance * 1.42 * 60;
+          break;
+        case 'Running':
+          inputDistance = inputDistance * 2.56 * 60;
+          break;
+        case 'Cycling':
+          inputDistance = inputDistance * 5.0 * 60;
+          break;
+        default:
+          print("Activity unrecognized!");
+          print("inputDistance untouched");
       }
     }
 
