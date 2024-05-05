@@ -106,6 +106,29 @@ async function send(ws, msgID, doc, index) {
     ws.send(JSON.stringify(msg));
 }
 
+//? Create handling by putting websocket in database --- STRETCH GOAL FOR SCALING
+async function handleFriendrequest(ws, sender, target, wsArr) {
+    const doc = await usersRef.doc(target).get();
+    if ( !doc.exists ) {
+        // TODO: Change msgID to match client listener
+        ws.send(JSON.stringify({ msgID: 'error404', data: { msg: 'This user does not exist' }}));
+    } else if ( doc.data.online ) {
+        for ( let i = 0; i < wsArr.length; i++ ) {
+            const socket = wsArr[i];
+            if ( socket[0] === target ) {
+                socket[1].send(JSON.stringify({msgID: 'incomingRequest', data: {sender: sender}}));
+                return;
+            }
+        }
+    } else {
+        let requests = await doc.data.friendRequests || [];
+        requests.push(sender);
+        usersRef.doc(target).update({
+            friendRequests: requests,
+        })
+    }
+}
+
 
 module.exports = {
     heartbeat,
@@ -113,5 +136,6 @@ module.exports = {
     putUser,
     get,
     put,
-    send
+    send,
+    handleFriendrequest
 };
