@@ -66,7 +66,7 @@ class _ChallengeState extends State<ChallengePage> {
                       channel?.sink.add('{"msgID": "getLeaderboard"}');
                       Navigator.of(context, rootNavigator: true)
                           .push(PageRouteBuilder(
-                        pageBuilder: (context, x, xx) => Leaderboard(dataList),
+                        pageBuilder: (context, x, xx) => Leaderboard(leaderList),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ));

@@ -22,6 +22,8 @@ List<String> friendRequests = [];
 String feedBack = "";
 var jsonString = '';
 List<dynamic> leaderList = [];
+bool friendRequestSuccess = false;
+bool canSendRequest = true;
 
 void Listen(){
   try {
@@ -47,8 +49,12 @@ void Listen(){
             print(leaderList);
             break;
           case 'init':
-            print(data);
             break;
+          case 'outgoingRequest':
+            canSendRequest = true;
+            if(data[0] == 'success') friendRequestSuccess = true;
+          case 'incomingRequest':
+            
         }
       }             
     });
@@ -58,19 +64,8 @@ void Listen(){
 
 }
 
-void _sendMessage(String message) {
-  print(message);
 
-  try {
-    channel?.sink.add(message);
-    channel?.stream.listen((message) {
-      print(message);
-      channel?.sink.close();
-    });
-  } catch (e) {
-    print(e);
-  }
-}
+
 
 void main() async {
   // https://pub.dev/packages/flutter_config
@@ -99,6 +94,20 @@ String array_to_string(List tuple) {
   return tuple[1].toString() + " " + tuple[0];
 }
 
+
+void _sendMessage(String message) {
+  print(message);
+
+  try {
+    channel?.sink.add(message);
+    channel?.stream.listen((message) {
+      print(message);
+      channel?.sink.close();
+    });
+  } catch (e) {
+    print(e);
+  }
+}
 
 class _MainAppState extends State<MainApp> {
   int myIndex = 0;
@@ -222,3 +231,5 @@ void navigate(Widget page, context) {
           reverseTransitionDuration: Duration.zero,
         ));
 }
+
+
