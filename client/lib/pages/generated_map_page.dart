@@ -138,7 +138,7 @@ Future<List<LatLng>> _getPath(double radius) async {
     print(elements.length);
     print(elements.length - nodes.length);
 
-    // A randon number is chosen whithin the length of a interval to be the offset for each interval
+    // A random number is chosen whithin the length of a interval to be the offset for each interval
     final random = Random();
     int interval = ((elements.length - nodes.length) / 10).ceil();
     int start = random.nextInt(interval) + 1;
@@ -261,7 +261,7 @@ Future<bool> _checkStairs(LatLng waypoint) async {
   return markers.length > 1 ? false : true;
 }
 
-/// Retrieves the walking/running/ cycling distance between the origin and destination coordinates.
+/// Retrieves the walking/running/cycling distance between the origin and destination coordinates.
 ///
 /// Uses the Google Maps Directions API to calculate the walking distance
 /// between the specified [origin] and [destination] coordinates.
@@ -473,7 +473,6 @@ void _addPolyLine() {
 /// [inputDistance] the distance (in meters) for generating waypoints.
 /// [statusEnvironment] a boolean indicating whether to favor nature.
 /// [avoidStairs] a boolean indicating whether to avoid routes with stairs.
-///
 Future<void> _getPolyline(LatLng start, double inputDistance,
     bool statusEnvironment, bool avoidStairs) async {
   List<PolylineWayPoint> points = [];
@@ -499,7 +498,7 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
 
   // TODO: Error handling if route generation failed
   if (!inIntervall) {
-    print("ERROR IN GENERATION ROUTE");
+    print("ERROR IN GENERATING ROUTE");
     points = [];
     reset();
   }
@@ -533,8 +532,14 @@ double _distanceToTime(double distance) {
     return distance / 1.42 / 60;
   } else if (activityOption == 'Running') {
     return distance / 2.56 / 60;
-  } else {
+  } else if (activityOption == 'Cycling') {
     return distance / 5.0 / 60;
+  } else {
+    // If not walking/running/cycling a default value is used
+    double defaultTime = distance / 60;
+    print("Activity unrecognized!");
+    print("Time set to $defaultTime");
+    return defaultTime;
   }
 }
 
@@ -624,7 +629,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     activityOption =
         getSelectedActivity(); //'Walking', 'Running', 'Cycling' //global
     generateCircleRoute = getSelectedTrailType() ==
-            'assets/images/img_circular_arrow.svg'
+            'assets/icons/img_circular_arrow.svg'
         ? true
         : false; //'assets/icons/img_circular_arrow.svg', 'assets/icons/img_route.svg' //TODO: startpoint != endpoint not implemented
     userStartPoint = getSelectedStatusStartPoint() == 'Yes'
@@ -642,8 +647,11 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
         inputDistance = inputDistance * 1.42 * 60;
       } else if (activityOption == 'Running') {
         inputDistance = inputDistance * 2.56 * 60;
-      } else {
+      } else if (activityOption == 'Cycling') {
         inputDistance = inputDistance * 5.0 * 60;
+      } else {
+        print("Activity unrecognized!");
+        print("inputDistance untouched");
       }
     }
 
