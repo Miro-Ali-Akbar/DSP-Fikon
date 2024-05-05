@@ -4,17 +4,17 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import 'package:flutter_config/flutter_config.dart';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geofence_service/geofence_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 
-import 'generate_trail_page.dart';
-
-import 'package:flutter_svg/svg.dart';
+import 'package:trailquest/pages/generate_trail_page.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart';
 
@@ -35,6 +35,15 @@ String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 double walkingSpeed = 1.42;
 double runningSpeed = 2.56;
 double cyclingSpeed = 5.0;
+
+/// 0 == No game. Only route-generation
+///
+/// 1 == Orienteering
+///
+/// 2 == Checkpoints
+///
+/// 3 == Treasure hunt
+int gameMode = 0;
 
 late LatLng start;
 
@@ -615,6 +624,66 @@ class MapsRoutesGenerator extends StatefulWidget {
 /// Manages the state of the map generation process, including user options,
 /// location retrieval, polyline generation, and UI updates.
 class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
+  // Controllers for geofences
+  final _activityStreamController = StreamController<Activity>();
+  final _geofenceStreamController = StreamController<Geofence>();
+
+  // Settings for geofences
+  final _geofenceService = GeofenceService.instance.setup(
+      interval: 2000,
+      accuracy: 10,
+      loiteringDelayMs: 60000,
+      statusChangeDelayMs: 10000,
+      useActivityRecognition: true,
+      allowMockLocations: true,
+      printDevLog: false,
+      geofenceRadiusSortType: GeofenceRadiusSortType.DESC);
+
+  // Automatically called every time the status of a geofence is changed
+  // Most game logic will be placed here
+  Future<void> _onGeofenceStatusChanged(
+      Geofence geofence,
+      GeofenceRadius geofenceRadius,
+      GeofenceStatus geofenceStatus,
+      Location location) async {
+    print('geofence: ${geofence.toJson()}');
+    print('geofenceRadius: ${geofenceRadius.toJson()}');
+    print('geofenceStatus: ${geofenceStatus.toString()}');
+    _geofenceStreamController.sink.add(geofence);
+  }
+
+  // Unused
+  // This function is to be called when the activity has changed.
+  void _onActivityChanged(Activity prevActivity, Activity currActivity) {
+    print('prevActivity: ${prevActivity.toJson()}');
+    print('currActivity: ${currActivity.toJson()}');
+    _activityStreamController.sink.add(currActivity);
+  }
+
+  // Unused
+  // This function is to be called when the location has changed.
+  void _onLocationChanged(Location location) {
+    print('location: ${location.toJson()}');
+  }
+
+  // Unused
+  // This function is to be called when a location services status change occurs
+  // since the service was started.
+  void _onLocationServicesStatusChanged(bool status) {
+    print('isLocationServicesEnabled: $status');
+  }
+
+  // This function is used to handle errors that occur in the service.
+  void _onError(error) {
+    final errorCode = getErrorCodesFromError(error);
+    if (errorCode == null) {
+      print('Undefined error: $error');
+      return;
+    }
+
+    print('ErrorCode: $errorCode');
+  }
+
   bool saved = false;
   TrailCard trail;
 
@@ -678,6 +747,18 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
 
     // Get current location
     _getLocation(inputDistance);
+
+    // Adds listeners for all geofence services
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _geofenceService
+          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      _geofenceService.addLocationChangeListener(_onLocationChanged);
+      _geofenceService.addLocationServicesStatusChangeListener(
+          _onLocationServicesStatusChanged);
+      _geofenceService.addActivityChangeListener(_onActivityChanged);
+      _geofenceService.addStreamErrorListener(_onError);
+      _geofenceService.start().catchError(_onError);
+    });
   }
 
   /// Retrieves the current location and initiates map generation.
@@ -720,6 +801,8 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   /// hilliness of the route asynchronously using the [_getHilliness] method.
   ///
   /// [inputDistance] the distance (in meters) for generating waypoints.
+  ///
+  /// Starts a foregroud task of geofencing which runs as long as the page is loaded
   Future<void> _asyncPolylineandHilliness(double inputDistance) async {
     await _getPolyline(start, inputDistance, statusEnvironment, avoidStairs);
 
@@ -745,179 +828,196 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-          body: Column(children: [
-        Row(
-          children: [
-            GoBackButton(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
-            ),
-          ],
+    return WillStartForegroundTask(
+        onWillStart: () async {
+          return _geofenceService.isRunningService;
+        },
+        androidNotificationOptions: AndroidNotificationOptions(
+          channelId: 'geofence_service_notification_channel',
+          channelName: 'Geofence Service Notification',
+          channelDescription:
+              'This notification appears when the geofence service is running in the background.',
+          channelImportance: NotificationChannelImportance.LOW,
+          priority: NotificationPriority.LOW,
+          isSticky: true,
         ),
-        Expanded(
-          child: Center(
-            child: GoogleMap(
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
-              initialCameraPosition: CameraPosition(
-                zoom: 14.0,
-                target: LatLng(start.latitude, start.longitude),
-              ),
-              markers: Set<Marker>.of(markers.values),
-              polylines: Set<Polyline>.of(polylines.values),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
+        iosNotificationOptions: const IOSNotificationOptions(),
+        foregroundTaskOptions: const ForegroundTaskOptions(),
+        notificationTitle: 'Geofence Service is running',
+        notificationText: 'Tap to return to the app',
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+              body: Column(children: [
+            Row(
+              children: [
+                GoBackButton(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
+                ),
+              ],
             ),
-          ),
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_walking.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.lengthDistance / 1000} km',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
+            Expanded(
+              child: Center(
+                child: GoogleMap(
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    zoom: 14.0,
+                    target: LatLng(start.latitude, start.longitude),
+                  ),
+                  markers: Set<Marker>.of(markers.values),
+                  polylines: Set<Polyline>.of(polylines.values),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_clock.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.lengthTime} min',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_trees.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.natureStatus}',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_stairs.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        trail.stairs
-                            ? 'This route could contain stairs'
-                            : 'This route does not contain any stairs',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_arrow_up.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.heightDifference} m',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (saved) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: RemoveTrail(
-              onRemove: (value) {
-                setState(() {
-                  saved = value;
-                  widget.onSaveChanged(false);
-                });
-              },
             ),
-          ),
-        ] else ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: SaveTrail(
-              onSave: (value) {
-                setState(() {
-                  saved = value;
-                  widget.onSaveChanged(true);
-                });
-              },
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_walking.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.lengthDistance / 1000} km',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_clock.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.lengthTime} min',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_trees.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.natureStatus}',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_stairs.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            trail.stairs
+                                ? 'This route could contain stairs'
+                                : 'This route does not contain any stairs',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_arrow_up.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.heightDifference} m',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ]
-      ])),
-    );
+            if (saved) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: RemoveTrail(
+                  onRemove: (value) {
+                    setState(() {
+                      saved = value;
+                      widget.onSaveChanged(false);
+                    });
+                  },
+                ),
+              ),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: SaveTrail(
+                  onSave: (value) {
+                    setState(() {
+                      saved = value;
+                      widget.onSaveChanged(true);
+                    });
+                  },
+                ),
+              ),
+            ]
+          ])),
+        ));
   }
 }
 
