@@ -650,6 +650,23 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     print('geofenceRadius: ${geofenceRadius.toJson()}');
     print('geofenceStatus: ${geofenceStatus.toString()}');
     _geofenceStreamController.sink.add(geofence);
+    
+    switch (gameMode) {
+      // No game. Only route-generation
+      case 0:
+        break;
+      // Orienteering
+      case 1:
+        break;
+      // Checkpoints
+      case 2:
+        break;
+      // Treasure hunt
+      case 3:
+        break;
+      default:
+        throw Exception('Invalid gamemode');
+    }
   }
 
   // Unused
