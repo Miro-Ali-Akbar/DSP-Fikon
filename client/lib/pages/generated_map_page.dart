@@ -31,6 +31,11 @@ Map<String, double> distanceCache = {};
 
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
+// Constants to determine the speed of different activities
+double walkingSpeed = 1.42;
+double runningSpeed = 2.56;
+double cyclingSpeed = 5.0;
+
 late LatLng start;
 
 /// Resets global variables used by generated_map_page
@@ -540,11 +545,11 @@ double _distanceToTime(double distance) {
   print("Activity option == $activityOption");
   switch (activityOption) {
     case 'Walking':
-      return distance / 1.42 / 60;
+      return distance / walkingSpeed / 60;
     case 'Running':
-      return distance / 2.56 / 60;
+      return distance / runningSpeed / 60;
     case 'Cycling':
-      return distance / 5.0 / 60;
+      return distance / cyclingSpeed / 60;
     default:
       // If not walking/running/cycling a default value is used
       double defaultTime = distance / 60;
@@ -656,17 +661,18 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     if (!getIsDistanceMeters()) {
       switch (activityOption) {
         case 'Walking':
-          inputDistance = inputDistance * 1.42 * 60;
+          inputDistance = inputDistance * walkingSpeed * 60;
           break;
         case 'Running':
-          inputDistance = inputDistance * 2.56 * 60;
+          inputDistance = inputDistance * runningSpeed * 60;
           break;
         case 'Cycling':
-          inputDistance = inputDistance * 5.0 * 60;
+          inputDistance = inputDistance * cyclingSpeed * 60;
           break;
         default:
           print("Activity unrecognized!");
           print("inputDistance untouched");
+          inputDistance = inputDistance * 60;
       }
     }
 
