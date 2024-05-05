@@ -509,7 +509,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
 }
 
 /// Creates a polyline with id, color and coordinates
-/// 
+///
 /// Depending on the gamemode the polyline will either be printed on the map or not
 void _addPolyLine() {
   PolylineId id = PolylineId("poly");
@@ -698,6 +698,10 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
 
           // TODO: Add next marker on map
           // _addMarker() on curated coordinate (geofenceCoords)
+          setState(() {
+            _addMarker(geofenceCoords[geofenceIndex], 'loc_$geofenceIndex',
+                BitmapDescriptor.defaultMarkerWithHue(geofenceMarkerColor));
+          });
         }
 
         break;
@@ -857,6 +861,14 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     }
   }
 
+  /// Adds a marker for the first geofence
+  void _addGeofenceStartMarker() {
+    if (geofenceCoords.isNotEmpty) {
+      _addMarker(geofenceCoords[0], "Geofence start marker",
+          BitmapDescriptor.defaultMarkerWithHue(50));
+    }
+  }
+
   /// Retrieves the current location and initiates map generation.
   ///
   /// Retrieves the current device location using Geolocator. If [userStartPoint]
@@ -881,6 +893,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
       await _asyncPolylineandHilliness(inputDistance);
       setState(() {
         _determineGeofenceCoordinates();
+        _addGeofenceStartMarker();
         _buildTrailCard();
       });
     } catch (e) {
