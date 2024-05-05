@@ -114,6 +114,7 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
         ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
         console.log('did not find user');
     } else if ( doc.data.online ) {
+        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
         for ( let i = 0; i < wsArr.length; i++ ) {
             const socket = wsArr[i];
             if ( socket[0] === target ) {
@@ -122,6 +123,7 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
             }
         }
     } else {
+        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
         let requests = await doc.data.friendRequests || [];
         requests.push(sender);
         usersRef.doc(target).update({
