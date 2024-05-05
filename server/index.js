@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send } = require('./helper');
+const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest } = require('./helper');
 
 // Initializing database variables
 
@@ -45,7 +45,7 @@ wss.on('connection', ws => {
             case "initRes":
                 putUser(message.data.username, message.data);
                 console.log('=== user added to database ===');
-                wss.connectedUsers[i] = [message.data.username, ws.id];
+                wss.connectedUsers[i] = [message.data.username, ws, ws.id];
                 i = i + 1;
                 break;
             case "getRoute":
@@ -55,6 +55,10 @@ wss.on('connection', ws => {
             case "getLeaderboard":
                 send(ws, 'leaderboard');
                 console.log('sent leaderboard');
+                break;
+            case "outGoingRequest": // TODO: Change to correct msgID if needed
+                handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers);
+                console.log('sent friend request');
                 break;
                 
         }
