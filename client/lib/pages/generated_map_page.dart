@@ -45,6 +45,28 @@ double cyclingSpeed = 5.0;
 /// 3 == Treasure hunt
 int gameMode = 0;
 
+final _geofenceService = GeofenceService.instance.setup(
+    interval: 2000,
+    accuracy: 10,
+    loiteringDelayMs: 60000,
+    statusChangeDelayMs: 10000,
+    useActivityRecognition: true,
+    allowMockLocations: true,
+    printDevLog: false,
+    geofenceRadiusSortType: GeofenceRadiusSortType.DESC);
+
+int geofenceIndex = 0;
+bool geofenceInArea = false;
+
+double geofenceMarkerColor = 100;
+int geofenceSpacing = 200;
+
+List<GeofenceRadius> geofenceRadiusList = [
+  GeofenceRadius(id: "radius_20m", length: 20)
+];
+
+List<LatLng> geofenceCoords = [];
+
 late LatLng start;
 
 /// Resets global variables used by generated_map_page
@@ -57,6 +79,10 @@ void reset() {
   polylinePoints = PolylinePoints();
   stairsExist = false;
   activityOption = '';
+
+  geofenceIndex = 0;
+  geofenceCoords = [];
+  _geofenceService.clearGeofenceList();
 }
 
 /// Adds a marker to the list of markers the map will display
@@ -483,11 +509,16 @@ Future<List<PolylineWayPoint>> _getWayPoints(
 }
 
 /// Creates a polyline with id, color and coordinates
+/// 
+/// Depending on the gamemode the polyline will either be printed on the map or not
 void _addPolyLine() {
   PolylineId id = PolylineId("poly");
   Polyline polyline =
       Polyline(polylineId: id, color: Colors.red, points: polylineCoordinates);
-  polylines[id] = polyline;
+
+  if (gameMode != 1) {
+    polylines[id] = polyline;
+  }
 }
 
 /// Retrieves and draws a polyline route on the map.
@@ -629,15 +660,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   final _geofenceStreamController = StreamController<Geofence>();
 
   // Settings for geofences
-  final _geofenceService = GeofenceService.instance.setup(
-      interval: 2000,
-      accuracy: 10,
-      loiteringDelayMs: 60000,
-      statusChangeDelayMs: 10000,
-      useActivityRecognition: true,
-      allowMockLocations: true,
-      printDevLog: false,
-      geofenceRadiusSortType: GeofenceRadiusSortType.DESC);
 
   // Automatically called every time the status of a geofence is changed
   // Most game logic will be placed here
@@ -650,13 +672,34 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     print('geofenceRadius: ${geofenceRadius.toJson()}');
     print('geofenceStatus: ${geofenceStatus.toString()}');
     _geofenceStreamController.sink.add(geofence);
-    
+
+    // TODO: Remove debug-info
+    if (geofenceStatus.toString() == "GoefenceStatus.Enter") {
+      print("Entered geofence: $geofenceIndex");
+    } else if (geofenceStatus.toString() == "GeofenceStatus.Exit") {
+      print("Left geofence: $geofenceIndex");
+    }
+
     switch (gameMode) {
       // No game. Only route-generation
       case 0:
         break;
       // Orienteering
       case 1:
+        if (geofenceStatus.toString() == "GeofenceStatus.ENTER" &&
+            geofence
+                .toJson()
+                .toString()
+                .contains(RegExp('loc_$geofenceIndex'))) {
+          setState(() {
+            geofenceInArea = true;
+            geofenceIndex++;
+          });
+
+          // TODO: Add next marker on map
+          // _addMarker() on curated coordinate (geofenceCoords)
+        }
+
         break;
       // Checkpoints
       case 2:
@@ -778,6 +821,42 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     });
   }
 
+  /// Uses [polylineCoordinates] to calculate distance between points to ensure
+  /// even distancing between geofences. Has artificial limit of number of geofences.
+  ///
+  /// If [polylineCoordinates] are empty, does nothing.
+  ///
+  /// Uses [_getWalkingDistance] to calculate distance between two points.
+  ///
+  /// TODO: Add random so spacing is not as even?
+  ///
+  /// TODO: Remove artificial limit? Potentially many more API calls
+  void _determineGeofenceCoordinates() async {
+    if (polylineCoordinates.isNotEmpty) {
+      LatLng oldOrigin = polylineCoordinates.first;
+      int interval = (polylineCoordinates.length / 10).round();
+      int counter = 0;
+      for (var i = 1; i < polylineCoordinates.length; i += interval) {
+        LatLng currentPoint = polylineCoordinates[i];
+
+        // TODO: Change distance to more suitable number
+        if (await _getWalkingDistance(oldOrigin, currentPoint, false) >
+            geofenceSpacing) {
+          _geofenceService.addGeofence(Geofence(
+              id: 'loc_$counter',
+              latitude: currentPoint.latitude,
+              longitude: currentPoint.longitude,
+              radius: geofenceRadiusList));
+
+          geofenceCoords.add(currentPoint);
+
+          oldOrigin = currentPoint;
+          counter++;
+        }
+      }
+    }
+  }
+
   /// Retrieves the current location and initiates map generation.
   ///
   /// Retrieves the current device location using Geolocator. If [userStartPoint]
@@ -801,6 +880,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
       });
       await _asyncPolylineandHilliness(inputDistance);
       setState(() {
+        _determineGeofenceCoordinates();
         _buildTrailCard();
       });
     } catch (e) {
