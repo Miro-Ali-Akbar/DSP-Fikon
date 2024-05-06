@@ -135,5 +135,6 @@ module.exports = {
     putUser,
     get,
     put,
-    send
+    send,
+    saveRoute,
 };
