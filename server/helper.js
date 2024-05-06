@@ -127,7 +127,7 @@ async function handleFriendrequest(sender, target, wsArr) {
         
         let requests = await doc.data.friendRequests || [];
         usersRef.doc(target).update({
-            friendRequests: requests.push(user),
+            friendRequests: requests.push(sender),
         });
         return true;
     }
