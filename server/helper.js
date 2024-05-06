@@ -107,7 +107,7 @@ async function send(ws, msgID, doc, index) {
 }
 
 //? Create handling by putting websocket in database --- STRETCH GOAL FOR SCALING
-async function handleFriendrequest(sender, target, wsArr) {
+async function handleFriendrequest(ws, sender, target, wsArr) {
     const doc = await usersRef.doc(target).get();
     if ( !doc.exists ) {
         // TODO: Change msgID to match client listener
