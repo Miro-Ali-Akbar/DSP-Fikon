@@ -61,7 +61,7 @@ class _ChallengeState extends State<ChallengePage> {
                 overflow: TextOverflow.ellipsis,
               ),
               actions: <Widget>[
-                TextButton.icon(
+                TextButton.icon( 
                     onPressed: () {
                       channel?.sink.add('{"msgID": "getLeaderboard"}');
                       Navigator.of(context, rootNavigator: true)
@@ -208,7 +208,7 @@ Widget scrollChallenges(BuildContext context) {
     itemBuilder: (context, index) {
       return ChallengeCard(current[index], challenge: current[index],);
     },
-    separatorBuilder: (BuildContext context, int index) => const Divider(),
+    separatorBuilder: (BuildContext context, int index) => const Divider(color: Colors.white),
   );
 }
 
