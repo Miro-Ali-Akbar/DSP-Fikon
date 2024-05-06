@@ -4,11 +4,13 @@ const ws = new WebSocket("ws://localhost:3000");
 
 ws.onopen = () => {
 
-    ws.send(JSON.stringify({msgID: "initRes", data: { username: "uName", friendRequests: [], online: true } }));
+    ws.send(JSON.stringify({msgID: "initRes", data: { username: "uName", friendRequests: [], friendlist: ["hitsu"], online: true } }));
 
     ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
     
     ws.send(JSON.stringify({msgID: "getLeaderboard"}));
+
+    ws.send(JSON.stringify({msgID: "addRoute", data: {trailName: "abc", dink: "donk"}}))
 
     ws.on('message', msg => {
         const message = JSON.parse(msg);

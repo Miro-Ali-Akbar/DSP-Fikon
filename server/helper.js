@@ -134,6 +134,36 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
 // TODO: Add sorting function for leaderboard 
 // TODO: Add leaderboard broadcast on update
 
+function getSocketUser(ws, wsArr) {
+    const id = ws.id;
+    for ( let i = 0; i < wsArr.length; i++ ) {
+        if ( ws.id === wsArr[i][2]) {
+            return wsArr[i][0];
+        }
+    } 
+}
+
+async function saveRoute(ws, wsArr, data) {
+    const name = data.trailName;
+    const username = getSocketUser(ws, wsArr);
+    const user = await get(usersRef, username);
+    const friendlist = await user.friendlist;
+    console.log(username);
+    console.log(friendlist[0]);
+    // put trail into database
+    db.collection(`users/${username}/userRoutes`).doc(name).set(data);
+
+    if ( friendlist.length > 0 ) {
+        for ( let i = 0; i < friendlist.length; i++ ) {
+            console.log(friendlist[0]);
+            db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
+        }
+    } else {
+        // Do nothing
+    }
+        
+}
+
 module.exports = {
     heartbeat,
     generateID,
@@ -141,5 +171,6 @@ module.exports = {
     get,
     put,
     send,
-    handleFriendrequest
+    handleFriendrequest,
+    saveRoute,
 };
