@@ -232,7 +232,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
                     setState(() {
                       if (widget.challenge.status == 0) {
                         widget.challenge.status = 1;
-                        ChallengeMap(context);
+                        ChallengeMap(context, widget.challenge);
                       } else if (widget.challenge.status == 1) {
                         widget.challenge.status = 0;
                       }
@@ -359,10 +359,13 @@ Text TextStartStopChallenge(Challenge challenge) {
   }
 }
 
-ChallengeMap(BuildContext context) async {
+ChallengeMap(BuildContext context, Challenge challenge) async {
   List<LatLng> dataList = await _getCloseData(5000, 'statues');
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
+  List<Marker> markerList = _getMarkerList(dataList);
+
+  bool canSeePosition = _checkLocationVisibility(challenge);
 
   showDialog(
       context: context,
@@ -370,13 +373,35 @@ ChallengeMap(BuildContext context) async {
         return AlertDialog(
           content: Container(
             child: GoogleMap(
+              myLocationEnabled: canSeePosition,
               initialCameraPosition: CameraPosition(
-                  target: LatLng(59.83972677529924, 17.6465716818546),
-                  zoom: 15),
+                  target: LatLng(
+                      currentPosition.latitude, currentPosition.longitude),
+                  zoom: 12),
+              markers: Set<Marker>.of(markerList),
             ),
           ),
         );
       });
+}
+
+bool _checkLocationVisibility(Challenge challenge) {
+  print("Visibility: ${challenge.type}");
+  switch (challenge.type) {
+    case 'Checkpoints':
+      print("Visible");
+      return true;
+    case 'Orienteering':
+      print("Not visible");
+      return false;
+    case 'Treasure hunt':
+      print("Visible");
+      return true;
+    default:
+      print("Visible");
+      // throw Exception("Unknown challenge type");
+      return true;
+  }
 }
 
 /// Returns a list of all statues close to the user
@@ -385,9 +410,7 @@ Future<List<LatLng>> _getCloseData(
   List<LatLng> nodes = [];
 
   var url;
-
   switch (typeOfChallenge) {
-    // TODO: Test. If not working, place on same line and should work
     case 'statues':
       url =
           '''https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];
@@ -417,7 +440,7 @@ Future<List<LatLng>> _getCloseData(
 
   if (response.statusCode == 200) {
     final decoded = json.decode(response.body);
-    List<dynamic> elements = decoded['elemetns'];
+    List<dynamic> elements = decoded['elements'];
 
     for (var element in elements) {
       nodes.add(LatLng(element['lat'], element['lon']));
