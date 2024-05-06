@@ -113,7 +113,7 @@ async function handleFriendrequest(sender, target, wsArr) {
         // TODO: Change msgID to match client listener
         
         console.log('did not find user');
-        return false
+        return false;
     } else if ( doc.data.online ) {
         
         for ( let i = 0; i < wsArr.length; i++ ) {
@@ -126,9 +126,8 @@ async function handleFriendrequest(sender, target, wsArr) {
     } else {
         
         let requests = await doc.data.friendRequests || [];
-        requests.push(sender);
         usersRef.doc(target).update({
-            friendRequests: requests,
+            friendRequests: requests.push(user),
         });
         return true;
     }

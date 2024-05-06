@@ -54,9 +54,9 @@ wss.on('connection', ws => {
                 break;
             case "addFriend": // TODO: Change to correct msgID if needed
                 if (handleFriendrequest(message.data.sender, message.data.target, wss.connectedUsers)) {
-                    ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
-                } else {
                     ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
+                } else {
+                    ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
                 }
                 console.log('sent friend request');
                 break;
