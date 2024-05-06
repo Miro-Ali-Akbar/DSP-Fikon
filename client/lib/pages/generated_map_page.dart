@@ -19,6 +19,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart';
 
+import 'package:trailquest/main.dart';
+
 double totalDistance = 0;
 bool inIntervall = false;
 Map<MarkerId, Marker> markers = {};
@@ -36,9 +38,6 @@ String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 double walkingSpeed = 1.42;
 double runningSpeed = 2.56;
 double cyclingSpeed = 5.0;
-
-var routeToDatabase = <String>{};
-List routeToDatabaseMixedTypes = []; 
 
 late LatLng start;
 
@@ -972,7 +971,7 @@ class _SaveTrailState extends State<SaveTrail> {
         _trailCardInfo();
         setState(() {});
         //TODO: Send off to database!
-        //saveRouteToServer(trailToServer);
+        saveRouteToServer(jsonData);
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.green,
@@ -986,38 +985,28 @@ class _SaveTrailState extends State<SaveTrail> {
     );
   }
 
+  Map<String, dynamic> jsonData = {};
+
   /// Adds the information of a trail to an array to be sent to server --> database
   void _trailCardInfo() {
-    /*
-    routeToDatabase = <String>{};
-    routeToDatabase.add(widget.trail.name);
-    routeToDatabase.add(totalDistance.toString());
-    routeToDatabase.add(_distanceToTime(totalDistance).toStringAsFixed(1));
-    routeToDatabase.add(widget.statusEnvironment);
-    routeToDatabase.add(widget.avoidStairs ? 'Yes' : 'No');
-    routeToDatabase.add(widget.hillines.toStringAsFixed(1));
+      List<Map<String, double>> coordinates = polylineCoordinates
+      .map((latLng) => {"latitude": latLng.latitude, "longitude": latLng.longitude})
+      .toList();
 
-    for (var point in polylineCoordinates) {
-      routeToDatabase.add(point.toString());
-    }
+    jsonData = {
+      'msgID': 'addRoute',
+      'data': {
+        'trailName': widget.trail.name,
+        'totalDistance': totalDistance,
+        'totalTime': _distanceToTime(totalDistance),
+        'statusEnvironment': widget.statusEnvironment, 
+        'avoidStairs': widget.avoidStairs, 
+        'hilliness': widget.hillines,
+        'coordinates': coordinates,
+      }
+    };
 
-    print(routeToDatabase);
-    */
-
-    // ALT
-    routeToDatabaseMixedTypes = [];
-    routeToDatabaseMixedTypes.add(widget.trail.name);
-    routeToDatabaseMixedTypes.add(totalDistance);
-    routeToDatabaseMixedTypes.add(_distanceToTime(totalDistance));
-    routeToDatabaseMixedTypes.add(widget.statusEnvironment);
-    routeToDatabaseMixedTypes.add(widget.avoidStairs);
-    routeToDatabaseMixedTypes.add(widget.hillines);
-
-    for (var point in polylineCoordinates) {
-      routeToDatabaseMixedTypes.add(point);
-    }
-    
-    print(routeToDatabaseMixedTypes); 
+    print(jsonData); 
   }
 }
 
@@ -1060,18 +1049,11 @@ class _RemoveTrailState extends State<RemoveTrail> {
   }
 }
 
-void saveRouteToServer(List<String> routeData) async {
-  String serverUrl = 'http://trocader.duckdns.org'; //TODO: correct??
+void saveRouteToServer(Map<String, dynamic> routeData) async {
+  String serverUrl =
+      'http://trocader.duckdns.org:3000'; //TODO: correct?? now yes :)
 
   String jsonString = jsonEncode(routeData);
 
-  var response =
-      await http.post(Uri.parse(serverUrl), body: {'routeData': jsonString});
-
-  if (response.statusCode == 200) {
-    print('Route data sent to server successfully!');
-  } else {
-    print(
-        'Failed to send route data to server. Error: ${response.reasonPhrase}');
-  }
+  channel?.sink.add(jsonString);
 }
