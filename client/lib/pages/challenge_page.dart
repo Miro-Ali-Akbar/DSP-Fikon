@@ -12,7 +12,6 @@ import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/pages/leaderboard_page.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 import 'package:trailquest/main.dart';
-import 'package:geofence_service/geofence_service.dart';
 
 /// 0 == No game. Only route-generation
 ///
@@ -53,274 +52,160 @@ class ChallengePage extends StatefulWidget {
 }
 
 class _ChallengeState extends State<ChallengePage> {
-  // Controllers for geofences
-  final _activityStreamController = StreamController<Activity>();
-  final _geofenceStreamController = StreamController<Geofence>();
-
-  // Settings for geofences
-  final _geofenceService = GeofenceService.instance.setup(
-      interval: 2000,
-      accuracy: 10,
-      loiteringDelayMs: 60000,
-      statusChangeDelayMs: 10000,
-      useActivityRecognition: true,
-      allowMockLocations: true,
-      printDevLog: false,
-      geofenceRadiusSortType: GeofenceRadiusSortType.DESC);
-
-  // Automatically called every time the status of a geofence is changed
-  // Most game logic will be placed here
-  Future<void> _onGeofenceStatusChanged(
-      Geofence geofence,
-      GeofenceRadius geofenceRadius,
-      GeofenceStatus geofenceStatus,
-      Location location) async {
-    print('geofence: ${geofence.toJson()}');
-    print('geofenceRadius: ${geofenceRadius.toJson()}');
-    print('geofenceStatus: ${geofenceStatus.toString()}');
-    _geofenceStreamController.sink.add(geofence);
-
-    switch (gameMode) {
-      // No game. Only route-generation
-      case 0:
-        break;
-      // Orienteering
-      case 1:
-        break;
-      // Checkpoints
-      case 2:
-        break;
-      // Treasure hunt
-      case 3:
-        break;
-      default:
-        throw Exception('Invalid gamemode');
-    }
-  }
-
-  // Unused
-  // This function is to be called when the activity has changed.
-  void _onActivityChanged(Activity prevActivity, Activity currActivity) {
-    print('prevActivity: ${prevActivity.toJson()}');
-    print('currActivity: ${currActivity.toJson()}');
-    _activityStreamController.sink.add(currActivity);
-  }
-
-  // Unused
-  // This function is to be called when the location has changed.
-  void _onLocationChanged(Location location) {
-    print('location: ${location.toJson()}');
-  }
-
-  // Unused
-  // This function is to be called when a location services status change occurs
-  // since the service was started.
-  void _onLocationServicesStatusChanged(bool status) {
-    print('isLocationServicesEnabled: $status');
-  }
-
-  // This function is used to handle errors that occur in the service.
-  void _onError(error) {
-    final errorCode = getErrorCodesFromError(error);
-    if (errorCode == null) {
-      print('Undefined error: $error');
-      return;
-    }
-
-    print('ErrorCode: $errorCode');
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Adds listeners for all geofence services
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _geofenceService
-          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
-      _geofenceService.addLocationChangeListener(_onLocationChanged);
-      _geofenceService.addLocationServicesStatusChangeListener(
-          _onLocationServicesStatusChanged);
-      _geofenceService.addActivityChangeListener(_onActivityChanged);
-      _geofenceService.addStreamErrorListener(_onError);
-      _geofenceService.start().catchError(_onError);
-    });
-  }
-
   bool selected = false;
 
   int score = 1000;
 
   @override
   Widget build(BuildContext context) {
-    return WillStartForegroundTask(
-        onWillStart: () async {
-          return _geofenceService.isRunningService;
-        },
-        androidNotificationOptions: AndroidNotificationOptions(
-          channelId: 'geofence_service_notification_channel',
-          channelName: 'Geofence Service Notification',
-          channelDescription:
-              'This notification appears when the geofence service is running in the background.',
-          channelImportance: NotificationChannelImportance.LOW,
-          priority: NotificationPriority.LOW,
-          isSticky: false,
-        ),
-        iosNotificationOptions: const IOSNotificationOptions(),
-        foregroundTaskOptions: const ForegroundTaskOptions(),
-        notificationTitle: 'Geofence Service is running',
-        notificationText: 'Tap to return to the app',
-        child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: Scaffold(
-                appBar: AppBar(
-                  title: AutoSizeText(
-                    'Your score is $score',
-                    style: TextStyle(fontSize: 20.0),
-                    maxLines: 2,
-                    minFontSize: 15.0,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  actions: <Widget>[
-                    TextButton.icon(
-                        onPressed: () {
-                          channel?.sink.add('{"msgID": "getLeaderboard"}');
-                          Navigator.of(context, rootNavigator: true)
-                              .push(PageRouteBuilder(
-                            pageBuilder: (context, x, xx) =>
-                                Leaderboard(dataList),
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                          ));
-                        },
-                        label: Text(
-                          'Leaderboard',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        icon: SvgPicture.asset('assets/icons/img_group.svg'),
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 30),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        )),
-                  ],
-                ),
-                body: Scaffold(
-                  appBar: PreferredSize(
-                    preferredSize: Size.fromHeight(150),
-                    child: AppBar(
-                      backgroundColor: Colors.green.shade600,
-                      actions: [
-                        Directionality(
-                            textDirection: TextDirection.rtl,
-                            // 'clear' button that unselects all selected filters
-                            child: OutlinedButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    for (int i = 0;
-                                        i < _selectedStatus.length;
-                                        i++) {
-                                      _selectedStatus[i] =
-                                          i == _selectedStatus.length - 1;
-                                    }
-                                    for (int i = 0;
-                                        i < _selectedType.length;
-                                        i++) {
-                                      _selectedType[i] = false;
-                                    }
-                                  });
-                                },
-                                style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Colors.white),
-                                    minimumSize: Size(30, 20)),
-                                label: Text(
-                                  'clear',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                icon: SvgPicture.asset(
-                                    'assets/icons/img_cross.svg')))
-                      ],
-                      flexibleSpace: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Filter buttons for the status of a challenge (ongoing etc)
-                                ToggleButtons(
-                                  direction: Axis.vertical,
-                                  onPressed: (int index) {
-                                    setState(() {
-                                      for (int i = 0;
-                                          i < _selectedStatus.length;
-                                          i++) {
-                                        _selectedStatus[i] = i == index;
-                                      }
-                                    });
-                                  },
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(8)),
-                                  borderColor: Colors.white,
-                                  selectedColor: Colors.black,
-                                  fillColor: Colors.white,
-                                  color: Colors.white,
-                                  constraints: const BoxConstraints(
-                                      minHeight: 30.0, minWidth: 100.0),
-                                  isSelected: _selectedStatus,
-                                  children: statusChallenge,
-                                ),
-                              ]),
-
-                          // Filter buttons for the type of challenge
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                                height: 90,
-                                width: 200,
-                                alignment: Alignment.bottomCenter,
-                                padding: EdgeInsets.only(bottom: 6),
-                                child: GridView.count(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    childAspectRatio: 5 / 2,
-                                    crossAxisCount: 2,
-                                    // If we want to add more filters, this is where we do it as well as the lists at the top
-                                    children: [
-                                      Text('Time limit'),
-                                      Text('Treasure hunt'),
-                                      Text('Checkpoints'),
-                                      Text('Orienteering')
-                                    ].asMap().entries.map((widget) {
-                                      return ToggleButtons(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        borderColor: Colors.white,
-                                        selectedColor: Colors.black,
-                                        fillColor: Colors.white,
-                                        color: Colors.white,
-                                        constraints: const BoxConstraints(
-                                          minHeight: 30.0,
-                                          minWidth: 85.0,
-                                        ),
-                                        isSelected: [_selectedType[widget.key]],
-                                        onPressed: (int index) {
-                                          setState(() {
-                                            _selectedType[widget.key] =
-                                                !_selectedType[widget.key];
-                                          });
-                                        },
-                                        children: [widget.value],
-                                      );
-                                    }).toList())),
-                          )
-                        ],
-                      ),
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+            appBar: AppBar(
+              title: AutoSizeText(
+                'Your score is $score',
+                style: TextStyle(fontSize: 20.0),
+                maxLines: 2,
+                minFontSize: 15.0,
+                overflow: TextOverflow.ellipsis,
+              ),
+              actions: <Widget>[
+                TextButton.icon(
+                    onPressed: () {
+                      channel?.sink.add('{"msgID": "getLeaderboard"}');
+                      Navigator.of(context, rootNavigator: true)
+                          .push(PageRouteBuilder(
+                        pageBuilder: (context, x, xx) => Leaderboard(dataList),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ));
+                    },
+                    label: Text(
+                      'Leaderboard',
+                      style: TextStyle(color: Colors.white),
                     ),
+                    icon: SvgPicture.asset('assets/icons/img_group.svg'),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.green.shade600,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 30),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    )),
+              ],
+            ),
+            body: Scaffold(
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(150),
+                child: AppBar(
+                  backgroundColor: Colors.green.shade600,
+                  actions: [
+                    Directionality(
+                        textDirection: TextDirection.rtl,
+                        // 'clear' button that unselects all selected filters
+                        child: OutlinedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                for (int i = 0;
+                                    i < _selectedStatus.length;
+                                    i++) {
+                                  _selectedStatus[i] =
+                                      i == _selectedStatus.length - 1;
+                                }
+                                for (int i = 0; i < _selectedType.length; i++) {
+                                  _selectedType[i] = false;
+                                }
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Colors.white),
+                                minimumSize: Size(30, 20)),
+                            label: Text(
+                              'clear',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            icon:
+                                SvgPicture.asset('assets/icons/img_cross.svg')))
+                  ],
+                  flexibleSpace: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Filter buttons for the status of a challenge (ongoing etc)
+                            ToggleButtons(
+                              direction: Axis.vertical,
+                              onPressed: (int index) {
+                                setState(() {
+                                  for (int i = 0;
+                                      i < _selectedStatus.length;
+                                      i++) {
+                                    _selectedStatus[i] = i == index;
+                                  }
+                                });
+                              },
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(8)),
+                              borderColor: Colors.white,
+                              selectedColor: Colors.black,
+                              fillColor: Colors.white,
+                              color: Colors.white,
+                              constraints: const BoxConstraints(
+                                  minHeight: 30.0, minWidth: 100.0),
+                              isSelected: _selectedStatus,
+                              children: statusChallenge,
+                            ),
+                          ]),
+
+                      // Filter buttons for the type of challenge
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                            height: 90,
+                            width: 200,
+                            alignment: Alignment.bottomCenter,
+                            padding: EdgeInsets.only(bottom: 6),
+                            child: GridView.count(
+                                physics: NeverScrollableScrollPhysics(),
+                                childAspectRatio: 5 / 2,
+                                crossAxisCount: 2,
+                                // If we want to add more filters, this is where we do it as well as the lists at the top
+                                children: [
+                                  Text('Time limit'),
+                                  Text('Treasure hunt'),
+                                  Text('Checkpoints'),
+                                  Text('Orienteering')
+                                ].asMap().entries.map((widget) {
+                                  return ToggleButtons(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10)),
+                                    borderColor: Colors.white,
+                                    selectedColor: Colors.black,
+                                    fillColor: Colors.white,
+                                    color: Colors.white,
+                                    constraints: const BoxConstraints(
+                                      minHeight: 30.0,
+                                      minWidth: 85.0,
+                                    ),
+                                    isSelected: [_selectedType[widget.key]],
+                                    onPressed: (int index) {
+                                      setState(() {
+                                        _selectedType[widget.key] =
+                                            !_selectedType[widget.key];
+                                      });
+                                    },
+                                    children: [widget.value],
+                                  );
+                                }).toList())),
+                      )
+                    ],
                   ),
-                  body: scrollChallenges(context),
-                ))));
+                ),
+              ),
+              body: scrollChallenges(context),
+            )));
   }
 }
 
