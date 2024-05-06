@@ -48,10 +48,6 @@ wss.on('connection', ws => {
                 wss.connectedUsers[i] = [message.data.username, ws, ws.id];
                 i = i + 1;
                 break;
-            // case "getRoute":
-            //     let index = message.data.index;
-            //     send(ws, 'sendRoute', 'karoRoutes', index);
-            //     break;
             case "getLeaderboard":
                 send(ws, 'leaderboard');
                 console.log('sent leaderboard');
@@ -63,6 +59,10 @@ wss.on('connection', ws => {
             case "addRoute": 
                 console.log("Should be a route: ", message);
                 saveRoute(ws, wss.connectedUsers, message.data);
+                break;
+            case "getRoute":
+                let index = message.data.index;
+                send(ws, 'sendRoute', 'karoRoutes', index);
                 break;
                 
         }

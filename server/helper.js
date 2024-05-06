@@ -111,7 +111,7 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
     const doc = await usersRef.doc(target).get();
     if ( !doc.exists ) {
         // TODO: Change msgID to match client listener
-        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
+        ws.send(JSON.stringify({msgID:'outGoingRequest', data:{ error: 1 }}));
         console.log('did not find user');
     } else if ( doc.data.online ) {
         ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
@@ -150,6 +150,7 @@ async function saveRoute(ws, wsArr, data) {
     const friendlist = await user.friendlist;
     console.log(username);
     console.log(friendlist[0]);
+
     // put trail into database
     db.collection(`users/${username}/userRoutes`).doc(name).set(data);
 
@@ -160,8 +161,7 @@ async function saveRoute(ws, wsArr, data) {
         }
     } else {
         // Do nothing
-    }
-        
+    }    
 }
 
 module.exports = {
