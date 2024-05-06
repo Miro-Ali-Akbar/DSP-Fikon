@@ -51,23 +51,6 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
     print('geofenceStatus: ${geofenceStatus.toString()}');
     _geofenceStreamController.sink.add(geofence);
 
-    // switch (gameMode) {
-    //   // No game. Only route-generation
-    //   case 0:
-    //     break;
-    //   // Orienteering
-    //   case 1:
-    //     break;
-    //   // Checkpoints
-    //   case 2:
-    //     break;
-    //   // Treasure hunt
-    //   case 3:
-    //     break;
-    //   default:
-    //     throw Exception('Invalid gamemode');
-    // }
-
     if (geofenceStatus.toString() == "GeofenceStatus.ENTER") {
       print("Entered area");
       setState(() {
@@ -75,26 +58,30 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
       });
       // TODO: Game-logic associated with each type of challenge
       // FIXME: If a challenge gets another name, update this function
-      switch (challenge.name) {
-        case '10 statues in Uppsala':
-          challenge.progress++;
-          break;
-        case 'Birds':
-          // TODO: Implement
-          break;
-        case 'Cool large rocks':
-          // TODO: Implement
-          break;
-        case 'Orienteering in Luthagen':
-          // TODO: Implement
-          break;
-        case 'Pretty flowers':
-          // TODO: Implement
-          break;
-        case 'Important buildings':
-          // TODO: Implement
-          break;
-        default:
+      if (challenge.status == 1) {
+        switch (challenge.name) {
+          case '10 statues in Uppsala':
+            challenge.progress++;
+            print(geofence.toJson()['id']);
+            // _geofenceService.removeGeofenceById(geofence.toJson()['id']);
+            break;
+          case 'Birds':
+            // TODO: Implement
+            break;
+          case 'Cool large rocks':
+            // TODO: Implement
+            break;
+          case 'Orienteering in Luthagen':
+            // TODO: Implement
+            break;
+          case 'Pretty flowers':
+            // TODO: Implement
+            break;
+          case 'Important buildings':
+            // TODO: Implement
+            break;
+          default:
+        }
       }
     }
   }
@@ -439,7 +426,7 @@ List<Geofence> _getGefenceList(
 
   for (var i = 0; i < data.length; i++) {
     Geofence geofence = Geofence(
-        id: 'loc: $i',
+        id: 'loc_$i',
         latitude: data[i].latitude,
         longitude: data[i].longitude,
         radius: radiusList);
