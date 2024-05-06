@@ -13,127 +13,139 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  User? user = FirebaseAuth.instance.currentUser;
+  User user = FirebaseAuth.instance.currentUser!;
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        textTheme: TextTheme(
-          bodyLarge: TextStyle(
-            color: Colors.black,
-            fontSize: 30.0,
-          ),
-        ),
-      ),
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(),
-        body: ListView(
-          children: [
-            ProfileRow(),
-            ContainerButton((), "Friends"),
-            statisticsDropdown(),
-            preferencesDropdown(),
-            signOutButton(),
-            /// TODO: only for debugging remove when everything is done
-            ElevatedButton(
-              onPressed: () {
-                print(FirebaseAuth.instance.currentUser);
-                print(FirebaseAuth.instance.currentUser!.displayName);
-                FirebaseAuth.instance.currentUser!
-                    .updateDisplayName("Jane Q. User");
-              },
-              // tooltip: 'Increment',
-              child: const Text("print user in debug"),
+    user.reload();
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.userChanges(),
+      builder: (context, snapshot) {
+        return MaterialApp(
+          theme: ThemeData(
+            textTheme: TextTheme(
+              bodyLarge: TextStyle(
+                color: Colors.black,
+                fontSize: 30.0,
+              ),
             ),
-            deleteUserAccount(),
-          ],
-        ),
+          ),
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            appBar: AppBar(),
+            body: ListView(
+              children: [
+                profileRow(snapshot.data?.displayName),
+                friendButton(),
+                statisticsDropdown(),
+                preferencesDropdown(),
+                signOutButton(),
+
+                /// TODO: only for debugging remove when everything is done
+                ElevatedButton(
+                  onPressed: () {
+                    print(FirebaseAuth.instance.currentUser);
+                    print(FirebaseAuth.instance.currentUser!.displayName);
+                    user.reload();
+                  },
+                  // tooltip: 'Increment',
+                  child: const Text("print user in debug"),
+                ),
+                deleteUserAccount(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Displays the firendbutton
+  ///
+  /// Return the friendbutton
+  GestureDetector friendButton() => ContainerButton((), "Friends");
+
+  /// Displays the statistics dropdown menu
+  ///
+  /// Returns the dropdown menu
+  Container statisticsDropdown() {
+    return DropdownTile(
+      "Statistics",
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            title: Text(
+              'Statistics 1',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              // Do something when Button
+            },
+          ),
+          ListTile(
+            title: Text(
+              'Dosent have to be buttons',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-/// Displays the statistics dropdown menu
-///
-/// Returns the dropdown menu
-  Container statisticsDropdown() {
-    return DropdownTile(
-            "Statistics",
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  title: Text(
-                    'Statistics 1',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () {
-                    // Do something when Button
-                  },
-                ),
-                ListTile(
-                  title: Text(
-                    'Dosent have to be buttons',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          );
-  }
-
-/// Displays the preferences dropdown menu
-///
-/// Returns the dropdown menu
+  /// Displays the preferences dropdown menu
+  ///
+  /// Returns the dropdown menu
   Container preferencesDropdown() {
     return DropdownTile(
-            "Preferences",
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  title: Text(
-                    'Button 1',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () {
-                    // Do something when Button
-                  },
-                ),
-                ListTile(
-                  title: Text(
-                    'Button 2',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () {
-                    // Do something when Button
-                  },
-                ),
-                // Add more buttons as needed
-              ],
+      "Preferences",
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            title: Text(
+              'Button 1',
+              style: TextStyle(color: Colors.white),
             ),
-          );
+            onTap: () {
+              // Do something when Button
+            },
+          ),
+          ListTile(
+            title: Text(
+              'Button 2',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              // Do something when Button
+            },
+          ),
+          // Add more buttons as needed
+        ],
+      ),
+    );
   }
 
-/// Displays the signOut button
-///
-/// Loggs out the current user
-  GestureDetector signOutButton() => ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout");
+  /// Displays the signOut button
+  ///
+  /// Loggs out the current user
+  GestureDetector signOutButton() =>
+      ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout");
 
-/// Displays the delete account button
-///
-/// Deletes the user account on pressing
+  /// Displays the delete account button
+  ///
+  /// Deletes the user account on pressing
   ElevatedButton deleteUserAccount() {
     return ElevatedButton(
-            // TODO: Add confirmation button
-            onPressed: () {
-              FirebaseAuth.instance.currentUser!.delete();
-            },
-            child: Text(
-              "Remove account",
-              style: TextStyle(color: Colors.red),
-            ),
-          );
+      // TODO: Add confirmation button
+      onPressed: () {
+        FirebaseAuth.instance.currentUser!.delete();
+      },
+      child: Text(
+        "Remove account",
+        style: TextStyle(color: Colors.red),
+      ),
+    );
   }
 
   /// Creates a button acording to our style
@@ -175,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
   /// The header for the ProfilePage
   ///
   /// returns a avatar image from the logged in user along with thier name and level
-  Row ProfileRow() {
+  Row profileRow(String? name) {
     return Row(
       children: [
         Expanded(
@@ -184,24 +196,24 @@ class _ProfilePageState extends State<ProfilePage> {
               CircleAvatar(
             radius: 48, // Image radius
             backgroundImage: AssetImage('assets/images/img_profile.svg'),
-            foregroundImage: NetworkImage(user!
+            foregroundImage: NetworkImage(user
                 .photoURL!), // Display user's profile picture if user is not null
           ),
         ),
         Expanded(
           flex: 1,
-          child: Column(
-            children: [
-              Text(user!.displayName!,
-                  style: Theme.of(context).textTheme.bodyLarge),
-              Text("Level 1", style: Theme.of(context).textTheme.bodyLarge),
-            ],
-          ),
+          child: Column(children: [
+            Text(
+                (name == null)
+                    ? ""
+                    : name, // Needs nullchecker incase a new name is selected to prevent it being null and causing a red screen for one millisec
+                style: Theme.of(context).textTheme.bodyLarge),
+            Text("Level 1", style: Theme.of(context).textTheme.bodyLarge),
+          ]),
         ),
       ],
     );
   }
-
 
   /// Creates a dropdownmenu acording to our style
   ///
