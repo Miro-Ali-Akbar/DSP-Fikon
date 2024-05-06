@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:trailquest/widgets/challenge.dart';
+import 'package:trailquest/widgets/back_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:geofence_service/geofence_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:trailquest/widgets/back_button.dart';
-import 'package:trailquest/widgets/challenge.dart';
+import 'package:http/http.dart' as http;
+
+LatLng currentPosition = LatLng(0, 0);
 
 class IndividualChallengePage extends StatefulWidget {
   Challenge challenge;
@@ -74,6 +79,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
   // This function is to be called when the location has changed.
   void _onLocationChanged(Location location) {
     print('location: ${location.toJson()}');
+    currentPosition = LatLng(location.latitude, location.longitude);
   }
 
   // Unused
@@ -346,4 +352,24 @@ ChallengeMap(BuildContext context) {
           ),
         );
       });
+}
+
+/// Returns a list of all statues close to the user
+Future<List<LatLng>> _getCloseStatues(int surroundingMeters) async {
+  List<LatLng> nodes = [];
+
+  final url =
+      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];node[memorial=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude}); node[artwork_type=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude}); out geom;';
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final decoded = json.decode(response.body);
+    List<dynamic> elements = decoded['elemetns'];
+
+    for (var element in elements) {
+      nodes.add(LatLng(element['lat'], element['lon']));
+    }
+  }
+
+  return nodes;
 }
