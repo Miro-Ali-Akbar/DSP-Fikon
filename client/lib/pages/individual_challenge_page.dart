@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/challenge.dart';
 
@@ -91,6 +92,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
                 setState(() {
                   if (widget.challenge.status == 0) {
                     widget.challenge.status = 1;
+                    ChallengeMap(context);
                   } else if (widget.challenge.status == 1) {
                     widget.challenge.status = 0;
                   }
@@ -223,4 +225,20 @@ Text TextStartStopChallenge(Challenge challenge) {
   } else {
     return Text('Finished challenge!', style: TextStyle(color: Colors.white, fontSize: 25));
   }
+}
+
+
+ChallengeMap(BuildContext context) {
+  showDialog(context: context, builder: (BuildContext context) {
+    return AlertDialog(
+      content: Container(
+        child: GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: LatLng(59.83972677529924, 17.6465716818546),
+            zoom: 15
+          ),
+        ),
+      ),
+    );
+  });
 }
