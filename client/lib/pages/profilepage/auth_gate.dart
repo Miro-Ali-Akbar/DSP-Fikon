@@ -30,11 +30,31 @@ class _AuthGateState extends State<AuthGate> {
             ],
             showAuthActionSwitch: false,
             headerBuilder: (context, constraints, shrinkOffset) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(20),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Icon(Icons.lock),
+                  child:
+                      Image.asset('assets/images/Logo.png'),
+              );
+            },
+            footerBuilder: (buildContext, AuthAction) {
+              return Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(5), // +5 for some reason
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.all(Radius.circular(
+                                5.0) //                 <--- border radius here
+                            ),
+                      ),
+                      child: Text(
+                        'By logining in to trailquest you agree to us having access to information such as your google name and profile image. To remove said account do so at user profile page',
+                        style: TextStyle(fontSize: 9),
+                      ),
+                    ),
+                  ],
                 ),
               );
             },
