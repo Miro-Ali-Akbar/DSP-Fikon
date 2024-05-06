@@ -27,7 +27,6 @@ dependencies:
   firebase_ui_oauth_google: ^1.2.10
   firebase_auth: 4.12.0 #Remove = death. Needs to be 4.12 or else everything breaks see: https://stackoverflow.com/questions/77468892/error-authprovider-is-imported-from-both 
   geofence_service: ^5.0.0
-  url_launcher: ^6.2.6
 
 dev_dependencies:
   flutter_test:
