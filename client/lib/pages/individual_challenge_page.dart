@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:geofence_service/models/geofence.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
 
@@ -82,7 +81,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
             break;
           default:
         }
-        
+
         if (challenge.progress == challenge.complete) {
           challenge.status = 2;
         }
@@ -360,7 +359,11 @@ Text TextStartStopChallenge(Challenge challenge) {
   }
 }
 
-ChallengeMap(BuildContext context) {
+ChallengeMap(BuildContext context) async {
+  List<LatLng> dataList = await _getCloseData(5000, 'statues');
+  List<Geofence> geofenceList =
+      _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
+
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -425,16 +428,35 @@ Future<List<LatLng>> _getCloseData(
 }
 
 List<Geofence> _getGefenceList(
-    List<LatLng> data, List<GeofenceRadius> radiusList) {
+    List<LatLng> positions, List<GeofenceRadius> radiusList) {
   List<Geofence> geofences = [];
 
-  for (var i = 0; i < data.length; i++) {
+  for (var i = 0; i < positions.length; i++) {
     Geofence geofence = Geofence(
         id: 'loc_$i',
-        latitude: data[i].latitude,
-        longitude: data[i].longitude,
+        latitude: positions[i].latitude,
+        longitude: positions[i].longitude,
         radius: radiusList);
+    geofences.add(geofence);
   }
 
   return geofences;
+}
+
+List<Marker> _getMarkerList(List<LatLng> positions) {
+  List<Marker> markers = [];
+
+  for (var i = 0; i < positions.length; i++) {
+    Marker marker =
+        Marker(markerId: MarkerId('marker_$i'), position: positions[i]);
+    markers.add(marker);
+  }
+
+  return markers;
+}
+
+void _addGeofences(List<Geofence> geofences, final geofenceService) {
+  for (var i = 0; i < geofences.length; i++) {
+    geofenceService.addGeofence(geofences[i]);
+  }
 }
