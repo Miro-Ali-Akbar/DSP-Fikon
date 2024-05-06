@@ -111,11 +111,11 @@ async function handleFriendrequest(sender, target, wsArr) {
     const doc = await usersRef.doc(target).get();
     if ( !doc.exists ) {
         // TODO: Change msgID to match client listener
-        
+        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
         console.log('did not find user');
         return false;
     } else if ( doc.data.online ) {
-        
+        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
         for ( let i = 0; i < wsArr.length; i++ ) {
             const socket = wsArr[i];
             if ( socket[0] === target ) {
@@ -124,7 +124,7 @@ async function handleFriendrequest(sender, target, wsArr) {
             }
         }
     } else {
-        
+        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
         let requests = await doc.data.friendRequests || [];
         usersRef.doc(target).update({
             friendRequests: requests.push(sender),
