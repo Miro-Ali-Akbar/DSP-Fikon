@@ -144,26 +144,6 @@ function getSocketUser(ws, wsArr) {
     } 
 }
 
-async function saveRoute(ws, wsArr, data) {
-    const name = data.trailName;
-    const username = getSocketUser(ws, wsArr);
-    const user = await get(usersRef, username);
-    const friendlist = await user.friendlist;
-    console.log(username);
-    console.log(friendlist[0]);
-
-    // put trail into database
-    db.collection(`users/${username}/userRoutes`).doc(name).set(data);
-
-    if ( friendlist.length > 0 ) {
-        for ( let i = 0; i < friendlist.length; i++ ) {
-            console.log(friendlist[0]);
-            db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
-        }
-    } else {
-        // Do nothing
-    }    
-}
 
 module.exports = {
     heartbeat,

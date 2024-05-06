@@ -56,14 +56,7 @@ wss.on('connection', ws => {
                 handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers)
                 console.log('sent friend request');
                 break;
-            case "addRoute": 
-                console.log("Should be a route: ", message);
-                saveRoute(ws, wss.connectedUsers, message.data);
-                break;
-            case "getRoute":
-                let index = message.data.index;
-                send(ws, 'sendRoute', 'karoRoutes', index);
-                break;
+            
                 
         }
     })
