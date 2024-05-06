@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:geofence_service/geofence_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/challenge.dart';
@@ -15,6 +18,98 @@ class IndividualChallengePage extends StatefulWidget {
 }
 
 class _IndividualChallengeState extends State<IndividualChallengePage> {
+    // Controllers for geofences
+  final _activityStreamController = StreamController<Activity>();
+  final _geofenceStreamController = StreamController<Geofence>();
+
+  // Settings for geofences
+  final _geofenceService = GeofenceService.instance.setup(
+      interval: 2000,
+      accuracy: 10,
+      loiteringDelayMs: 60000,
+      statusChangeDelayMs: 10000,
+      useActivityRecognition: true,
+      allowMockLocations: true,
+      printDevLog: false,
+      geofenceRadiusSortType: GeofenceRadiusSortType.DESC);
+
+  // Automatically called every time the status of a geofence is changed
+  // Most game logic will be placed here
+  Future<void> _onGeofenceStatusChanged(
+      Geofence geofence,
+      GeofenceRadius geofenceRadius,
+      GeofenceStatus geofenceStatus,
+      Location location) async {
+    print('geofence: ${geofence.toJson()}');
+    print('geofenceRadius: ${geofenceRadius.toJson()}');
+    print('geofenceStatus: ${geofenceStatus.toString()}');
+    _geofenceStreamController.sink.add(geofence);
+
+    // switch (gameMode) {
+    //   // No game. Only route-generation
+    //   case 0:
+    //     break;
+    //   // Orienteering
+    //   case 1:
+    //     break;
+    //   // Checkpoints
+    //   case 2:
+    //     break;
+    //   // Treasure hunt
+    //   case 3:
+    //     break;
+    //   default:
+    //     throw Exception('Invalid gamemode');
+    // }
+  }
+
+  // Unused
+  // This function is to be called when the activity has changed.
+  void _onActivityChanged(Activity prevActivity, Activity currActivity) {
+    print('prevActivity: ${prevActivity.toJson()}');
+    print('currActivity: ${currActivity.toJson()}');
+    _activityStreamController.sink.add(currActivity);
+  }
+
+  // Unused
+  // This function is to be called when the location has changed.
+  void _onLocationChanged(Location location) {
+    print('location: ${location.toJson()}');
+  }
+
+  // Unused
+  // This function is to be called when a location services status change occurs
+  // since the service was started.
+  void _onLocationServicesStatusChanged(bool status) {
+    print('isLocationServicesEnabled: $status');
+  }
+
+  // This function is used to handle errors that occur in the service.
+  void _onError(error) {
+    final errorCode = getErrorCodesFromError(error);
+    if (errorCode == null) {
+      print('Undefined error: $error');
+      return;
+    }
+
+    print('ErrorCode: $errorCode');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _geofenceService
+          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      _geofenceService.addLocationChangeListener(_onLocationChanged);
+      _geofenceService.addLocationServicesStatusChangeListener(
+          _onLocationServicesStatusChanged);
+      _geofenceService.addActivityChangeListener(_onActivityChanged);
+      _geofenceService.addStreamErrorListener(_onError);
+      _geofenceService.start().catchError(_onError);
+    });
+  }
 
   Challenge challenge;
 
