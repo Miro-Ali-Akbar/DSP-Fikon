@@ -50,8 +50,8 @@ class _AuthGateState extends State<AuthGate> {
                             ),
                       ),
                       child: Text(
-                        'By logining in to trailquest you agree to us having access to information such as your google name and profile image. To remove said account do so at user profile page',
-                        style: TextStyle(fontSize: 9),
+                        'By logging in to TrailQuest you agree to us having access to information such as your Google name and profile image. To remove said account do so at user profile page',
+                        style: TextStyle(fontSize: 11),
                       ),
                     ),
                   ],
