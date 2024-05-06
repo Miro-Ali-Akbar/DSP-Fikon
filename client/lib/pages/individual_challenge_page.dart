@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 LatLng currentPosition = LatLng(0, 0);
 bool isInArea = false;
+List<Marker> markerList = [];
 
 class IndividualChallengePage extends StatefulWidget {
   Challenge challenge;
@@ -23,6 +24,8 @@ class IndividualChallengePage extends StatefulWidget {
 }
 
 class _IndividualChallengeState extends State<IndividualChallengePage> {
+  final Completer<GoogleMapController> _controller =
+      Completer<GoogleMapController>();
   // Controllers for geofences
   final _activityStreamController = StreamController<Activity>();
   final _geofenceStreamController = StreamController<Geofence>();
@@ -61,8 +64,18 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
         switch (challenge.name) {
           case '10 statues in Uppsala':
             challenge.progress++;
-            print(geofence.toJson()['id']);
+            String geofenceId = geofence.toJson()['id'];
+            print(geofenceId);
             // _geofenceService.removeGeofenceById(geofence.toJson()['id']);
+
+            // setState(() {});
+            Marker marker = markerList
+                .firstWhere((marker) => marker.markerId.value == geofenceId);
+              markerList.remove(marker);
+            setState(() {
+            });
+            setState(() {});
+            print(markerList);
             break;
           case 'Birds':
             // TODO: Implement
@@ -232,7 +245,8 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
                     setState(() {
                       if (widget.challenge.status == 0) {
                         widget.challenge.status = 1;
-                        ChallengeMap(context, widget.challenge);
+                        ChallengeMap(context, widget.challenge,
+                            _geofenceService, _controller);
                       } else if (widget.challenge.status == 1) {
                         widget.challenge.status = 0;
                       }
@@ -359,11 +373,14 @@ Text TextStartStopChallenge(Challenge challenge) {
   }
 }
 
-ChallengeMap(BuildContext context, Challenge challenge) async {
+ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
+    Completer<GoogleMapController> _controller) async {
   List<LatLng> dataList = await _getCloseData(5000, 'statues');
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
-  List<Marker> markerList = _getMarkerList(dataList);
+  markerList = _getMarkerList(dataList);
+
+  _addGeofences(geofenceList, geofenceService);
 
   bool canSeePosition = _checkLocationVisibility(challenge);
 
@@ -379,6 +396,9 @@ ChallengeMap(BuildContext context, Challenge challenge) async {
                       currentPosition.latitude, currentPosition.longitude),
                   zoom: 12),
               markers: Set<Marker>.of(markerList),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
             ),
           ),
         );
@@ -471,7 +491,7 @@ List<Marker> _getMarkerList(List<LatLng> positions) {
 
   for (var i = 0; i < positions.length; i++) {
     Marker marker =
-        Marker(markerId: MarkerId('marker_$i'), position: positions[i]);
+        Marker(markerId: MarkerId('loc_$i'), position: positions[i]);
     markers.add(marker);
   }
 
