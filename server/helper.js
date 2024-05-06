@@ -114,35 +114,32 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
         ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
         console.log('did not find user');
         return false;
-    } else if ( doc.data.online ) {
+    } else if ( doc.data().online === true ) {
+        console.log(doc.data().online);
         ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
-        for ( let i = 0; i < wsArr.length; i++ ) {
+        console.log('IM HERE');
+        for ( let i = 0; i < wsArr.length; i = i + 1 ) {
             const socket = wsArr[i];
-            if ( socket[0] === target ) {
-                socket[1].send(JSON.stringify({msgID: 'incomingRequest', data: {sender: sender}}));
-                return true;
+            console.log('socket: ', socket);
+            console.log('arr: ', wsArr);
+            if ( socket.username === target ) {
+                console.log("socket: ", socket);
+                (socket.socket).send(JSON.stringify({msgID: 'incomingRequest', data: {sender: sender}}));
             }
         }
     } else {
         ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
-        let requests = await doc.data.friendRequests || [];
-        usersRef.doc(target).update({
-            friendRequests: requests.push(sender),
+        console.log('im here!');
+        let requests = doc.data().friendRequests;
+        requests.push(sender);
+        await usersRef.doc(target).update({
+            friendRequests: requests
         });
-        return true;
     }
 }
 // TODO: Add sorting function for leaderboard 
 // TODO: Add leaderboard broadcast on update
 
-function getSocketUser(ws, wsArr) {
-    const id = ws.id;
-    for ( let i = 0; i < wsArr.length; i++ ) {
-        if ( ws.id === wsArr[i][2]) {
-            return wsArr[i][0];
-        }
-    } 
-}
 
 
 module.exports = {

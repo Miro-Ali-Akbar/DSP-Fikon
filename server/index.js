@@ -31,28 +31,27 @@ wss.on('connection', ws => {
         socketID: ws.id,
         signature: 0, 
     }));
-
+    i++;
     console.log('Client connected: ', ws.id);
 
     ws.on('message', function inc(data) {
         let message =  data;
 
         message = JSON.parse(message);
-
+        console.log('i = ', i);
         console.log('1: ', message);
         console.log('2: ', message.data);
         switch(message.msgID) {
             case "initRes":
                 putUser(message.data.username, message.data);
                 console.log('=== user added to database ===');
-                wss.connectedUsers[i] = [message.data.username, ws, ws.id];
-                i = i + 1;
+                wss.connectedUsers.push({"username": message.data.username, "socket": ws, "id": ws.id});
                 break;
             case "getLeaderboard":
                 send(ws, 'leaderboard');
                 console.log('sent leaderboard');
                 break;
-            case "addFriend": // TODO: Change to correct msgID if needed
+            case "addFriend":
                 handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers)
                 console.log('sent friend request');
                 break;

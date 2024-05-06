@@ -6,7 +6,7 @@ ws.onopen = () => {
 
     ws.send(JSON.stringify({msgID: "initRes", data: { username: "hitsu", friendRequests: [], online: true } }));
 
-    ws.send(JSON.stringify({msgID: "outGoingRequest", data: { target: "uName", sender: "hitsu"}}));
+    ws.send(JSON.stringify({msgID: "addFriend", data: { target: "uName", sender: "hitsu"}}));
 
     ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
     
