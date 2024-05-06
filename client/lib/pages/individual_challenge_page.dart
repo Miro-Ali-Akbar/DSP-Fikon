@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/challenge.dart';
@@ -86,7 +88,10 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding:const EdgeInsets.all(10.0),
+            child: ShowMap(context, challenge)),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
             child: TextButton(
               onPressed: () {
                 setState(() {
@@ -231,7 +236,12 @@ Text TextStartStopChallenge(Challenge challenge) {
 ChallengeMap(BuildContext context) {
   showDialog(context: context, builder: (BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(),
+      backgroundColor: Colors.white,
+      contentPadding: EdgeInsets.all(3),
       content: Container(
+        height: 600,
+        width: 800,
         child: GoogleMap(
           initialCameraPosition: CameraPosition(
             target: LatLng(59.83972677529924, 17.6465716818546),
@@ -241,4 +251,28 @@ ChallengeMap(BuildContext context) {
       ),
     );
   });
+}
+
+Widget ShowMap(BuildContext context, Challenge challenge) {
+  if(challenge.status == 1) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 40),
+      child: TextButton.icon(
+        onPressed: () {
+          ChallengeMap(context);
+        },
+        label: Text('Show map', style: TextStyle(
+          color: Colors.white,
+          fontSize: 25
+        ),),
+        icon: SvgPicture.asset('assets/icons/img_map.svg', height: 35,),
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.green.shade600,
+          minimumSize: Size.fromHeight(70)
+        ),
+      ),
+    );
+  } else {
+    return Container();
+  }
 }
