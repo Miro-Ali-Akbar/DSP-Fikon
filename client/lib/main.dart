@@ -1,8 +1,9 @@
+
+
 import 'package:flutter_config/flutter_config.dart';
 import 'dart:async';
 
 import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
@@ -17,14 +18,16 @@ import 'firebase_options.dart';
 import 'dart:convert';
 
 WebSocketChannel? channel;
-List<Friend> friendsList = [];
-List<String> friendRequests = [];
+ValueNotifier<List<dynamic>> friendsList = ValueNotifier([["emma", "emms", ["checkpoint"], 40]]);
+ValueNotifier<List<String>> friendRequests = ValueNotifier(["emma", "meep", "ghhh", "fgg"]);
 String feedBack = "";
 var jsonString = '';
 List<dynamic> leaderList = [];
-bool friendRequestSuccess = false;
-bool canSendRequest = true;
+String myUserName = "";
 
+ValueNotifier<bool> canSendRequest = ValueNotifier(true);
+ValueNotifier<bool> isSent = ValueNotifier(false);
+ValueNotifier<bool> friendRequestSuccess = ValueNotifier<bool>(true);
 void Listen(){
   try {
       channel?.stream.listen((jsonString) {
@@ -36,6 +39,7 @@ void Listen(){
         
         // Extract the value
         msgID = firstEntry.value;
+        print(msgID);
     
         MapEntry<String, dynamic> secondEntry = jsonDecoded.entries.elementAt(1);
         dynamic data = secondEntry.value;
@@ -50,11 +54,31 @@ void Listen(){
             break;
           case 'init':
             break;
-          case 'outgoingRequest':
-            canSendRequest = true;
-            if(data[0] == 'success') friendRequestSuccess = true;
+
+          case 'outGoingRequest':
+            print("hfjjfk");
+            print(data);
+            if(data['error'] == 1) {
+              print("hello$data");
+              friendRequestSuccess.value = true;
+              canSendRequest.value = true;
+              isSent.value = true;
+              
+            } else {
+              int res = data['error'];
+              friendRequestSuccess.value = false;
+              canSendRequest.value = true;
+              print("faaaaailll$res");
+            }
+            break;
           case 'incomingRequest':
+            friendRequests.value.add(data['name']);
+            break;
+          
+
+          
             
+
         }
       }             
     });
@@ -204,7 +228,7 @@ class Friend extends StatelessWidget{
 
   final String type;
   final String name;
-  final Text description;
+  
   final List<String> recentChallenges;
   final int score;
 
@@ -213,23 +237,91 @@ class Friend extends StatelessWidget{
     super.key,
     required this.name,
     required this.type,
-    required this.description,
+    
     required this.recentChallenges,
     required this.score
   });
   @override
   Widget build(BuildContext context) {
-
-    throw UnimplementedError();
+    return Padding(
+      padding: EdgeInsets.all(15),
+        child: Container(
+          padding: EdgeInsets.all(20),
+          height: 120.0,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.green,
+              width: 3,
+              
+            ),
+            borderRadius: BorderRadius.all(
+              Radius.circular(15),
+            ),
+            color: Color.fromARGB(255, 252, 253, 252),
+          ),
+          child: Column(
+            children: [
+              Text(this.name),
+              
+        
+            ],
+            ),
+        
+        
+        ),
+    
+    );
   }
 }
 
-void navigate(Widget page, context) {
-  Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          pageBuilder: (context, x, xx) => page,
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ));
+class Request extends StatelessWidget {
+  String name;
+  Request({required this.name});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      
+      width: 190,
+      height: 1,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomRight,
+          colors: [Colors.white, Color.fromARGB(216, 208, 247, 203), Color.fromARGB(73, 199, 245, 193)],
+        ),
+        
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+        border: Border.all(
+          color: const Color.fromARGB(26, 0, 0, 0),
+
+        )
+      ),
+      padding: EdgeInsets.fromLTRB(15, 0,0,0),
+      child: Row(
+        
+        children: [
+        Expanded(child: Text(this.name)),
+        IconButton(
+          onPressed: () => accept(this.name), 
+          
+          icon: Icon(Icons.check )),
+        IconButton(
+          onPressed: () => reject(this.name), 
+          icon: Icon(Icons.close),
+          
+        )
+      ],
+      )
+    );
+  }
+}
+
+void accept(String name) {
+  channel?.sink.add('"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName}');
+  friendRequests.value.remove("$name");
+}
+void reject(String name) {
+ friendRequests.value.remove("$name");
 }
 
 

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:trailquest/main.dart';
@@ -15,49 +16,118 @@ class Friendpage extends StatefulWidget {
 }
 
 class _friendPageState extends State<Friendpage> {
-  final List<Friend> friends = friendsList;
-  final List<String> friendRequest = friendRequests;
+  
+  void init() {
+    friendRequests.addListener(() {_updateState(); });
+    friendsList.addListener(() {_updateState(); });
+  }
+ 
+  dispose() {
+    super.dispose();
+    friendRequests.removeListener(_updateState);
+    friendsList.removeListener(_updateState);
+  }
 
+  void _updateState() {
+      setState(() {
+        
+      });
+  }
   Widget build(BuildContext context) {
+    init();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: AppBar(
+              
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back),
                   onPressed: () {
                     Navigator.pop(context);
+                    dispose();
                   },
                 ),
                 title: Text("Friends",
                     style: TextStyle(color: Colors.green, fontSize: 30.0)),
                 actions: <Widget>[
-                  TextButton.icon(
-                      onPressed: () {
-                        sendFriendRequest(context);
-                      },
-                      label: Text(
-                        'Add Friend +',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      icon: SvgPicture.asset('assets/images/img_group.svg'),
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.green.shade600,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 30),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(15, 2, 15, 0),
+                    child: TextButton.icon(
+                          onPressed: () {
+                            sendFriendRequest(context);
+                          },
+                          label: Text(
+                            'Add Friend +',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          icon: SvgPicture.asset('assets/images/img_group.svg'),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.green.shade600,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 30),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                          )),
+                    
+                  ),
+                ]),
+            body: Column(
+              children: [
+                SizedBox(height: 15,),
+                Text( "Friend requests",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    
+                  ),
+                ),
+                SizedBox(height: 20,),
+                Container(
+                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: PreferredSize(
+                      preferredSize: Size.fromHeight(10),
+                      child: AppBar(
+                        flexibleSpace: ListView.separated(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.all(8),
+                          itemCount: friendRequests.value.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.fromLTRB(5,0,5,0),
+                              child: Request(name: friendRequests.value[index])
+                            );
+                          },
+                          separatorBuilder: (_, __) => const Divider(),
                         ),
                       )),
-                ]),
-            body: Expanded(
-              child: ListView.builder(
-                  itemCount: friendsList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(friendsList[index].name),
-                    );
-                  }),
+                ),
+                SizedBox(height: 20,),
+                Text("Friends",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 16 
+                  )),
+                SizedBox(height: 20,),
+                Expanded(
+                  
+                  child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: friendsList.value.length,
+                    itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Friend(name: friendsList.value[index][0], 
+                          type: friendsList.value[index][1], 
+                          recentChallenges: friendsList.value[index][2], 
+                          score: friendsList.value[index][3]));
+                    }
+
+                  )
+                )
+              ],
             )));
   }
 } //end class
@@ -76,27 +146,35 @@ class friendRequest extends StatefulWidget {
 }
 
 class _friendRequestState extends State<friendRequest> {
-  bool isSuccess = false;
-  bool isSent = false;
-
   Color colorValue = Colors.green;
   bool _highLightSearchBar = false;
   String buffer = "";
 
-  // void updateState(){
-  //       if(isSent && isSuccess) {
-  //         feedBack = "Friend request sent";
-  //         isSent = !isSent;
-  //         isSuccess = !isSuccess;
-  //       } else if (isSent && !isSuccess) {
-  //         feedBack = "User doesn't exist";
-  //         isSuccess = false;
-  //         isSent = false;
-  //       } else {
-  //         isSuccess = false;
-  //         isSent = false;
-  //       }
-  //     }
+  @override
+  void initState() {
+    super.initState();
+    // Listen to changes in global boolean values
+    // For example, if friendRequestSuccess is a global boolean value
+    // you can listen to its changes like this
+    friendRequestSuccess.addListener(_updateState);
+    canSendRequest.addListener(_updateState);
+    isSent.addListener(_updateState);
+  }
+
+  @override
+  void dispose() {
+    // disposing when widget is disposed
+    friendRequestSuccess.removeListener(_updateState);
+    canSendRequest.removeListener(_updateState);
+    isSent.removeListener(_updateState);
+    super.dispose();
+  }
+
+  // Method to update the state when global boolean values change
+  void _updateState() {
+    setState(
+        () {}); // Trigger a rebuild of the widget when the boolean value changes
+  }
 
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -110,10 +188,13 @@ class _friendRequestState extends State<friendRequest> {
           ),
           child: Stack(
             children: [
-              CloseButton(onPressed: () => setState(() {
-                Navigator.pop(context);
-                canSendRequest = true;
-              })),
+              CloseButton(
+                  onPressed: () => setState(() {
+                        Navigator.pop(context);
+                        canSendRequest.value = true;
+                        friendRequestSuccess.value = true;
+                        isSent.value = false;
+                      })),
               SizedBox(height: 10),
               Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -133,77 +214,77 @@ class _friendRequestState extends State<friendRequest> {
                         opacity: _highLightSearchBar ? 2.0 : 0.5,
                         duration: Duration(milliseconds: 200),
                         child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.all(10),
-                            
-                            
-                            child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Search',
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(25.0),
-                                      borderSide: BorderSide(
-                                        color: _highLightSearchBar
-                                            ? Color.fromARGB(255, 4, 4, 4)
-                                            : Color.fromARGB(255, 5, 5,
-                                                5), // Change the color based on condition
-                                      ),
-                                    ),
-                                    suffixIcon: canSendRequest?
-                                      null:
-                                      SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(10),
+                          child: TextField(
+                            decoration: InputDecoration(
+                                hintText: 'Search',
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: BorderSide(
+                                    color: _highLightSearchBar
+                                        ? Color.fromARGB(255, 4, 4, 4)
+                                        : Color.fromARGB(255, 5, 5,
+                                            5), // Change the color based on condition
+                                  ),
+                                ),
+                                suffixIcon: canSendRequest.value
+                                    ? null
+                                    : SizedBox(
                                         height: 0.0000007,
                                         width: 0.00000007,
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: <Widget>[
                                             Center(
                                               child: Container(
-                                                height: 20,
-                                                width: 20,
+                                                height: 10,
+                                                width: 10,
                                                 margin: EdgeInsets.all(10),
-                                                child: CircularProgressIndicator(
+                                                child:
+                                                    CircularProgressIndicator(
                                                   strokeWidth: 2.0,
-                                                  valueColor : AlwaysStoppedAnimation(const Color.fromARGB(255, 7, 6, 6)),
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation(
+                                                          const Color.fromARGB(
+                                                              255, 7, 6, 6)),
                                                 ),
                                               ),
                                             ),
                                           ],
-                                        )
-                                      )
-                                  ),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      buffer = value;
-                                    });
-                                  },
-                                ),
-                              )
-                            ),
+                                        ))),
+                            onChanged: (value) {
+                              setState(() {
+                                buffer = value;
+                              });
+                            },
+                          ),
+                        )),
                     SizedBox(height: 20),
                     Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height / 12,
                       padding: EdgeInsets.all(15.0),
                       child: Material(
-                        color: canSendRequest? Colors.green:Colors.grey,
+                        color:
+                            canSendRequest.value ? Colors.green : Colors.grey,
                         borderRadius: BorderRadius.circular(25.0),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(25.0),
                           onTap: () {
                             // Call your function here when the container is pressed
-                            if(canSendRequest)
-                            {
-                              channel?.sink.add('{"msgID": "addFriend" "data": {"$buffer"}}');
+                            if (canSendRequest.value) {
+                              channel?.sink.add(
+                                  '{"msgID": "addFriend", "data": {"target":"$buffer", "sender": "efjkrkma"}}');
                               setState(() {
-                                canSendRequest = false;
+                                canSendRequest.value = false;
                               });
-                              
                             } else {}
                           },
                           child: Center(
@@ -220,19 +301,30 @@ class _friendRequestState extends State<friendRequest> {
                         ),
                       ),
                     ),
-                  ]
-                ),
+                  ]),
               Visibility(
-                visible: canSendRequest && !friendRequestSuccess,
-                child: Text(
-                  "User does not exis. Please trye again!",
-                  style: TextStyle(color: Colors.red)
-                )
-              )
+                  visible: !friendRequestSuccess.value,
+                  child: Positioned(
+                    top: 300,
+                    right: 10,
+                    child: Container(
+                      child: Text("User does not exist. Please try again!",
+                          style: TextStyle(color: Colors.red)),
+                    ),
+                  )),
+              Visibility(
+                  visible: friendRequestSuccess.value && isSent.value,
+                  child: Positioned(
+                    top: 300,
+                    right: 65,
+                    child: Container(
+                      child: Text("Friend request sent!",
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 41, 193, 3))),
+                    ),
+                  ))
             ],
-            
-          )
-          ),
+          )),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
@@ -340,7 +432,6 @@ class _ProgressIndicatorExampleState extends State<ProgressIndicator>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            
             CircularProgressIndicator(
               value: controller.value,
               semanticsLabel: 'Circular progress indicator',
@@ -367,6 +458,17 @@ class _ProgressIndicatorExampleState extends State<ProgressIndicator>
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class Success {
+  static show(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 2), // Adjust the duration as needed
       ),
     );
   }
