@@ -107,28 +107,30 @@ async function send(ws, msgID, doc, index) {
 }
 
 //? Create handling by putting websocket in database --- STRETCH GOAL FOR SCALING
-async function handleFriendrequest(ws, sender, target, wsArr) {
+async function handleFriendrequest(sender, target, wsArr) {
     const doc = await usersRef.doc(target).get();
     if ( !doc.exists ) {
         // TODO: Change msgID to match client listener
-        ws.send(JSON.stringify({msgID:'outGoingRequest', data:{ error: 1 }}));
+        
         console.log('did not find user');
+        return false
     } else if ( doc.data.online ) {
-        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
+        
         for ( let i = 0; i < wsArr.length; i++ ) {
             const socket = wsArr[i];
             if ( socket[0] === target ) {
                 socket[1].send(JSON.stringify({msgID: 'incomingRequest', data: {sender: sender}}));
-                return;
+                return true;
             }
         }
     } else {
-        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
+        
         let requests = await doc.data.friendRequests || [];
         requests.push(sender);
         usersRef.doc(target).update({
             friendRequests: requests,
         });
+        return true;
     }
 }
 // TODO: Add sorting function for leaderboard 

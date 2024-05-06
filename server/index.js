@@ -53,7 +53,11 @@ wss.on('connection', ws => {
                 console.log('sent leaderboard');
                 break;
             case "addFriend": // TODO: Change to correct msgID if needed
-                handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers);
+                if (handleFriendrequest(message.data.sender, message.data.target, wss.connectedUsers)) {
+                    ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
+                } else {
+                    ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
+                }
                 console.log('sent friend request');
                 break;
             case "addRoute": 
