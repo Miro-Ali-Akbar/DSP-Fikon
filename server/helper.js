@@ -128,10 +128,11 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
         requests.push(sender);
         usersRef.doc(target).update({
             friendRequests: requests,
-        })
+        });
     }
 }
-
+// TODO: Add sorting function for leaderboard 
+// TODO: Add leaderboard broadcast on update
 
 module.exports = {
     heartbeat,

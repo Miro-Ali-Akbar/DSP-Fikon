@@ -60,6 +60,9 @@ wss.on('connection', ws => {
                 handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers);
                 console.log('sent friend request');
                 break;
+            case "ASIFNSDGVINDSV": 
+                console.log("Should be a route: ", message);
+                break;
                 
         }
     })
