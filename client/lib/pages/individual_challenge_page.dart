@@ -82,6 +82,10 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
             break;
           default:
         }
+        
+        if (challenge.progress == challenge.complete) {
+          challenge.status = 2;
+        }
       }
     }
   }
