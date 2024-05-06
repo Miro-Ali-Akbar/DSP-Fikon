@@ -578,6 +578,7 @@ class GeneratedMap extends StatelessWidget {
     heightDifference: 0,
     isSaved: false,
     isCircular: false,
+    coordinates: [],
   );
 
   @override
@@ -1055,5 +1056,6 @@ void saveRouteToServer(Map<String, dynamic> routeData) async {
 
   String jsonString = jsonEncode(routeData);
 
-  channel?.sink.add(jsonString);
+  //TODO: Comment out to connect to server
+  //channel?.sink.add(jsonString);
 }

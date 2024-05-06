@@ -6,6 +6,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/pages/profilepage/auth_gate.dart';
 import 'package:trailquest/pages/start_page.dart';
@@ -20,39 +21,57 @@ WebSocketChannel? channel;
 var jsonString = '';
 List<dynamic> dataList = [];
 
-void Listen(){
+void Listen() {
   try {
-      channel?.stream.listen((jsonString) {
-      Map <String, dynamic> jsonDecoded = jsonDecode(jsonString);
+    channel?.stream.listen((jsonString) {
+      Map<String, dynamic> jsonDecoded = jsonDecode(jsonString);
       String msgID;
       if (jsonDecoded.isNotEmpty) {
         // Get the first key-value pair from the Map
         MapEntry<String, dynamic> firstEntry = jsonDecoded.entries.first;
-        
+
         // Extract the value
         msgID = firstEntry.value;
-    
-        MapEntry<String, dynamic> secondEntry = jsonDecoded.entries.elementAt(1);
+
+        MapEntry<String, dynamic> secondEntry =
+            jsonDecoded.entries.elementAt(1);
         dynamic data = secondEntry.value;
 
         switch (msgID) {
-          case 'leaderboard': 
+          case 'leaderboard':
             Map<String, dynamic> users = data;
             List<String> temp = [];
-            users.forEach((key, value) { temp.add(array_to_string([value[0], value[1]]));});
+            users.forEach((key, value) {
+              temp.add(array_to_string([value[0], value[1]]));
+            });
             dataList = temp;
             print(dataList);
             break;
           case 'init':
+            //channel?.sink.add(
+            //    '{"msgID": "initRes", "data": { "username": "uName", "friendRequests": [], "friendlist": ["hitsu"], "online": true } }');
+
             print(data);
             break;
+          case 'routes':
+            //TODO: TEMP
+            String trailName = data['trailName'];
+            double totalDistance = data['totalDistance'];
+            double totalTime = data['totalTime'];
+            String statusEnvironment = data['statusEnvironment'];
+            bool avoidStairs = data['avoidStairs'];
+            double hilliness = data['hilliness'];
+
+            List<dynamic> coordinatesJson = data['coordinates'];
+            List<LatLng> coordinates = coordinatesJson
+                .map((coord) => LatLng(coord['latitude'], coord['longitude']))
+                .toList();
         }
-      }             
+      }
     });
   } catch (e) {
     print(e);
   }
-
 }
 
 void _sendMessage(String message) {
@@ -79,7 +98,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+  channel =
+      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());
@@ -96,13 +116,12 @@ String array_to_string(List tuple) {
   return tuple[1].toString() + " " + tuple[0];
 }
 
-
 class _MainAppState extends State<MainApp> {
   int myIndex = 0;
   final screens = [
     const StartPage(),
     TrailPage(),
-    ChallengePage(), 
+    ChallengePage(),
     AuthGate(),
   ];
 

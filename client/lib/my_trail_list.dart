@@ -10,6 +10,7 @@ List<TrailCard> MyTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: true,
     isCircular: false,
+    coordinates: [],
   ),
   TrailCard(
     name: 'trail 2',
@@ -20,6 +21,7 @@ List<TrailCard> MyTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: true,
     isCircular: true,
+    coordinates: [],
   ),
   TrailCard(
     name: 'trail 3',
@@ -30,6 +32,7 @@ List<TrailCard> MyTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: true,
     isCircular: true,
+    coordinates: [],
   ),
   TrailCard(
     name: 'trail 4',
@@ -40,6 +43,7 @@ List<TrailCard> MyTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: true,
     isCircular: false,
+    coordinates: [],
   ),
 ];
 
@@ -53,6 +57,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 2,
     isSaved: false,
     isCircular: true,
+    coordinates: [],
   ),
   TrailCard(
     name: 'trail B',
@@ -63,6 +68,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: false,
+    coordinates: [],
   ),
   TrailCard(
     name: 'trail C',
@@ -73,6 +79,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: true,
+    coordinates: [],
   ),
   TrailCard(
     name: 'trail D',
@@ -83,6 +90,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: false,
+    coordinates: [],
   ),
   TrailCard(
     name: 'trail E',
@@ -93,5 +101,6 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: false,
+    coordinates: [],
   ),
 ];
