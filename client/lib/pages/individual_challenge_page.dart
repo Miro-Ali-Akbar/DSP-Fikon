@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:geofence_service/models/geofence.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
 
@@ -10,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 LatLng currentPosition = LatLng(0, 0);
+bool isInArea = false;
 
 class IndividualChallengePage extends StatefulWidget {
   Challenge challenge;
@@ -65,6 +67,36 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
     //   default:
     //     throw Exception('Invalid gamemode');
     // }
+
+    if (geofenceStatus.toString() == "GeofenceStatus.ENTER") {
+      print("Entered area");
+      setState(() {
+        isInArea = true;
+      });
+      // TODO: Game-logic associated with each type of challenge
+      // FIXME: If a challenge gets another name, update this function
+      switch (challenge.name) {
+        case '10 statues in Uppsala':
+          challenge.progress++;
+          break;
+        case 'Birds':
+          // TODO: Implement
+          break;
+        case 'Cool large rocks':
+          // TODO: Implement
+          break;
+        case 'Orienteering in Luthagen':
+          // TODO: Implement
+          break;
+        case 'Pretty flowers':
+          // TODO: Implement
+          break;
+        case 'Important buildings':
+          // TODO: Implement
+          break;
+        default:
+      }
+    }
   }
 
   // Unused
@@ -75,7 +107,6 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
     _activityStreamController.sink.add(currActivity);
   }
 
-  // Unused
   // This function is to be called when the location has changed.
   void _onLocationChanged(Location location) {
     print('location: ${location.toJson()}');
@@ -355,12 +386,13 @@ ChallengeMap(BuildContext context) {
 }
 
 /// Returns a list of all statues close to the user
-Future<List<LatLng>> _getCloseData(int surroundingMeters, String type) async {
+Future<List<LatLng>> _getCloseData(
+    int surroundingMeters, String typeOfChallenge) async {
   List<LatLng> nodes = [];
 
   var url;
 
-  switch (type) {
+  switch (typeOfChallenge) {
     // TODO: Test. If not working, place on same line and should work
     case 'statues':
       url =
@@ -374,7 +406,7 @@ Future<List<LatLng>> _getCloseData(int surroundingMeters, String type) async {
           out geom;''';
       break;
     case 'stones':
-      url = 
+      url =
           '''https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];
           (
           node[natural=stone](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
@@ -399,4 +431,19 @@ Future<List<LatLng>> _getCloseData(int surroundingMeters, String type) async {
   }
 
   return nodes;
+}
+
+List<Geofence> _getGefenceList(
+    List<LatLng> data, List<GeofenceRadius> radiusList) {
+  List<Geofence> geofences = [];
+
+  for (var i = 0; i < data.length; i++) {
+    Geofence geofence = Geofence(
+        id: 'loc: $i',
+        latitude: data[i].latitude,
+        longitude: data[i].longitude,
+        radius: radiusList);
+  }
+
+  return geofences;
 }
