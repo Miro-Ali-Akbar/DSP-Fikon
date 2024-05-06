@@ -355,11 +355,38 @@ ChallengeMap(BuildContext context) {
 }
 
 /// Returns a list of all statues close to the user
-Future<List<LatLng>> _getCloseStatues(int surroundingMeters) async {
+Future<List<LatLng>> _getCloseData(int surroundingMeters, String type) async {
   List<LatLng> nodes = [];
 
-  final url =
-      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];node[memorial=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude}); node[artwork_type=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude}); out geom;';
+  var url;
+
+  switch (type) {
+    // TODO: Test. If not working, place on same line and should work
+    case 'statues':
+      url =
+          '''https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];
+          (
+          node[artwork_type=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          node[artwork=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          node[memorial=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          node[man_made=statue](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          );
+          out geom;''';
+      break;
+    case 'stones':
+      url = 
+          '''https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];
+          (
+          node[natural=stone](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          node[natural=rock](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          node[memorial=stone](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          node[historic=stone](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
+          );
+          out geom;''';
+    default:
+      throw Exception("Retrieval of unkonwn data from Overpass API");
+  }
+
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
