@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../pages/individual_trail_page.dart';
 
 final List<String> natureOptions = <String>['Nature', 'City', 'Both']; 
@@ -16,9 +17,9 @@ class TrailCard extends StatefulWidget{
   late double heightDifference; 
   bool isSaved; 
   bool isCircular; 
+  late List<LatLng> coordinates; 
   //final ValueChanged<bool> onSaveChanged;
-  //final Image image; 
-  //TODO: Add list of coordinates 
+  //final Image image;
 
   TrailCard({
     super.key,
@@ -30,10 +31,10 @@ class TrailCard extends StatefulWidget{
     required this.heightDifference,
     required this.isSaved, 
     required this.isCircular,
+    required this.coordinates,
     //required this.onSaveChanged, // Callback function
     });
     //required this.image
-    //TODO: add list of coordinates 
 
   @override
   State<TrailCard> createState() => _TrailCardState();
