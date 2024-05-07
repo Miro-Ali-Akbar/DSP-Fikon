@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:trailquest/pages/map_page.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart'; 
 
@@ -49,6 +50,13 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
             Expanded(
               child: Center(
                 child: GoogleMap(
+                  onTap: (_) {
+                    Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+                      pageBuilder: (context, x, xx) => MapPage(trail: trail),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ));
+                  },
               //onMapCreated: (GoogleMapController controller) {
               //  _controller.complete(controller);
               //},
