@@ -484,7 +484,7 @@ bool _checkPolylineVisibility(Challenge challenge) {
       // TODO: Change to return int (or string) for more stages
       //       i.e. special for treasure hunt
       print("Visible");
-      return true;
+      return false;
     default:
       print("Default = true");
       return true;
@@ -567,6 +567,8 @@ Future<List<LatLng>> _getCloseData(
           node[historic=stone](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
           );
           out geom;''';
+    case 'demo':
+      return [LatLng(59.83876637781254, 17.64811677223685)];
     default:
       throw Exception("Retrieval of unkonwn data from Overpass API");
   }
