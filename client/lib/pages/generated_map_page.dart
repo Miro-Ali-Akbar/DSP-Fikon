@@ -574,7 +574,8 @@ class GeneratedMap extends StatelessWidget {
       stairs: false,
       heightDifference: 0,
       isSaved: false,
-      isCircular: false);
+      isCircular: false,
+      image_path: '',);
 
   @override
   Widget build(BuildContext context) {
