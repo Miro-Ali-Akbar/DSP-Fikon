@@ -579,6 +579,7 @@ class GeneratedMap extends StatelessWidget {
     isSaved: false,
     isCircular: false,
     coordinates: [],
+    image_path: '',
   );
 
   @override
@@ -990,9 +991,10 @@ class _SaveTrailState extends State<SaveTrail> {
 
   /// Adds the information of a trail to an array to be sent to server --> database
   void _trailCardInfo() {
-      List<Map<String, double>> coordinates = polylineCoordinates
-      .map((latLng) => {"latitude": latLng.latitude, "longitude": latLng.longitude})
-      .toList();
+    List<Map<String, double>> coordinates = polylineCoordinates
+        .map((latLng) =>
+            {"latitude": latLng.latitude, "longitude": latLng.longitude})
+        .toList();
 
     jsonData = {
       'msgID': 'addRoute',
@@ -1000,14 +1002,14 @@ class _SaveTrailState extends State<SaveTrail> {
         'trailName': widget.trail.name,
         'totalDistance': totalDistance,
         'totalTime': _distanceToTime(totalDistance),
-        'statusEnvironment': widget.statusEnvironment, 
-        'avoidStairs': widget.avoidStairs, 
+        'statusEnvironment': widget.statusEnvironment,
+        'avoidStairs': widget.avoidStairs,
         'hilliness': widget.hillines,
         'coordinates': coordinates,
       }
     };
 
-    print(jsonData); 
+    print(jsonData);
   }
 }
 

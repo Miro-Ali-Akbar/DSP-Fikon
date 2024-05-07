@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../pages/individual_trail_page.dart';
@@ -18,8 +21,7 @@ class TrailCard extends StatefulWidget {
   bool isSaved;
   bool isCircular;
   //final ValueChanged<bool> onSaveChanged;
-  //final Image image;
-  //TODO: Add list of coordinates
+  final String image_path;
   late List<LatLng> coordinates;
 
   TrailCard({
@@ -32,11 +34,10 @@ class TrailCard extends StatefulWidget {
     required this.heightDifference,
     required this.isSaved,
     required this.isCircular,
+    required this.image_path, 
     //required this.onSaveChanged, // Callback function
     required this.coordinates,
   });
-  //required this.image
-  //TODO: add list of coordinates
 
   @override
   State<TrailCard> createState() => _TrailCardState();
@@ -58,16 +59,43 @@ class _TrailCardState extends State<TrailCard> {
         ),
         child: Row(
           children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                '${widget.name}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.horizontal(left: Radius.circular(10)),
+              child: Image.asset(
+                widget.image_path,
+                width: 170, 
+                height: 120, 
+                alignment: Alignment.centerLeft,
+                fit: BoxFit.cover,
               ),
             ),
+            SizedBox(width: 10,),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [ 
+                Text(
+                    '${widget.name}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                    ),
+                ),
+                Text(
+                  '${widget.lengthTime} min',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+                Text(
+                  '${widget.lengthDistance/1000} km',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),
