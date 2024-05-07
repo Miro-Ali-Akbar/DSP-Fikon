@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute } = require('./helper');
+const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest } = require('./helper');
 
 // Initializing database variables
 
@@ -54,6 +54,12 @@ wss.on('connection', ws => {
             case "addFriend":
                 handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers)
                 console.log('sent friend request');
+                break;
+            case "acceptRequest":
+                respondRequest(ws, message.data.target, message.data.sender, true, wss.connectedUsers);
+                break;
+            case "rejectRequest":
+                respondRequest(ws, message.data.target, message.data.sender, false, wss.connectedUsers);
                 break;
             
                 

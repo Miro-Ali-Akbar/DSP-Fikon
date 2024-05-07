@@ -327,8 +327,10 @@ void accept(String name) {
   channel?.sink.add(
       '"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName}');
   friendRequests.value.remove("$name");
-}
+} 
 
 void reject(String name) {
+  channel?.sink.add(
+      '"msgID": "rejectRequest", "data": {"target": "$name", "sender": "$myUserName}');
   friendRequests.value.remove("$name");
 }

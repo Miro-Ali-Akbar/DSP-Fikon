@@ -150,6 +150,52 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
         }
     }
 }
+
+// '"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName}'
+async function respondRequest(ws, target, sender, response, wsArr) {
+    const targetRaw = await usersRef.doc(target).get();
+    const senderRaw = await usersRef.doc(sender).get();
+    const targetRequests = targetRaw.data().friendRequests;
+
+    if ( response ) {
+        const targetPoints = targetRaw.data().points;
+        const targetList = targetRaw.data().friendlist;
+
+        const senderPoints= senderRaw.data().points;
+        const senderList = senderRaw.data().friendlist;
+
+        ws.send(JSON.stringify({msgID: 'newFriend', data: { username: target, points: targetPoints }}));
+        senderList.push(target);
+        await usersRef.doc(sender).update({
+            friendlist: senderList
+        })
+
+        for ( let i = 0; i < wsArr.length; i = i + 1 ) {
+            const socket = wsArr[i];
+            console.log('socket: ', socket);
+            console.log('arr: ', wsArr);
+            if ( socket.username === target ) {
+                console.log("socket: ", socket);
+                (socket.socket).send(JSON.stringify({msgID: 'newFriend', data: {sender: sender, points: senderPoints}}));
+                targetList.push(sender);
+                await usersRef.doc(target).update({
+                    friendlist: targetList
+                });
+                const index = targetRequests.indexOf(sender);
+                if (index > -1) { // only splice if element is found
+                    targetRequests.splice(index, 1);
+                }
+                return;
+            }
+        }
+    } else {
+        const index = targetRequests.indexOf(sender);
+        if (index > -1) { // only splice if element is found
+            targetRequests.splice(index, 1);
+        }
+    }
+}
+
 // TODO: Add check for more than one friend request from a user (with feedback to server)x
 // TODO: Add sorting function for leaderboard 
 // TODO: Add leaderboard broadcast on update
@@ -164,4 +210,5 @@ module.exports = {
     put,
     send,
     handleFriendrequest,
+    respondRequest,
 };
