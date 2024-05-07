@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
 import 'package:trailquest/my_trail_list.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
@@ -19,67 +18,35 @@ class TrailPage extends StatefulWidget {
 
 class _TrailPageState extends State<TrailPage> {
   //final List<TrailCard> myTrails = MyTrailList;
-  final List<TrailCard> friendsTrails = FriendTrailList;
+  //final List<TrailCard> friendsTrails = FriendTrailList;
 
-  List<TrailCard> trails = [];
+  List<TrailCard> myTrails = [];
+  List<TrailCard> friendsTrails = []; 
 
   @override
   void initState() {
     super.initState();
-    fetchTrailsFromServer();
+    fetchTrails();
   }
 
-  void fetchTrailsFromServer() {
-    // Simulated trail data received from the server
-    var trailsData = [
-      {
-        "trailName": "Trail 1",
-        "totalDistance": 31.0,
-        "totalTime": 0.363849765258216,
-        "statusEnvironment": "Both",
-        "avoidStairs": false,
-        "hilliness": 0.09058952331542969,
-        "coordinates": [
-          {"latitude": 59.85697, "longitude": 17.62699},
-          {"latitude": 59.85695, "longitude": 17.62704},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85692, "longitude": 17.62688},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85686, "longitude": 17.62699},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85695, "longitude": 17.62704},
-          {"latitude": 59.8569, "longitude": 17.62712},
-          {"latitude": 59.85695, "longitude": 17.62704}
-        ]
-      },
-    ];
-
-    // Parse the received data and create TrailCard objects
-    List<TrailCard> newTrails = [];
-    for (var data in trailsData) {
-      List<LatLng> trailCoordinates = [];
-      var coordinatesData = data['coordinates'];
-      if (coordinatesData != null && coordinatesData is List) {
-        trailCoordinates = List<LatLng>.from(coordinatesData
-            .map((coord) => LatLng(coord['latitude'], coord['longitude'])));
-      }
-
-      newTrails.add(TrailCard(
-          name: data['trailName'].toString(),
-          lengthDistance: data['totalDistance'] as double,
-          lengthTime: data['totalTime'] as double,
-          natureStatus: data['statusEnvironment'] as String,
-          stairs: data['avoidStairs'] as bool,
-          heightDifference: data['hilliness'] as double,
+  //TODO: if we can get i fron the users saved trails in database
+  // Dummy trail that acts as a fron until data from database is fetched
+  void fetchTrails() {
+    for (int i = 0; i < 5; i++) {
+      TrailCard dummyTrail = TrailCard(
+          name: 'trail ${i}',
+          lengthDistance: 0.0,
+          lengthTime: 0.0,
+          natureStatus: '',
+          stairs: false,
+          heightDifference: 0.0,
           isSaved: true,
           isCircular: false,
-          coordinates: trailCoordinates));
+          coordinates: []);
+      myTrails.add(dummyTrail);
+      friendsTrails.add(dummyTrail);
     }
-
-    // Update the state with the new trail data
-    setState(() {
-      trails = newTrails;
-    });
+    setState(() {});
   }
 
   @override
@@ -105,16 +72,9 @@ class _TrailPageState extends State<TrailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               ),
               Expanded(
-                //child: Trails(
-                //  savedTrails: MyTrailList,
-                //  friendTrails: FriendTrailList,
-                //),
-                //child: Trails(trails: MyTrailList),
-                child: ListView.builder(
-                  itemCount: trails.length,
-                  itemBuilder: (context, index) {
-                    return trails[index];
-                  },
+                child: Trails(
+                  savedTrails: myTrails,
+                  friendTrails: friendsTrails,
                 ),
               ),
             ],
