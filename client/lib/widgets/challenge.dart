@@ -4,6 +4,7 @@ class Challenge {
   final String type;
   final String name;
   final String description;
+  final String dataType;
   int status;
   final String image;
   final int complete;
@@ -13,6 +14,7 @@ class Challenge {
     required this.type,
     required this.name,
     required this.description,
+    required this.dataType,
     required this.status,
     required this.image,
     required this.complete,

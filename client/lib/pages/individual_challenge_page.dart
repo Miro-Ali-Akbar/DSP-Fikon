@@ -420,22 +420,22 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
 Future<List<LatLng>> _challengeNameToData(Challenge challenge) async {
   List<LatLng> dataList = [];
   switch (challenge.name) {
-    case '10 statues in Uppsala':
+    case 'statues':
       dataList = await _getCloseData(5000, 'statues');
       break;
-    case 'Birds':
+    case 'birds':
       // TODO: Implement
       throw Exception("Not yet implemented");
-    case 'Cool large rocks':
+    case 'rocks':
       dataList = await _getCloseData(5000, 'rocks');
       break;
-    case 'Orienteering in Luthagen':
+    case 'luthagen':
       // TODO: Implement
       throw Exception("Not yet implemented");
-    case 'Pretty flowers':
+    case 'flowers':
       // TODO: Implement
       throw Exception("Not yet implemented");
-    case 'Important buildings':
+    case 'buildings':
       // TODO: Implement
       throw Exception("Not yet implemented");
     default:
