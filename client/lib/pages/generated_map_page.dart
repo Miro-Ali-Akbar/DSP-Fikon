@@ -11,6 +11,7 @@ import 'package:flutter_config/flutter_config.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:trailquest/pages/map_page.dart';
 
 import 'generate_trail_page.dart';
 
@@ -567,19 +568,22 @@ class GeneratedMap extends StatelessWidget {
   GeneratedMap({Key? key}) : super(key: key);
 
   TrailCard trail = TrailCard(
-      name: '',
-      lengthDistance: 0,
-      lengthTime: 0,
-      natureStatus: '',
-      stairs: false,
-      heightDifference: 0,
-      isSaved: false,
-      isCircular: false,
-      image_path: '',);
+    name: '',
+    lengthDistance: 0,
+    lengthTime: 0,
+    natureStatus: '',
+    stairs: false,
+    heightDifference: 0,
+    isSaved: false,
+    isCircular: false,
+    coordinates: [],
+    image_path: '',
+  );
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Google Maps Routes Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -742,6 +746,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     trail.natureStatus = getSelectedStatusEnvironment();
     trail.heightDifference = double.parse((hillines).toStringAsFixed(1));
     trail.isSaved = false;
+    trail.coordinates = polylineCoordinates;
   }
 
   @override
@@ -761,18 +766,31 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
         ),
         Expanded(
           child: Center(
-            child: GoogleMap(
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
-              initialCameraPosition: CameraPosition(
-                zoom: 14.0,
-                target: LatLng(start.latitude, start.longitude),
+            child: GestureDetector(
+              child: Container(
+                child: GoogleMap(
+                  onTap: (_) {
+                    Navigator.of(context, rootNavigator: true)
+                        .push(PageRouteBuilder(
+                      pageBuilder: (context, x, xx) => MapPage(trail: trail),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ));
+                  },
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    zoom: 14.0,
+                    target: LatLng(start.latitude, start.longitude),
+                  ),
+                  markers: Set<Marker>.of(markers.values),
+                  polylines: Set<Polyline>.of(polylines.values),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                ),
               ),
-              markers: Set<Marker>.of(markers.values),
-              polylines: Set<Polyline>.of(polylines.values),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
+              behavior: HitTestBehavior.translucent,
             ),
           ),
         ),
