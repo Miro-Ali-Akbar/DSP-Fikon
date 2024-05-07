@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
 
@@ -8,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:geofence_service/geofence_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+
+String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
 LatLng currentPosition = LatLng(0, 0);
 bool isInArea = false;
@@ -391,7 +395,7 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
   markerList = _getMarkerList(dataList);
-  List<Polyline> polylines = _getPolylines(challenge, dataList);
+  List<Polyline> polylines = await _getPolylines(challenge, dataList);
 
   _addGeofences(geofenceList, geofenceService);
 
@@ -441,12 +445,44 @@ bool _checkPolylineVisibility(Challenge challenge) {
   return _checkLocationVisibility(challenge);
 }
 
-List<Polyline> _getPolylines(Challenge challenge, List<LatLng> points) {
+Future<List<Polyline>> _getPolylines(
+    Challenge challenge, List<LatLng> points) async {
+  PolylinePoints polylinePoints = PolylinePoints();
+
   List<Polyline> polylines = [];
   if (_checkPolylineVisibility(challenge)) {
     points.insert(0, currentPosition);
-    polylines.add(Polyline(
-        polylineId: PolylineId('polyline'), color: Colors.red, points: points));
+    PointLatLng origin =
+        PointLatLng(points.first.latitude, points.first.longitude);
+    PointLatLng destination =
+        PointLatLng(points.last.latitude, points.last.longitude);
+
+    List<LatLng> modifiedPoints = points;
+    modifiedPoints.removeAt(0);
+    modifiedPoints.removeLast();
+
+    List<PolylineWayPoint> polylineWayPoints = [];
+    for (var i = 0; i < modifiedPoints.length; i++) {
+      PolylineWayPoint polylineWayPoint = PolylineWayPoint(
+          location:
+              "${modifiedPoints[i].latitude},${modifiedPoints[i].longitude}");
+      polylineWayPoints.add(polylineWayPoint);
+    }
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        googleMapsApiKey, origin, destination,
+        travelMode: TravelMode.walking, wayPoints: polylineWayPoints);
+
+    if (result.points.isNotEmpty) {
+      List<LatLng> resultLatLngs = [];
+      result.points.forEach((PointLatLng point) {
+        resultLatLngs.add(LatLng(point.latitude, point.longitude));
+      });
+      polylines.add(Polyline(
+          polylineId: PolylineId('polyline'),
+          color: Colors.red,
+          points: resultLatLngs));
+    }
   }
   return polylines;
 }
