@@ -387,7 +387,7 @@ Text TextStartStopChallenge(Challenge challenge) {
 
 ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
-  List<LatLng> dataList = await _challengeNameToData(challenge);
+  List<LatLng> dataList = await _getCloseData(5000, challenge);
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
   markerList = _getMarkerList(dataList);
@@ -417,33 +417,6 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
       });
 }
 
-Future<List<LatLng>> _challengeNameToData(Challenge challenge) async {
-  List<LatLng> dataList = [];
-  switch (challenge.name) {
-    case 'statues':
-      dataList = await _getCloseData(5000, 'statues');
-      break;
-    case 'birds':
-      // TODO: Implement
-      throw Exception("Not yet implemented");
-    case 'rocks':
-      dataList = await _getCloseData(5000, 'rocks');
-      break;
-    case 'luthagen':
-      // TODO: Implement
-      throw Exception("Not yet implemented");
-    case 'flowers':
-      // TODO: Implement
-      throw Exception("Not yet implemented");
-    case 'buildings':
-      // TODO: Implement
-      throw Exception("Not yet implemented");
-    default:
-      throw Exception("Unknown data");
-  }
-  return dataList;
-}
-
 bool _checkLocationVisibility(Challenge challenge) {
   print("Visibility: ${challenge.type}");
   switch (challenge.type) {
@@ -465,11 +438,11 @@ bool _checkLocationVisibility(Challenge challenge) {
 
 /// Returns a list of all statues close to the user
 Future<List<LatLng>> _getCloseData(
-    int surroundingMeters, String typeOfChallenge) async {
+    int surroundingMeters, Challenge challenge) async {
   List<LatLng> nodes = [];
 
   var url;
-  switch (typeOfChallenge) {
+  switch (challenge.dataType) {
     case 'statues':
       url =
           '''https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];
