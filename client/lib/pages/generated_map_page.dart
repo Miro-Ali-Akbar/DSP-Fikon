@@ -568,16 +568,17 @@ class GeneratedMap extends StatelessWidget {
   GeneratedMap({Key? key}) : super(key: key);
 
   TrailCard trail = TrailCard(
-      name: '',
-      lengthDistance: 0,
-      lengthTime: 0,
-      natureStatus: '',
-      stairs: false,
-      heightDifference: 0,
-      isSaved: false,
-      isCircular: false,
-      coordinates: []);
-      image_path: '',);
+    name: '',
+    lengthDistance: 0,
+    lengthTime: 0,
+    natureStatus: '',
+    stairs: false,
+    heightDifference: 0,
+    isSaved: false,
+    isCircular: false,
+    coordinates: [],
+    image_path: '',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -745,7 +746,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     trail.natureStatus = getSelectedStatusEnvironment();
     trail.heightDifference = double.parse((hillines).toStringAsFixed(1));
     trail.isSaved = false;
-    trail.coordinates = polylineCoordinates; 
+    trail.coordinates = polylineCoordinates;
   }
 
   @override
@@ -769,7 +770,8 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
               child: Container(
                 child: GoogleMap(
                   onTap: (_) {
-                    Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+                    Navigator.of(context, rootNavigator: true)
+                        .push(PageRouteBuilder(
                       pageBuilder: (context, x, xx) => MapPage(trail: trail),
                       transitionDuration: Duration.zero,
                       reverseTransitionDuration: Duration.zero,
