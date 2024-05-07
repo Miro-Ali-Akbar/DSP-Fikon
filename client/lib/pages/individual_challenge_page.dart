@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
@@ -20,6 +21,11 @@ LatLng currentPosition = LatLng(0, 0);
 bool isInArea = false;
 int geofenceIndex = 0;
 List<Marker> markerList = [];
+
+Future<void> _getSetCurrentPosition() async {
+  Position position = await Geolocator.getCurrentPosition();
+  currentPosition = LatLng(position.latitude, position.longitude);
+}
 
 /// A blueprint for a page displaying information about a specific challenge and providing the means
 /// to start and do the challenge.
@@ -476,6 +482,7 @@ Text TextStartStopChallenge(Challenge challenge) {
 /// the player can see their position
 ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
+  await _getSetCurrentPosition();
   List<LatLng> dataList = await _getCloseData(5000, challenge);
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
@@ -573,7 +580,7 @@ bool _checkPolylineVisibility(Challenge challenge) {
       // TODO: Change to return int (or string) for more stages
       //       i.e. special for treasure hunt
       print("Visible");
-      return true;
+      return false;
     default:
       print("Default = true");
       return true;
@@ -656,6 +663,8 @@ Future<List<LatLng>> _getCloseData(
           node[historic=stone](around: $surroundingMeters, ${currentPosition.latitude}, ${currentPosition.longitude});
           );
           out geom;''';
+    case 'demo':
+      return [LatLng(59.83876637781254, 17.64811677223685)];
     default:
       throw Exception("Retrieval of unkonwn data from Overpass API");
   }

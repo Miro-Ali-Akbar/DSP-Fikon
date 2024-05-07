@@ -53,4 +53,24 @@ List<Challenge> challenges = <Challenge>[
       dataType: 'buildings',
       image: 'assets/images/Uppsala_domkyrka_flygbild.jpg',
       complete: 5),
+  Challenge(
+      name: 'DEMO Orienteering',
+      type: 'Orienteering',
+      description:
+          "Current position disabled. This is a demo of how the challenges-system works. This challenge is semi-representative of how a normal challenge works. Normally it is larger and based on some sort of data to be dynamic.",
+      dataType: 'demo',
+      status: 0,
+      // TODO: Change image
+      image: 'assets/images/Uppsala_domkyrka_flygbild.jpg',
+      complete: 1),
+  Challenge(
+      name: 'DEMO Checkpoints',
+      type: 'Checkpoints',
+      description:
+          "Current position enabled. This is a demo of how the challenges-system works. This challenge is semi-representative of how a normal challenge works. Normally it is larger and based on some sort of data to be dynamic.",
+      dataType: 'demo',
+      status: 0,
+      // TODO: Change image
+      image: 'assets/images/Uppsala_domkyrka_flygbild.jpg',
+      complete: 1),
 ];
