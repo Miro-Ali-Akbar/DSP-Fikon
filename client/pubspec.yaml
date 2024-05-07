@@ -67,6 +67,7 @@ flutter:
     - assets/icons/gold_medal.svg
     - assets/icons/silver_medal.svg
     - assets/icons/bronze_medal.svg
+    - assets/images/Logo.png
     
 #  fonts:
 #  - family: InterRegular
