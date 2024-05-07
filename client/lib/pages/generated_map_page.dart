@@ -659,7 +659,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     statusEnvironment = getSelectedStatusEnvironment() == 'Nature'
         ? true
         : false; //'Nature', 'City', 'Both'
-    avoidStairs = getCheckedValue();
+    avoidStairs = activityOption == 'Cycling' ? true : getCheckedValue();
     inputDistance = double.parse(getInputDistance());
 
     // Time in meters
