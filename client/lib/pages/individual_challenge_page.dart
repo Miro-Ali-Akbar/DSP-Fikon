@@ -49,7 +49,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
   // Settings for geofences
   final _geofenceService = GeofenceService.instance.setup(
       interval: 2000,
-      accuracy: 10,
+      accuracy: 100,
       loiteringDelayMs: 60000,
       statusChangeDelayMs: 10000,
       useActivityRecognition: true,
