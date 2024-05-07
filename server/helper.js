@@ -155,7 +155,7 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
 async function respondRequest(ws, target, sender, response, wsArr) {
     const targetRaw = await usersRef.doc(target).get();
     const senderRaw = await usersRef.doc(sender).get();
-    const targetRequests = targetRaw.data().friendRequests;
+    const senderRequests = senderRaw.data().friendRequests;
 
     if ( response ) {
         const targetPoints = targetRaw.data().points;
@@ -169,38 +169,39 @@ async function respondRequest(ws, target, sender, response, wsArr) {
         await usersRef.doc(sender).update({
             friendlist: senderList
         })
+        console.log(senderRequests);
+        const index = senderRequests.indexOf(target);
+        if (index > -1) { // only splice if element is found
+            senderRequests.splice(index, 1);
+        }
+        await usersRef.doc(sender).update({
+            friendRequests: senderRequests
+        });
+        console.log(senderRequests);
 
         for ( let i = 0; i < wsArr.length; i = i + 1 ) {
             const socket = wsArr[i];
-            console.log('socket: ', socket);
-            console.log('arr: ', wsArr);
+            
             if ( socket.username === target ) {
-                console.log("socket: ", socket);
+                
                 (socket.socket).send(JSON.stringify({msgID: 'newFriend', data: {sender: sender, points: senderPoints}}));
                 targetList.push(sender);
                 await usersRef.doc(target).update({
                     friendlist: targetList
                 });
-                const index = targetRequests.indexOf(sender);
-                if (index > -1) { // only splice if element is found
-                    targetRequests.splice(index, 1);
-                }
                 return;
             }
         }
     } else {
         const index = targetRequests.indexOf(sender);
         if (index > -1) { // only splice if element is found
-            targetRequests.splice(index, 1);
+            senderRequests.splice(index, 1);
         }
+        await usersRef.doc(sender).update({
+            friendRequests: senderRequests
+        });
     }
 }
-
-// TODO: Add check for more than one friend request from a user (with feedback to server)x
-// TODO: Add sorting function for leaderboard 
-// TODO: Add leaderboard broadcast on update
-
-
 
 module.exports = {
     heartbeat,

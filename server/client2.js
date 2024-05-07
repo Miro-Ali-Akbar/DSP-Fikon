@@ -4,9 +4,9 @@ const ws = new WebSocket("ws://localhost:3000");
 
 ws.onopen = () => {
 
-    ws.send(JSON.stringify({msgID: "initRes", data: { username: "hitsu", friendRequests: [], online: true } }));
+    ws.send(JSON.stringify({msgID: "initRes", data: { username: "hitsu", friendlist: [], friendRequests: ["uName"], online: true } }));
 
-    ws.send(JSON.stringify({msgID: "addFriend", data: { target: "uName", sender: "hitsu"}}));
+    ws.send(JSON.stringify({msgID: "acceptRequest", data: { target: "uName", sender: "hitsu"}}));
 
     ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
     

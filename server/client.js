@@ -4,12 +4,12 @@ const ws = new WebSocket("ws://localhost:3000");
 
 ws.onopen = () => {
 
-    ws.send(JSON.stringify({msgID: "initRes", data: { username: "pop", friendRequests: [], friendlist: ["hitsu"], online: true } }));
+    ws.send(JSON.stringify({msgID: "initRes", data: { username: "uName", friendRequests: [], friendlist: [], online: true } }));
 
     // ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
     
     ws.send(JSON.stringify({msgID: "getLeaderboard"}));
-    ws.send(JSON.stringify({msgID: "addFriend", data: { target: "uName", sender: "pop"}}));
+    // ws.send(JSON.stringify({msgID: "addFriend", data: { target: "uName", sender: "pop"}}));
 
     ws.send(JSON.stringify({msgID: "addRoute", data: {trailName: "abc", dink: "donk"}}))
 
@@ -24,6 +24,8 @@ ws.onopen = () => {
                 console.log(message.data);
                 break;
             case "incomingRequest":
+                console.log(message.data);
+            case "newFriend":
                 console.log(message.data);
         }
     });
