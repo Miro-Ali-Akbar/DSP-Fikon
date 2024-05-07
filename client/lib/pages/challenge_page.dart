@@ -34,6 +34,11 @@ const List<Text> typeChallenge = <Text>[
 /// Keeping track of which 'type' filters are currently active
 final List<bool> _selectedType = <bool>[false, false, false, false];
 
+int score = 0;
+
+void updateScore(int points) {
+  score += points;
+}
 
 /// A page with a scrollable list of challenges that can be filtered using the buttons above.
 class ChallengePage extends StatefulWidget {
@@ -45,7 +50,7 @@ class ChallengePage extends StatefulWidget {
 
 class _ChallengeState extends State<ChallengePage> {
   /// The user's total score  TODO: currently an arbitrary number
-  int score = 1000;
+  
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
 
@@ -87,6 +88,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
             });
             setState(() {
               challenge.progress++;
+              updateScore(challenge.points);
             });
 
             break;
@@ -102,6 +104,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
               setState(() {
                 geofenceIndex++;
                 challenge.progress++;
+                updateScore(challenge.points);
               });
             } else {
               print("Wrong checkpoint!");
@@ -117,8 +120,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
 
         if (challenge.progress == challenge.complete) {
           challenge.status = 2;
-
-          // TODO: Award points
+          updateScore(50);
         }
       }
     }
@@ -262,6 +264,10 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
+                child: ShowMap(context, challenge, _geofenceService, _controller)
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: TextButton(
                   onPressed: () {
                     setState(() {
@@ -318,7 +324,7 @@ Widget ProgressTracker(Challenge challenge) {
   int progress = challenge.progress;
   int complete = challenge.complete;
   int currentPoints = progress * challenge.points;
-  int allPoints = complete * challenge.points;
+  int allPoints = complete * challenge.points + 50;
 
   if (type == 'Checkpoints') {
     return Container(
@@ -484,7 +490,12 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(),
+          backgroundColor: Colors.white,
+          contentPadding: EdgeInsets.all(3),
           content: Container(
+            height: 600,
+            width: 800,
             child: GoogleMap(
               myLocationEnabled: canSeePosition,
               polylines: Set<Polyline>.of(polylines),
@@ -500,6 +511,32 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
           ),
         );
       });
+}
+
+Widget ShowMap(BuildContext context, Challenge challenge, final geofenceService,
+    Completer<GoogleMapController> _controller) {
+  if(challenge.status == 1) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 40),
+      child: TextButton.icon(
+        onPressed: () {
+          ChallengeMap(context, challenge,
+                            geofenceService, _controller);
+        },
+        label: Text('Show map', style: TextStyle(
+          color: Colors.white,
+          fontSize: 25
+        ),),
+        icon: SvgPicture.asset('assets/icons/img_map.svg', height: 35,),
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.green.shade600,
+          minimumSize: Size.fromHeight(70)
+        ),
+      ),
+    );
+  } else {
+    return Container();
+  }
 }
 
 /// Returns whether the location of the user should be visible on
