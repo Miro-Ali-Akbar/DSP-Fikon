@@ -32,68 +32,108 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             ProfileRow(),
             ContainerButton((), "Friends"),
-            DropdownTile(
-              "Statistics",
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListTile(
-                    title: Text(
-                      'Statistics 1',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      // Do something when Button
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
-                      'Dosent have to be buttons',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            DropdownTile(
-              "Preferences",
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListTile(
-                    title: Text(
-                      'Button 1',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      // Do something when Button
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
-                      'Button 2',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      // Do something when Button
-                    },
-                  ),
-                  // Add more buttons as needed
-                ],
-              ),
-            ),
-            ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout"),
+            statisticsDropdown(),
+            preferencesDropdown(),
+            signOutButton(),
+            /// TODO: only for debugging remove when everything is done
             ElevatedButton(
               onPressed: () {
                 print(FirebaseAuth.instance.currentUser);
+                print(FirebaseAuth.instance.currentUser!.displayName);
+                FirebaseAuth.instance.currentUser!
+                    .updateDisplayName("Jane Q. User");
               },
               // tooltip: 'Increment',
               child: const Text("print user in debug"),
             ),
+            deleteUserAccount(),
           ],
         ),
       ),
     );
+  }
+
+/// Displays the statistics dropdown menu
+///
+/// Returns the dropdown menu
+  Container statisticsDropdown() {
+    return DropdownTile(
+            "Statistics",
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  title: Text(
+                    'Statistics 1',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    // Do something when Button
+                  },
+                ),
+                ListTile(
+                  title: Text(
+                    'Dosent have to be buttons',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          );
+  }
+
+/// Displays the preferences dropdown menu
+///
+/// Returns the dropdown menu
+  Container preferencesDropdown() {
+    return DropdownTile(
+            "Preferences",
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  title: Text(
+                    'Button 1',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    // Do something when Button
+                  },
+                ),
+                ListTile(
+                  title: Text(
+                    'Button 2',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    // Do something when Button
+                  },
+                ),
+                // Add more buttons as needed
+              ],
+            ),
+          );
+  }
+
+/// Displays the signOut button
+///
+/// Loggs out the current user
+  GestureDetector signOutButton() => ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout");
+
+/// Displays the delete account button
+///
+/// Deletes the user account on pressing
+  ElevatedButton deleteUserAccount() {
+    return ElevatedButton(
+            // TODO: Add confirmation button
+            onPressed: () {
+              FirebaseAuth.instance.currentUser!.delete();
+            },
+            child: Text(
+              "Remove account",
+              style: TextStyle(color: Colors.red),
+            ),
+          );
   }
 
   /// Creates a button acording to our style
@@ -162,48 +202,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // TODO: Remove as this is legacy
-  Container Friendlist() {
-    // Check with others - I give up
-    // Dropdown video
-    // https://www.youtube.com/watch?v=giV9AbM2gd8
-    return Container(
-      padding: EdgeInsets.all(10),
-      margin: EdgeInsets.all(ProfilePage.edgeValue),
-      height: 60.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(ProfilePage.edgeValue),
-        ),
-        color: Colors.green,
-      ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: Row(
-          children: [
-            DropdownMenu(
-              enableSearch: true,
-              enableFilter: true,
-              label:
-                  Text("Friends", style: Theme.of(context).textTheme.bodyLarge),
-              dropdownMenuEntries: <DropdownMenuEntry>[
-                DropdownMenuEntry(value: 1, label: 'James'),
-                DropdownMenuEntry(value: 2, label: 'Gordon'),
-                DropdownMenuEntry(value: 3, label: 'Daisy'),
-                DropdownMenuEntry(value: 4, label: 'Eve'),
-                DropdownMenuEntry(value: 5, label: 'Molly'),
-              ],
-              onSelected: (friend) {
-                // Do something when you click on a friend eg take them to friend page?
-              },
-            ),
-            Spacer(),
-            Icon(Icons.arrow_drop_down_rounded),
-          ],
-        ),
-      ),
-    );
-  }
 
   /// Creates a dropdownmenu acording to our style
   ///
