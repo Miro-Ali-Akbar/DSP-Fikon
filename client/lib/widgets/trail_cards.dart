@@ -3,9 +3,7 @@ import '../pages/individual_trail_page.dart';
 
 final List<String> natureOptions = <String>['Nature', 'City', 'Both']; 
 
-/**
- * Creates the trail cards
- */
+/// Defines the properties of the trail cards
 
 class TrailCard extends StatefulWidget{
   late String name;
@@ -40,12 +38,16 @@ class TrailCard extends StatefulWidget{
 }
 
 class _TrailCardState extends State<TrailCard> {
-  
-  int index = 0;
+
+
+  /// Builds the trail cards that are dispalayed on the Trail Page
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      /// 
+      /// This defines the shape, size, color etc. of the trail cards 
+      /// 
       child: Container(
         width: 350,
         height: 120,
@@ -54,6 +56,9 @@ class _TrailCardState extends State<TrailCard> {
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
           color: Colors.green[400],
         ),
+        ///
+        /// The defines the contents of the trail cards
+        /// 
         child: Row(
           children: [
             Align(
@@ -69,11 +74,18 @@ class _TrailCardState extends State<TrailCard> {
           ],
         ),
       ),
+      ///
+      /// When a trail card is pressed, it will transition to the individual trail page 
+      /// coresponding with the trail that was pressed
+      /// 
       onTap: () {
         Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
           pageBuilder: (context, x, xx) => IndividualTrailPage(
             trail: widget, 
             saved: widget.isSaved,
+            /// 
+            /// This function is used to handle saving/removing trails in the individual trail page
+            /// 
             onSaveChanged: (value) {
               setState(() {
                 widget.isSaved = value; // Update the isSaved variable in the TrailCard
