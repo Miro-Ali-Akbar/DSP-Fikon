@@ -52,39 +52,47 @@ class _ChallengeState extends State<ChallengePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          title: AutoSizeText(
-                'Your score is $score',
-                style: TextStyle(fontSize: 20.0),
-                maxLines: 2,
-                minFontSize: 15.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-              actions: <Widget>[
-                TextButton.icon(
-                    onPressed: () {
-                      channel?.sink.add('{"msgID": "getLeaderboard"}');
-                      Navigator.of(context, rootNavigator: true)
-                          .push(PageRouteBuilder(
-                        pageBuilder: (context, x, xx) => Leaderboard(dataList),
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ));
-                    },
-                    label: Text(
-                      'Leaderboard',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    icon: SvgPicture.asset('assets/icons/img_group.svg'),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 30),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    )),
-              ],
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(70),
+          child: AppBar(
+            title: AutoSizeText(
+                  'Your score is $score',
+                  style: TextStyle(fontSize: 20.0),
+                  maxLines: 2,
+                  minFontSize: 15.0,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                actions: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: TextButton.icon( 
+                        onPressed: () {
+                          channel?.sink.add('{"msgID": "getLeaderboard"}');
+                          Navigator.of(context, rootNavigator: true)
+                              .push(PageRouteBuilder(
+                            pageBuilder: (context, x, xx) => Leaderboard(dataList),
+                            transitionDuration: Duration.zero,
+                            reverseTransitionDuration: Duration.zero,
+                          ));
+                        },
+                        label: Text(
+                          'Leaderboard',
+                          style: TextStyle(color: Colors.white, fontSize: 17),
+                        ),
+                        icon: SvgPicture.asset('assets/icons/img_group.svg'),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.green.shade600,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10, 
+                            horizontal: 15
+                          ),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        )),
+                  ),
+                ],
+          ),
         ),
         body: Scaffold(
           appBar: PreferredSize(
@@ -208,7 +216,7 @@ Widget scrollChallenges(BuildContext context) {
     itemBuilder: (context, index) {
       return ChallengeCard(current[index], challenge: current[index],);
     },
-    separatorBuilder: (BuildContext context, int index) => const Divider(),
+    separatorBuilder: (BuildContext context, int index) => const Divider(color: Colors.white),
   );
 }
 

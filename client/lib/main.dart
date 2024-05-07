@@ -18,7 +18,7 @@ import 'dart:convert';
 
 WebSocketChannel? channel;
 var jsonString = '';
-List<dynamic> dataList = [];
+List<String> dataList = [];
 
 void Listen(){
   try {

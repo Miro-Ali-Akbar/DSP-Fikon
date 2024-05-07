@@ -196,7 +196,7 @@ class Trails extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         return filteredTrails[index]; 
       },
-      separatorBuilder: (BuildContext context, int index) => const Divider(),
+      separatorBuilder: (BuildContext context, int index) => const Divider(color: Colors.white),
     );
   }
 
