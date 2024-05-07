@@ -113,30 +113,44 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
         // TODO: Change msgID to match client listener
         ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
         console.log('did not find user');
-        return false;
-    } else if ( doc.data().online === true ) {
-        console.log(doc.data().online);
-        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
-        console.log('IM HERE');
-        for ( let i = 0; i < wsArr.length; i = i + 1 ) {
-            const socket = wsArr[i];
-            console.log('socket: ', socket);
-            console.log('arr: ', wsArr);
-            if ( socket.username === target ) {
-                console.log("socket: ", socket);
-                (socket.socket).send(JSON.stringify({msgID: 'incomingRequest', data: {sender: sender}}));
+        return;
+    } else {
+        const requests = doc.data().friendRequests;
+        for ( let i = 0; i < requests.length; i++ ) {
+            if ( sender === requests[i] ) {
+                ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 2 }}));
+                return;
             }
         }
-    } else {
-        ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
-        console.log('im here!');
-        let requests = doc.data().friendRequests;
-        requests.push(sender);
-        await usersRef.doc(target).update({
-            friendRequests: requests
-        });
+        if ( doc.data().online === true ) {
+            console.log(doc.data().online);
+            ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
+            console.log('IM HERE');
+            for ( let i = 0; i < wsArr.length; i = i + 1 ) {
+                const socket = wsArr[i];
+                console.log('socket: ', socket);
+                console.log('arr: ', wsArr);
+                if ( socket.username === target ) {
+                    console.log("socket: ", socket);
+                    (socket.socket).send(JSON.stringify({msgID: 'incomingRequest', data: {sender: sender}}));
+                    requests.push(sender);
+                    await usersRef.doc(target).update({
+                        friendRequests: requests
+                    });
+                    return;
+                }
+            }
+        } else {
+            ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
+            console.log('im here!');
+            requests.push(sender);
+            await usersRef.doc(target).update({
+                friendRequests: requests
+            });
+        }
     }
 }
+// TODO: Add check for more than one friend request from a user (with feedback to server)x
 // TODO: Add sorting function for leaderboard 
 // TODO: Add leaderboard broadcast on update
 
