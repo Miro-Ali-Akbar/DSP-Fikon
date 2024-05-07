@@ -8,7 +8,7 @@ class GoBackButton extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
           child: TextButton.icon(
             onPressed: () {
               Navigator.of(context, rootNavigator: true).pop(); 
