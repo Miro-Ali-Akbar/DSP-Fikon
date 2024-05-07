@@ -113,6 +113,8 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
 
         if (challenge.progress == challenge.complete) {
           challenge.status = 2;
+
+          // TODO: Award points
         }
       }
     }
@@ -389,6 +391,10 @@ Text TextStartStopChallenge(Challenge challenge) {
   }
 }
 
+/// Overlaying map housing the actual challenge
+///
+/// Depending on the type of game a route is generated or not. Likewise
+/// the player can see their position
 ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
   List<LatLng> dataList = await _getCloseData(5000, challenge);
@@ -423,6 +429,8 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
       });
 }
 
+/// Returns whether the location of the user should be visible on
+/// the map or not
 bool _checkLocationVisibility(Challenge challenge) {
   print("Visibility: ${challenge.type}");
   switch (challenge.type) {
@@ -441,31 +449,35 @@ bool _checkLocationVisibility(Challenge challenge) {
   }
 }
 
+/// Returns wheter a polyline should be visible on the map or not
 bool _checkPolylineVisibility(Challenge challenge) {
   return _checkLocationVisibility(challenge);
 }
 
+/// Returns a list of all polylines to be overlayed on the map if
+/// a polyline should be visible. The polyline generated is a route
+/// from the coordinates in [points]
+///
+/// [challenge] is used for checking the visibility of a polyline.
+/// If not visible a polyline will not be generated. Instead an
+/// empty list is returned. Overlaying this will have the same
+/// effect as not overlaying enything
 Future<List<Polyline>> _getPolylines(
     Challenge challenge, List<LatLng> points) async {
-  PolylinePoints polylinePoints = PolylinePoints();
-
   List<Polyline> polylines = [];
   if (_checkPolylineVisibility(challenge)) {
+    PolylinePoints polylinePoints = PolylinePoints();
+
     points.insert(0, currentPosition);
     PointLatLng origin =
         PointLatLng(points.first.latitude, points.first.longitude);
     PointLatLng destination =
         PointLatLng(points.last.latitude, points.last.longitude);
 
-    List<LatLng> modifiedPoints = points;
-    modifiedPoints.removeAt(0);
-    modifiedPoints.removeLast();
-
     List<PolylineWayPoint> polylineWayPoints = [];
-    for (var i = 0; i < modifiedPoints.length; i++) {
+    for (var i = 0; i < points.length; i++) {
       PolylineWayPoint polylineWayPoint = PolylineWayPoint(
-          location:
-              "${modifiedPoints[i].latitude},${modifiedPoints[i].longitude}");
+          location: "${points[i].latitude},${points[i].longitude}");
       polylineWayPoints.add(polylineWayPoint);
     }
 
@@ -488,6 +500,9 @@ Future<List<Polyline>> _getPolylines(
 }
 
 /// Returns a list of all statues close to the user
+///
+/// [surroundingMeters] how far around the user the data should be collected
+/// [challenge] challenge to get data from from. Uses [challenge.dataType]
 Future<List<LatLng>> _getCloseData(
     int surroundingMeters, Challenge challenge) async {
   List<LatLng> nodes = [];
@@ -533,6 +548,9 @@ Future<List<LatLng>> _getCloseData(
   return nodes;
 }
 
+/// Returns a list of all geogfences generated from [positions]
+///
+/// [radiusList] list of radiuses for each geofence
 List<Geofence> _getGefenceList(
     List<LatLng> positions, List<GeofenceRadius> radiusList) {
   List<Geofence> geofences = [];
@@ -549,6 +567,7 @@ List<Geofence> _getGefenceList(
   return geofences;
 }
 
+/// Returns a list of markers generated from [positions]
 List<Marker> _getMarkerList(List<LatLng> positions) {
   List<Marker> markers = [];
 
@@ -561,6 +580,7 @@ List<Marker> _getMarkerList(List<LatLng> positions) {
   return markers;
 }
 
+/// Adds [geofences] to [geofenceService]
 void _addGeofences(List<Geofence> geofences, GeofenceService geofenceService) {
   for (var i = 0; i < geofences.length; i++) {
     geofenceService.addGeofence(geofences[i]);
