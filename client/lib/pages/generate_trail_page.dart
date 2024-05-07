@@ -20,31 +20,30 @@ class GenerateTrail extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Column(
-          children: [
-            Row(
-              children: [
-                GoBackButton().build(context),
-              ],
-            ),
-            Expanded(
-                child: SingleChildScrollView(
-                    child: Column(children: [PageCenter()]))),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: GenerateNewTrail(),
-            ),
-          ],
-        )
-      ),
+          resizeToAvoidBottomInset: false,
+          body: Column(
+            children: [
+              Row(
+                children: [
+                  GoBackButton().build(context),
+                ],
+              ),
+              Expanded(
+                  child: SingleChildScrollView(
+                      child: Column(children: [PageCenter()]))),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: GenerateNewTrail(),
+              ),
+            ],
+          )),
     );
   }
 }
 
-  ///
-  /// 'Generate new trail' button 
-  /// 
+///
+/// 'Generate new trail' button
+///
 
 class GenerateNewTrail extends StatelessWidget {
   const GenerateNewTrail({Key? key}) : super(key: key);
@@ -84,9 +83,9 @@ bool getCheckedValue() {
   return checkedvalue;
 }
 
-  ///
-  /// Text and buttons/input fields to specify preferences
-  /// 
+///
+/// Text and buttons/input fields to specify preferences
+///
 
 class PageCenter extends StatefulWidget {
   PageCenter({super.key});
@@ -103,9 +102,9 @@ class _PageCenterState extends State<PageCenter> {
     _getLocation();
   }
 
-  /// 
-  /// Resets all buttons/inputs 
-  /// 
+  ///
+  /// Resets all buttons/inputs
+  ///
 
   void reset() {
     checkedvalue = false;
@@ -117,9 +116,9 @@ class _PageCenterState extends State<PageCenter> {
     isMeters = true;
   }
 
-  /// 
-  /// Gets the posistion of the user and saves it in the global variable 'start' 
-  /// 
+  ///
+  /// Gets the posistion of the user and saves it in the global variable 'start'
+  ///
 
   void _getLocation() async {
     Position position = await Geolocator.getCurrentPosition();
@@ -252,30 +251,25 @@ class _ActivityOptionsState extends State<ActivityOptions> {
         });
       },
       children: List<Widget>.generate(
-        3,
-        (index) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: _selectedStatusActivities[index]
-                  ? Colors.black
-                  : Colors.white),
-            padding: const EdgeInsets.all(5),
-            width: 90,
-            height: 30,
-            alignment: Alignment.center,
-            child: Text(Activities[index],
-              style: TextStyle(
-                  color: _selectedStatusActivities[index]
-                      ? Colors.white
-                      : Colors.black
-              )
-            )
-          )
-        )
-      ),
+          3,
+          (index) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: _selectedStatusActivities[index]
+                          ? Colors.black
+                          : Colors.white),
+                  padding: const EdgeInsets.all(5),
+                  width: 90,
+                  height: 30,
+                  alignment: Alignment.center,
+                  child: Text(Activities[index],
+                      style: TextStyle(
+                          color: _selectedStatusActivities[index]
+                              ? Colors.white
+                              : Colors.black))))),
     );
   }
 }
@@ -324,42 +318,38 @@ class _TrailTypeState extends State<TrailType> {
         });
       },
       children: List<Widget>.generate(
-        2,
-        (index) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: _selectedStatusTrailTypes[index]
-                ? Colors.black
-                : Colors.white),
-            padding: const EdgeInsets.all(5),
-            width: 160,
-            height: 70,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                SvgPicture.asset(
-                  TrailTypes[index],
-                  colorFilter: _selectedStatusTrailTypes[index]
-                      ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
-                      : ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                  height: 35,
-                  width: 35,
-                ),
-                Text(index == 0 ? 'Yes' : 'No',
-                  style: TextStyle(
+          2,
+          (index) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                     color: _selectedStatusTrailTypes[index]
-                      ? Colors.white
-                      : Colors.black
-                  )
-                )
-              ],
-            ),
-          )
-        )
-      ),
+                        ? Colors.black
+                        : Colors.white),
+                padding: const EdgeInsets.all(5),
+                width: 160,
+                height: 70,
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    SvgPicture.asset(
+                      TrailTypes[index],
+                      colorFilter: _selectedStatusTrailTypes[index]
+                          ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                          : ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 35,
+                    ),
+                    Text(index == 0 ? 'Yes' : 'No',
+                        style: TextStyle(
+                            color: _selectedStatusTrailTypes[index]
+                                ? Colors.white
+                                : Colors.black))
+                  ],
+                ),
+              ))),
     );
   }
 }
@@ -536,42 +526,40 @@ class _EnvironmentOptionsState extends State<EnviornmentOptions> {
         });
       },
       children: List<Widget>.generate(
-        3,
-        (index) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: _selectedStatusEnviornment[index]
-                  ? Colors.black
-                  : Colors.white),
-            padding: const EdgeInsets.all(5),
-            width: 90,
-            height: 70,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                SvgPicture.asset(
-                  EnviornmentIcons[index],
-                  colorFilter: _selectedStatusEnviornment[index]
-                      ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
-                      : ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                  height: 35,
-                  width: 35,
-                ),
-                Text(
-                  Enviornments[index],
-                  style: TextStyle(
+          3,
+          (index) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                     color: _selectedStatusEnviornment[index]
-                        ? Colors.white
-                        : Colors.black),
+                        ? Colors.black
+                        : Colors.white),
+                padding: const EdgeInsets.all(5),
+                width: 90,
+                height: 70,
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    SvgPicture.asset(
+                      EnviornmentIcons[index],
+                      colorFilter: _selectedStatusEnviornment[index]
+                          ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                          : ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      height: 35,
+                      width: 35,
+                    ),
+                    Text(
+                      Enviornments[index],
+                      style: TextStyle(
+                          color: _selectedStatusEnviornment[index]
+                              ? Colors.white
+                              : Colors.black),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )
-        )
-      ),
+              ))),
     );
   }
 }
@@ -599,7 +587,8 @@ class _InputFieldState extends State<InputField> {
           child: TextField(
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly // Only numbers can be entered
+              FilteringTextInputFormatter
+                  .digitsOnly // Only numbers can be entered
             ],
             onSubmitted: (String value) {
               inputDistance = value;
@@ -641,13 +630,13 @@ class _UnitToggleButtonState extends State<UnitToggleButton> {
         style: TextStyle(color: Colors.black),
       ),
       style: TextButton.styleFrom(
-        backgroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        side: BorderSide(
-          color: Colors.black,
-        )
-      ),
+          backgroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          side: BorderSide(
+            color: Colors.black,
+          )),
     );
   }
 }

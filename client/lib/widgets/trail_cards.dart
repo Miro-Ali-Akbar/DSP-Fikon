@@ -1,53 +1,51 @@
 import 'package:flutter/material.dart';
 import '../pages/individual_trail_page.dart';
 
-final List<String> natureOptions = <String>['Nature', 'City', 'Both']; 
+final List<String> natureOptions = <String>['Nature', 'City', 'Both'];
 
 /// Defines the properties of the trail cards
 
-class TrailCard extends StatefulWidget{
+class TrailCard extends StatefulWidget {
   late String name;
-  late double lengthDistance; 
-  late double lengthTime; 
-  late String natureStatus; 
-  late bool stairs; 
-  late double heightDifference; 
-  bool isSaved; 
-  bool isCircular; 
+  late double lengthDistance;
+  late double lengthTime;
+  late String natureStatus;
+  late bool stairs;
+  late double heightDifference;
+  bool isSaved;
+  bool isCircular;
   //final ValueChanged<bool> onSaveChanged;
-  //final Image image; 
-  //TODO: Add list of coordinates 
+  //final Image image;
+  //TODO: Add list of coordinates
 
   TrailCard({
     super.key,
     required this.name,
-    required this.lengthDistance, 
+    required this.lengthDistance,
     required this.lengthTime,
-    required this.natureStatus, 
-    required this.stairs, 
+    required this.natureStatus,
+    required this.stairs,
     required this.heightDifference,
-    required this.isSaved, 
+    required this.isSaved,
     required this.isCircular,
     //required this.onSaveChanged, // Callback function
-    });
-    //required this.image
-    //TODO: add list of coordinates 
+  });
+  //required this.image
+  //TODO: add list of coordinates
 
   @override
   State<TrailCard> createState() => _TrailCardState();
 }
 
 class _TrailCardState extends State<TrailCard> {
-
-
   /// Builds the trail cards that are dispalayed on the Trail Page
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      /// 
-      /// This defines the shape, size, color etc. of the trail cards 
-      /// 
+      ///
+      /// This defines the shape, size, color etc. of the trail cards
+      ///
       child: Container(
         width: 350,
         height: 120,
@@ -56,9 +54,10 @@ class _TrailCardState extends State<TrailCard> {
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
           color: Colors.green[400],
         ),
+
         ///
         /// The defines the contents of the trail cards
-        /// 
+        ///
         child: Row(
           children: [
             Align(
@@ -74,21 +73,24 @@ class _TrailCardState extends State<TrailCard> {
           ],
         ),
       ),
+
       ///
-      /// When a trail card is pressed, it will transition to the individual trail page 
+      /// When a trail card is pressed, it will transition to the individual trail page
       /// coresponding with the trail that was pressed
-      /// 
+      ///
       onTap: () {
         Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
           pageBuilder: (context, x, xx) => IndividualTrailPage(
-            trail: widget, 
+            trail: widget,
             saved: widget.isSaved,
-            /// 
+
+            ///
             /// This function is used to handle saving/removing trails in the individual trail page
-            /// 
+            ///
             onSaveChanged: (value) {
               setState(() {
-                widget.isSaved = value; // Update the isSaved variable in the TrailCard
+                widget.isSaved =
+                    value; // Update the isSaved variable in the TrailCard
               });
             },
           ),
