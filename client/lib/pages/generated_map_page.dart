@@ -579,6 +579,7 @@ class GeneratedMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Google Maps Routes Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
