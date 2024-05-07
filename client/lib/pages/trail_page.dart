@@ -7,8 +7,9 @@ import 'package:trailquest/widgets/trail_cards.dart';
 
 bool browsing = false;
 
-// Filters: 
-// 0 = noStairs, 1 = onlyNature, 2 = circularRoutes, 3 = maxDistance, 4 = minDistance
+/// This initializes the filters to not exclude any trails 
+/// Filters: 
+/// 0 = noStairs, 1 = onlyNature, 2 = circularRoutes, 3 = maxDistance, 4 = minDistance
 List filters = [false, false, false, double.infinity, 0];
 
 class TrailPage extends StatefulWidget {
@@ -30,8 +31,8 @@ class _TrailPageState extends State<TrailPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              SizedBox(height: 40),
-              CreateNewTrail(),
+              SizedBox(height: 40), // Adds some padding at the top of the page 
+              GenerateNewTrail(),
               Row(
                 children: <Widget>[
                   AnimatedButtons(onBrowsingChanged: (value) {
@@ -45,7 +46,6 @@ class _TrailPageState extends State<TrailPage> {
               ),
               Expanded(
                 child: Trails(savedTrails: MyTrailList, friendTrails: FriendTrailList,),
-                //child: Trails(trails: MyTrailList),
               ),
             ],
           ),
@@ -55,9 +55,13 @@ class _TrailPageState extends State<TrailPage> {
   }
 
   void rebuildTrailPage() {
-    setState(() {}); // Triggers a rebuild of the entire widget tree
+    setState(() {}); // Triggers a rebuild of the entire page 
   }
 }
+
+///
+/// The sliding button for changing between seeing 'saved trails' and 'friend trails'
+/// 
 
 class AnimatedButtons extends StatelessWidget {
   final ValueChanged<bool> onBrowsingChanged;
@@ -72,6 +76,9 @@ class AnimatedButtons extends StatelessWidget {
           onPressed: () {
             onBrowsingChanged(!browsing);
           },
+          /// 
+          /// The 'background' of the button. This is the actual button that can be pressed. 
+          /// 
           child: Container(
             alignment: Alignment.topLeft,
             decoration: BoxDecoration(
@@ -91,6 +98,10 @@ class AnimatedButtons extends StatelessWidget {
             ),
           ),
         ),
+        /// 
+        /// A little black box that slides when the button above is pressed. 
+        /// Creates the illusion of the button being animated.
+        /// 
         AnimatedPositioned(
           duration: Duration(milliseconds: 300),
           left: browsing ? 92 : 12,
@@ -111,6 +122,10 @@ class AnimatedButtons extends StatelessWidget {
     );
   }
 }
+
+  ///
+  /// The filter button 
+  /// 
 
 class FilterButton extends StatelessWidget {
   final Function rebuildTrailPage; 
@@ -144,8 +159,12 @@ class FilterButton extends StatelessWidget {
   }
 }
 
-class CreateNewTrail extends StatelessWidget {
-  const CreateNewTrail({Key? key}) : super(key: key);
+  /// 
+  /// The 'Generate new trail' button.
+  /// 
+
+class GenerateNewTrail extends StatelessWidget {
+  const GenerateNewTrail({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +187,10 @@ class CreateNewTrail extends StatelessWidget {
     );
   }
 }
+
+  ///
+  /// Creates the scrollable list of trails. 
+  /// 
 
 class Trails extends StatelessWidget {
   List<TrailCard> savedTrails;
@@ -199,6 +222,14 @@ class Trails extends StatelessWidget {
       separatorBuilder: (BuildContext context, int index) => const Divider(color: Colors.white),
     );
   }
+
+  ///
+  /// Function for filtering the list of trails based on certain attributes.
+  /// The active filters are specified in the global 'filters' array. 
+  /// 
+  /// [list] - The list of trails to be filtered 
+  /// 
+  /// returns a list with only the trails that fits into the active filters
 
   List<TrailCard> filterTrails(List<TrailCard> list) {
     List<TrailCard> newList = list; 
@@ -237,6 +268,10 @@ class Trails extends StatelessWidget {
     return newList; 
   }
 }
+
+  /// 
+  /// The filter 'pop-up' box used for filtering the trails. 
+  /// 
 
 class FilterPopUp extends StatefulWidget {
   final Function rebuildTrailPage; 
@@ -305,13 +340,12 @@ class _FilterPopUpState extends State<FilterPopUp> {
             children: [
               Text('Max distance: '),
               Container(
-                width: 80, // Specify the desired width
-                height: 40, // Specify the desired height
+                width: 80,
+                height: 40, 
                 child: TextField(
-                  
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
+                    FilteringTextInputFormatter.digitsOnly // Makes it only possible to input numbers 
                   ],
                   onSubmitted: (value) {
                     setState(() {
@@ -333,7 +367,7 @@ class _FilterPopUpState extends State<FilterPopUp> {
                 child: TextField(
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
+                    FilteringTextInputFormatter.digitsOnly // Makes it only possible to input numbers 
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -350,9 +384,12 @@ class _FilterPopUpState extends State<FilterPopUp> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                ///
+                /// 'Apply' button 
+                /// 
                 TextButton(
                   onPressed: () {
-                    widget.rebuildTrailPage(); 
+                    widget.rebuildTrailPage(); // Triggers a rebuild of the page so that the trails are filtered 
                     Navigator.pop(context); 
                   }, 
                   style: TextButton.styleFrom(
@@ -364,10 +401,13 @@ class _FilterPopUpState extends State<FilterPopUp> {
                   ),
                   child: Text("Apply", style: TextStyle(color: Colors.black),),
                 ),
+                ///
+                /// 'Clear' button 
+                /// 
                 TextButton(
                   onPressed: () {
-                    filters = [false, false, false, double.infinity, 0];
-                    rebuildFilter(); 
+                    filters = [false, false, false, double.infinity, 0]; // Resets all filters to the default 
+                    rebuildFilter(); // Rebuilds the filter pop-up so that the boxes are automatically un-checked
                     widget.rebuildTrailPage();
                   }, 
                   style: TextButton.styleFrom(
