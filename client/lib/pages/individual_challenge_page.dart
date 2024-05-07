@@ -283,9 +283,9 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
 }
 
 /// Displays an instruction about the challenge type of the current challenge
-/// 
+///
 /// [challenge] The current challenge
-/// 
+///
 /// returns a Text with the instruction
 Widget ChallengeInstruction(Challenge challenge) {
   String type = challenge.type;
@@ -359,9 +359,9 @@ Widget ProgressTracker(Challenge challenge) {
 
 /// Picks the style of the button for starting and stopping challenges based on the status of
 /// the current challenge
-/// 
+///
 /// [challenge] The current challenge
-/// 
+///
 /// Returns a ButtonStyle with different background colors depending on if the challenge is
 /// 'not started', 'ongoing' or 'done'
 ButtonStyle StyleStartStopChallenge(Challenge challenge) {
@@ -394,9 +394,9 @@ ButtonStyle StyleStartStopChallenge(Challenge challenge) {
 
 /// Picks which text should be displayed on the button for starting and stopping challenges based
 /// on the status of the current challenge
-/// 
+///
 /// [challenge] The current challenge
-/// 
+///
 /// Returns a text with either start, stop or finished challenge depending on if the status of the
 /// current challenge is 'not started', 'ongoing' or 'done'
 Text TextStartStopChallenge(Challenge challenge) {
@@ -465,14 +465,30 @@ bool _checkLocationVisibility(Challenge challenge) {
       print("Visible");
       return true;
     default:
-      print("Visible");
+      print("Default = true");
       return true;
   }
 }
 
 /// Returns wheter a polyline should be visible on the map or not
 bool _checkPolylineVisibility(Challenge challenge) {
-  return _checkLocationVisibility(challenge);
+  print("Visibility: ${challenge.type}");
+  switch (challenge.type) {
+    case 'Checkpoints':
+      print("Visible");
+      return true;
+    case 'Orienteering':
+      print("Not visible");
+      return false;
+    case 'Treasure hunt':
+      // TODO: Change to return int (or string) for more stages
+      //       i.e. special for treasure hunt
+      print("Visible");
+      return true;
+    default:
+      print("Default = true");
+      return true;
+  }
 }
 
 /// Returns a list of all polylines to be overlayed on the map if
