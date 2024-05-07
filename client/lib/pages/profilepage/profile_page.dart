@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// The profilepage of the user
 /// Note: Use authGate instead of this as it guaranties that the user is logged in.
@@ -16,7 +17,6 @@ class _ProfilePageState extends State<ProfilePage> {
   User user = FirebaseAuth.instance.currentUser!;
   @override
   Widget build(BuildContext context) {
-    user.reload();
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot) {
@@ -129,8 +129,12 @@ class _ProfilePageState extends State<ProfilePage> {
   /// Displays the signOut button
   ///
   /// Loggs out the current user
-  GestureDetector signOutButton() =>
-      ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout");
+  GestureDetector signOutButton() => ContainerButton(
+      () => {
+            FirebaseAuth.instance.signOut(),
+            GoogleSignIn().signOut(), // To be able to swithch google accounts
+          },
+      "Signout");
 
   /// Displays the delete account button
   ///
@@ -138,7 +142,11 @@ class _ProfilePageState extends State<ProfilePage> {
   ElevatedButton deleteUserAccount() {
     return ElevatedButton(
       // TODO: Add confirmation button
-      onPressed: () {
+      onPressed: () async {
+        // TODO: Add reauthentication to make sure the user can actually delete their account
+        // String webClientID = FlutterConfig.get('WEB_CLIENT_ID');
+        // await user
+        //     .reauthenticateWithProvider(GoogleProvider(clientId: webClientID));
         FirebaseAuth.instance.currentUser!.delete();
       },
       child: Text(
@@ -195,7 +203,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: //Container(
               CircleAvatar(
             radius: 48, // Image radius
-            backgroundImage: AssetImage('assets/images/img_profile.svg'),
+            backgroundImage: AssetImage('assets/images/default_profilepicture.png'),
             foregroundImage: NetworkImage(user
                 .photoURL!), // Display user's profile picture if user is not null
           ),

@@ -4,6 +4,7 @@ import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 
+import 'package:trailquest/pages/profilepage/profile_page.dart';
 import 'usernameChecker.dart';
 
 /// Checks if the user is logged in. Either forces you to login or takes you to the profilepage
@@ -17,6 +18,7 @@ class AuthGate extends StatefulWidget {
 
 class _AuthGateState extends State<AuthGate> {
   String webClientID = FlutterConfig.get('WEB_CLIENT_ID');
+  bool done = false;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +60,28 @@ class _AuthGateState extends State<AuthGate> {
           );
         }
 
-        return UsernameChecker();
+        // TODO: Fix
+        // Check if its the users first time logging in 
+        // Requiers that we after namechange logg out and wait a sec due to timing delays
+        // If this was changed to a better isnewuser function it wouldent need to sign you out
+        // in UsernameChecker and done would not be needed either
+        if (roundDateTimeToSecond(snapshot.data!.metadata.creationTime!) ==
+                roundDateTimeToSecond(
+                    snapshot.data!.metadata.lastSignInTime!) &&
+            !done) {
+          FirebaseAuth.instance.currentUser!
+              .updateDisplayName(snapshot.data!.uid);
+          done = true;
+          return UsernameChecker();
+        } else {
+          return ProfilePage();
+        }
       },
     );
+  }
+
+  DateTime roundDateTimeToSecond(DateTime time) {
+    return DateTime(
+        time.year, time.month, time.day, time.hour, time.minute, time.second);
   }
 }
