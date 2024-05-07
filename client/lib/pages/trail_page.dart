@@ -362,7 +362,7 @@ class _FilterPopUpState extends State<FilterPopUp> {
                     FilteringTextInputFormatter
                         .digitsOnly // Makes it only possible to input numbers
                   ],
-                  onSubmitted: (value) {
+                  onChanged: (value) {
                     setState(() {
                       filters[3] = double.parse(value);
                     });
