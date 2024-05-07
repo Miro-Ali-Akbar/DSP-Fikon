@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-
+/// Contains all information about a challenge
 class Challenge {
   final String type;
   final String name;
