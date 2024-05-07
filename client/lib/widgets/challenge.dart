@@ -8,14 +8,16 @@ class Challenge {
   final String image;
   final int complete;
   int progress;
+  final int points;
 
   Challenge({
     required this.type,
     required this.name,
     required this.description,
-    required this.status,
     required this.image,
     required this.complete,
-    this.progress = 0
+    this.progress = 0,
+    this.status = 0,
+    this.points = 100
   });
 }

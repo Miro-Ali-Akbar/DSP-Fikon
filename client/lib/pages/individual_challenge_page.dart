@@ -100,6 +100,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
                     ChallengeMap(context);
                   } else if (widget.challenge.status == 1) {
                     widget.challenge.status = 0;
+                    widget.challenge.progress = 0;
                   }
                 });
               },
@@ -146,47 +147,91 @@ Widget ProgressTracker(Challenge challenge) {
   String type = challenge.type;
   int progress = challenge.progress;
   int complete = challenge.complete;
+  int currentPoints = progress * challenge.points;
+  int allPoints = complete * challenge.points;
 
   if(type == 'Checkpoints') {
     return Container(
-      height: 80,
+      height: 100,
       color: const Color.fromARGB(255, 89, 164, 224),
       child: Center(
-        child: Text(
-          '$progress/$complete checkpoints',
-          style: TextStyle(
-            fontSize: 25,
-            color: Colors.white
-          ),
-          textAlign: TextAlign.center,),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '$progress/$complete checkpoints',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              '$currentPoints points gained of $allPoints total',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white
+              ),
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
       ),
     );
   } else if(type == 'Treasure hunt') {
     return Container(
-      height: 80,
+      height: 100,
       color: const Color.fromARGB(255, 250, 159, 74),
       child: Center(
-        child: Text(
-          '$progress/$complete locations visited',
-          style: TextStyle(
-            fontSize: 25,
-            color: Colors.white
-          ),
-          textAlign: TextAlign.center,),
+        child:  Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '$progress/$complete locations visited',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              '$currentPoints points gained of $allPoints total',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white
+              ),
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
       ),
     );
   } else if(type == 'Orienteering') {
     return Container(
-      height: 80,
+      height: 100,
       color: const Color.fromARGB(255, 137, 70, 196),
       child: Center(
-        child: Text(
-          '$progress/$complete control points',
-          style: TextStyle(
-            fontSize: 25,
-            color: Colors.white
-          ),
-          textAlign: TextAlign.center,),
+        child:  Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '$progress/$complete control points',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              '$currentPoints points gained of $allPoints total',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white
+              ),
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
       ),
     );
   } else {
