@@ -1,4 +1,5 @@
 /// Contains all information about a challenge
+/// As of now, the permitted challenge types are 'Checkpoints', 'Orienteering' and 'Treasure hunt'
 class Challenge {
   final String type;
   final String name;
