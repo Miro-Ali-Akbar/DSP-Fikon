@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -32,6 +34,7 @@ class _TrailPageState extends State<TrailPage> {
 
   //TODO: if we can get i fron the users saved trails in database
   // Dummy trail that acts as a fron until data from database is fetched
+  /*
   void fetchTrails() {
     for (int i = 0; i < 5; i++) {
       TrailCard dummyTrail = TrailCard(
@@ -43,12 +46,14 @@ class _TrailPageState extends State<TrailPage> {
           heightDifference: 0.0,
           isSaved: true,
           isCircular: false,
+          image_path: '',
           coordinates: []);
       myTrails.add(dummyTrail);
       friendsTrails.add(dummyTrail);
     }
     setState(() {});
   }
+  */
 
   //TODO: Fetch from database, simulated data below
   void fetchUserTrailsFromServer() {
@@ -100,6 +105,13 @@ class _TrailPageState extends State<TrailPage> {
             .map((coord) => LatLng(coord['latitude'], coord['longitude'])));
       }
 
+      List<String> images = [
+        'assets/images/path_pic.jpg',
+        'assets/images/img_image_1.png'
+      ];
+      final random = Random();
+      int imageIndex = random.nextInt(2);
+
       newTrails.add(TrailCard(
           name: data['trailName'].toString(),
           lengthDistance: data['totalDistance'] as double,
@@ -109,6 +121,7 @@ class _TrailPageState extends State<TrailPage> {
           heightDifference: data['hilliness'] as double,
           isSaved: true,
           isCircular: false,
+          image_path: images[imageIndex],
           coordinates: trailCoordinates));
     }
 

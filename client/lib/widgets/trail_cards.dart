@@ -81,14 +81,14 @@ class _TrailCardState extends State<TrailCard> {
                     ),
                 ),
                 Text(
-                  '${widget.lengthTime} min',
+                  '${(widget.lengthTime).toStringAsFixed(1)} min',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                   ),
                 ),
                 Text(
-                  '${widget.lengthDistance/1000} km',
+                  '${(widget.lengthDistance/1000).toStringAsFixed(1)} km',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
