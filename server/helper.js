@@ -106,6 +106,43 @@ async function send(ws, msgID, doc, index) {
     ws.send(JSON.stringify(msg));
 }
 
+async function sortLeaderboard(wsArr, entry) {
+    const leaderboard = await leaderboardRef.doc('leaderboard1').get();
+    let updated = false;
+    
+    if ( entry.points > leaderboard.data().user5[1]) {
+        if ( entry.points > leaderboard.data().user4[1]) {
+            if ( entry.points > leaderboard.data().user3[1]) {
+                if ( entry.points > leaderboard.data().user2[1]) {
+                    if ( entry.points > leaderboard.data().user1[1]) {
+                        leaderboardRef.doc('leaderboard1').update({user1: [entry.username, entry.points]});
+                        updated = true;
+                    } else {
+                        leaderboardRef.doc('leaderboard1').update({user2: [entry.username, entry.points]});
+                        updated = true;
+                    }
+                } else {
+                    leaderboardRef.doc('leaderboard1').update({user3: [entry.username, entry.points]});
+                    updated = true;
+                }
+            } else {
+                leaderboardRef.doc('leaderboard1').update({user4: [entry.username, entry.points]});
+                updated = true;
+            }
+        } else {
+            leaderboardRef.doc('leaderboard1').update({user5: [entry.username, entry.points]});
+            updated = true;
+        }
+    }
+
+    if ( updated ) {
+        for ( let i = 0; i < wsArr.length; i++ ) {
+            send(wsArr[i].socket, 'leaderboard');
+        }
+    }
+
+}
+
 
 module.exports = {
     heartbeat,
@@ -113,5 +150,6 @@ module.exports = {
     putUser,
     get,
     put,
-    send
+    send,
+    sortLeaderboard
 };
