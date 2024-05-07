@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
 
@@ -17,6 +18,11 @@ LatLng currentPosition = LatLng(0, 0);
 bool isInArea = false;
 int geofenceIndex = 0;
 List<Marker> markerList = [];
+
+Future<void> _getSetCurrentPosition() async {
+  Position position = await Geolocator.getCurrentPosition();
+  currentPosition = LatLng(position.latitude, position.longitude);
+}
 
 /// A blueprint for a page displaying information about a specific challenge and providing the means
 /// to start and do the challenge.
@@ -418,6 +424,7 @@ Text TextStartStopChallenge(Challenge challenge) {
 /// the player can see their position
 ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
+  await _getSetCurrentPosition();
   List<LatLng> dataList = await _getCloseData(5000, challenge);
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
