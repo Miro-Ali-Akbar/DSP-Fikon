@@ -419,7 +419,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
     //TODO: add points if < inputDistance - 500
     if (generatedDistance < inputDistance - 500) {}
   } else {
-    int pointsCount = 5; //TODO: increase!
+    int pointsCount = 10; //TODO: increase!
     final random = Random();
     double startDirection = random.nextDouble() * (2 * pi + 1.0);
 
@@ -768,26 +768,46 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
           child: Center(
             child: GestureDetector(
               child: Container(
-                child: GoogleMap(
-                  onTap: (_) {
-                    Navigator.of(context, rootNavigator: true)
-                        .push(PageRouteBuilder(
-                      pageBuilder: (context, x, xx) => MapPage(trail: trail),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                    ));
-                  },
-                  myLocationEnabled: true,
-                  zoomControlsEnabled: false,
-                  initialCameraPosition: CameraPosition(
-                    zoom: 14.0,
-                    target: LatLng(start.latitude, start.longitude),
-                  ),
-                  markers: Set<Marker>.of(markers.values),
-                  polylines: Set<Polyline>.of(polylines.values),
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller.complete(controller);
-                  },
+                child: Stack(
+                  children: [
+                    GoogleMap(
+                      onTap: (_) {
+                        Navigator.of(context, rootNavigator: true)
+                            .push(PageRouteBuilder(
+                          pageBuilder: (context, x, xx) => MapPage(trail: trail),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                        ));
+                      },
+                      myLocationEnabled: true,
+                      zoomControlsEnabled: false,
+                      initialCameraPosition: CameraPosition(
+                        zoom: 14.0,
+                        target: LatLng(start.latitude, start.longitude),
+                      ),
+                      markers: Set<Marker>.of(markers.values),
+                      polylines: Set<Polyline>.of(polylines.values),
+                      onMapCreated: (GoogleMapController controller) {
+                        _controller.complete(controller);
+                      },
+                    ),
+                    Positioned(
+                      bottom: 5, 
+                      right: 5, 
+                      child: Container(
+                        height: 30, 
+                        width: 90,
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            reset(); 
+                            activityOption = getSelectedActivity(); 
+                            _getLocation(inputDistance); 
+                          },
+                          child: Text('Regenerate'),
+                        ),
+                      )
+                    )
+                  ],
                 ),
               ),
               behavior: HitTestBehavior.translucent,
