@@ -18,6 +18,9 @@ LatLng currentPosition = LatLng(0, 0);
 bool isInArea = false;
 int geofenceIndex = 0;
 List<Marker> markerList = [];
+List<GeofenceRadius> geofenceRadiusList = [
+  GeofenceRadius(id: "radius_20m", length: 20)
+];
 
 Future<void> _getSetCurrentPosition() async {
   Position position = await Geolocator.getCurrentPosition();
@@ -426,8 +429,7 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
   await _getSetCurrentPosition();
   List<LatLng> dataList = await _getCloseData(5000, challenge);
-  List<Geofence> geofenceList =
-      _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
+  List<Geofence> geofenceList = _getGefenceList(dataList, geofenceRadiusList);
   markerList = _getMarkerList(dataList);
   List<Polyline> polylines = await _getPolylines(challenge, dataList);
 
