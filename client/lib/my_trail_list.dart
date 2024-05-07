@@ -1,5 +1,7 @@
 import 'package:trailquest/widgets/trail_cards.dart';
 
+/// An example list of trails - only used for testing purposes 
+
 List<TrailCard> MyTrailList= <TrailCard>[
   TrailCard(
     name: 'trail 1',
@@ -42,6 +44,8 @@ List<TrailCard> MyTrailList= <TrailCard>[
     isCircular: false,
   ),
 ];
+
+/// An example list of trails - only used for testing purposes 
 
 List<TrailCard> FriendTrailList= <TrailCard>[
   TrailCard(
