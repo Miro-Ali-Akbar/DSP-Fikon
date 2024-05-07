@@ -391,6 +391,7 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
   markerList = _getMarkerList(dataList);
+  List<Polyline> polylines = _getPolylines(challenge, dataList);
 
   _addGeofences(geofenceList, geofenceService);
 
@@ -403,6 +404,7 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
           content: Container(
             child: GoogleMap(
               myLocationEnabled: canSeePosition,
+              polylines: Set<Polyline>.of(polylines),
               initialCameraPosition: CameraPosition(
                   target: LatLng(
                       currentPosition.latitude, currentPosition.longitude),
@@ -431,9 +433,22 @@ bool _checkLocationVisibility(Challenge challenge) {
       return true;
     default:
       print("Visible");
-      // throw Exception("Unknown challenge type");
       return true;
   }
+}
+
+bool _checkPolylineVisibility(Challenge challenge) {
+  return _checkLocationVisibility(challenge);
+}
+
+List<Polyline> _getPolylines(Challenge challenge, List<LatLng> points) {
+  List<Polyline> polylines = [];
+  if (_checkPolylineVisibility(challenge)) {
+    points.insert(0, currentPosition);
+    polylines.add(Polyline(
+        polylineId: PolylineId('polyline'), color: Colors.red, points: points));
+  }
+  return polylines;
 }
 
 /// Returns a list of all statues close to the user
@@ -510,7 +525,7 @@ List<Marker> _getMarkerList(List<LatLng> positions) {
   return markers;
 }
 
-void _addGeofences(List<Geofence> geofences, final geofenceService) {
+void _addGeofences(List<Geofence> geofences, GeofenceService geofenceService) {
   for (var i = 0; i < geofences.length; i++) {
     geofenceService.addGeofence(geofences[i]);
   }
