@@ -45,56 +45,6 @@ class TrailCard extends StatefulWidget {
 class _TrailCardState extends State<TrailCard> {
   int index = 0;
 
-  late TrailCard currentTrail;
-
-  //TODO: Fetch from database, simulated data below
-  void fetchTrailsFromServer() {
-    var trailsData = [
-      {
-        "trailName": "Test trail",
-        "totalDistance": 31.0,
-        "totalTime": 0.363849765258216,
-        "statusEnvironment": "Both",
-        "avoidStairs": false,
-        "hilliness": 0.09058952331542969,
-        "coordinates": [
-          {"latitude": 59.85697, "longitude": 17.62699},
-          {"latitude": 59.85695, "longitude": 17.62704},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85692, "longitude": 17.62688},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85686, "longitude": 17.62699},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85695, "longitude": 17.62704},
-          {"latitude": 59.8569, "longitude": 17.62712},
-          {"latitude": 59.85695, "longitude": 17.62704}
-        ]
-      },
-    ];
-
-    for (var data in trailsData) {
-      List<LatLng> trailCoordinates = [];
-      var coordinatesData = data['coordinates'];
-      if (coordinatesData != null && coordinatesData is List) {
-        trailCoordinates = List<LatLng>.from(coordinatesData
-            .map((coord) => LatLng(coord['latitude'], coord['longitude'])));
-      }
-
-      currentTrail = TrailCard(
-          name: data['trailName'].toString(),
-          lengthDistance: data['totalDistance'] as double,
-          lengthTime: data['totalTime'] as double,
-          natureStatus: data['statusEnvironment'] as String,
-          stairs: data['avoidStairs'] as bool,
-          heightDifference: data['hilliness'] as double,
-          isSaved: true,
-          isCircular: false,
-          coordinates: trailCoordinates);
-    }
-
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -122,14 +72,14 @@ class _TrailCardState extends State<TrailCard> {
         ),
       ),
       onTap: () {
-        fetchTrailsFromServer();
+        //fetchTrailsFromServer();
         Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
           pageBuilder: (context, x, xx) => IndividualTrailPage(
-            trail: currentTrail,
-            saved: currentTrail.isSaved,
+            trail: widget,
+            saved: widget.isSaved,
             onSaveChanged: (value) {
               setState(() {
-                currentTrail.isSaved =
+                widget.isSaved =
                     value; // Update the isSaved variable in the TrailCard
               });
             },
