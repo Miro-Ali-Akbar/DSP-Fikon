@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 LatLng currentPosition = LatLng(0, 0);
 bool isInArea = false;
+int geofenceIndex = 0;
 List<Marker> markerList = [];
 
 class IndividualChallengePage extends StatefulWidget {
@@ -61,38 +62,49 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
       // TODO: Game-logic associated with each type of challenge
       // FIXME: If a challenge gets another name, update this function
       if (challenge.status == 1) {
-        switch (challenge.name) {
-          case '10 statues in Uppsala':
-            challenge.progress++;
-            String geofenceId = geofence.toJson()['id'];
-            print(geofenceId);
-            // _geofenceService.removeGeofenceById(geofence.toJson()['id']);
+        String geofenceId = geofence.toJson()['id'];
+        print(geofenceId);
 
-            // setState(() {});
-            Marker marker = markerList
-                .firstWhere((marker) => marker.markerId.value == geofenceId);
-              markerList.remove(marker);
+        switch (challenge.type) {
+          case 'Orienteering':
+            _geofenceService.removeGeofenceById(geofence.toJson()['id']);
+
+            // TODO: Cleanup if possible
             setState(() {
+              Marker marker = markerList
+                  .firstWhere((marker) => marker.markerId.value == geofenceId);
+              setState(() {
+                markerList.remove(marker);
+              });
             });
-            setState(() {});
-            print(markerList);
+            setState(() {
+              challenge.progress++;
+            });
+
             break;
-          case 'Birds':
+          case 'Checkpoints':
             // TODO: Implement
+            if (geofenceId == "loc_$geofenceIndex") {
+              _geofenceService.removeGeofenceById(geofence.toJson()['id']);
+              setState(() {
+                Marker marker = markerList.firstWhere(
+                    (marker) => marker.markerId.value == geofenceId);
+                markerList.remove(marker);
+              });
+              setState(() {
+                geofenceIndex++;
+                challenge.progress++;
+              });
+            } else {
+              print("Wrong checkpoint!");
+            }
+
             break;
-          case 'Cool large rocks':
-            // TODO: Implement
-            break;
-          case 'Orienteering in Luthagen':
-            // TODO: Implement
-            break;
-          case 'Pretty flowers':
-            // TODO: Implement
-            break;
-          case 'Important buildings':
+          case 'Treasure hunt':
             // TODO: Implement
             break;
           default:
+            throw Exception("Unknown activity-check in geofencestatus");
         }
 
         if (challenge.progress == challenge.complete) {
@@ -375,7 +387,7 @@ Text TextStartStopChallenge(Challenge challenge) {
 
 ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
-  List<LatLng> dataList = await _getCloseData(5000, 'statues');
+  List<LatLng> dataList = await _challengeNameToData(challenge);
   List<Geofence> geofenceList =
       _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
   markerList = _getMarkerList(dataList);
@@ -403,6 +415,33 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
           ),
         );
       });
+}
+
+Future<List<LatLng>> _challengeNameToData(Challenge challenge) async {
+  List<LatLng> dataList = [];
+  switch (challenge.name) {
+    case '10 statues in Uppsala':
+      dataList = await _getCloseData(5000, 'statues');
+      break;
+    case 'Birds':
+      // TODO: Implement
+      throw Exception("Not yet implemented");
+    case 'Cool large rocks':
+      dataList = await _getCloseData(5000, 'rocks');
+      break;
+    case 'Orienteering in Luthagen':
+      // TODO: Implement
+      throw Exception("Not yet implemented");
+    case 'Pretty flowers':
+      // TODO: Implement
+      throw Exception("Not yet implemented");
+    case 'Important buildings':
+      // TODO: Implement
+      throw Exception("Not yet implemented");
+    default:
+      throw Exception("Unknown data");
+  }
+  return dataList;
 }
 
 bool _checkLocationVisibility(Challenge challenge) {
@@ -442,7 +481,7 @@ Future<List<LatLng>> _getCloseData(
           );
           out geom;''';
       break;
-    case 'stones':
+    case 'rocks':
       url =
           '''https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];
           (
