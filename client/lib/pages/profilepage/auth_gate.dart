@@ -23,7 +23,7 @@ class _AuthGateState extends State<AuthGate> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SignInScreen(
@@ -61,10 +61,12 @@ class _AuthGateState extends State<AuthGate> {
         }
 
         // TODO: Fix
-        // Check if its the users first time logging in 
+        // Check if its the users first time logging in
         // Requiers that we after namechange logg out and wait a sec due to timing delays
         // If this was changed to a better isnewuser function it wouldent need to sign you out
         // in UsernameChecker and done would not be needed either
+        print(roundDateTimeToSecond(snapshot.data!.metadata.creationTime!));
+        print(roundDateTimeToSecond(snapshot.data!.metadata.lastSignInTime!));
         if (roundDateTimeToSecond(snapshot.data!.metadata.creationTime!) ==
                 roundDateTimeToSecond(
                     snapshot.data!.metadata.lastSignInTime!) &&

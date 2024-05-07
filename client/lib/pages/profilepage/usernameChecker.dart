@@ -16,7 +16,7 @@ class _UsernameChecker extends State<UsernameChecker> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.userChanges(),
+      stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,

@@ -148,6 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
         // await user
         //     .reauthenticateWithProvider(GoogleProvider(clientId: webClientID));
         FirebaseAuth.instance.currentUser!.delete();
+        GoogleSignIn().signOut(); // To be able to swithch google accounts
       },
       child: Text(
         "Remove account",
@@ -203,7 +204,8 @@ class _ProfilePageState extends State<ProfilePage> {
           child: //Container(
               CircleAvatar(
             radius: 48, // Image radius
-            backgroundImage: AssetImage('assets/images/default_profilepicture.png'),
+            backgroundImage:
+                AssetImage('assets/images/default_profilepicture.png'),
             foregroundImage: NetworkImage(user
                 .photoURL!), // Display user's profile picture if user is not null
           ),
