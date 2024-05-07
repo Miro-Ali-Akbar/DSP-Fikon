@@ -1,6 +1,8 @@
 import 'package:flutter_config/flutter_config.dart';
 import 'dart:async';
 
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,8 +14,46 @@ import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'dart:convert';
 
 WebSocketChannel? channel;
+var jsonString = '';
+List<String> dataList = [];
+
+void Listen(){
+  try {
+      channel?.stream.listen((jsonString) {
+      Map <String, dynamic> jsonDecoded = jsonDecode(jsonString);
+      String msgID;
+      if (jsonDecoded.isNotEmpty) {
+        // Get the first key-value pair from the Map
+        MapEntry<String, dynamic> firstEntry = jsonDecoded.entries.first;
+        
+        // Extract the value
+        msgID = firstEntry.value;
+    
+        MapEntry<String, dynamic> secondEntry = jsonDecoded.entries.elementAt(1);
+        dynamic data = secondEntry.value;
+
+        switch (msgID) {
+          case 'leaderboard': 
+            Map<String, dynamic> users = data;
+            List<String> temp = [];
+            users.forEach((key, value) { temp.add(array_to_string([value[0], value[1]]));});
+            dataList = temp;
+            print(dataList);
+            break;
+          case 'init':
+            print(data);
+            break;
+        }
+      }             
+    });
+  } catch (e) {
+    print(e);
+  }
+
+}
 
 void _sendMessage(String message) {
   print(message);
@@ -40,7 +80,8 @@ void main() async {
   );
 
   channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
-
+  channel?.sink.add('{"msgID": "getLeaderboard"}');
+  Listen();
   runApp(const MainApp());
 }
 
@@ -50,6 +91,11 @@ class MainApp extends StatefulWidget {
   @override
   State<MainApp> createState() => _MainAppState();
 }
+
+String array_to_string(List tuple) {
+  return tuple[1].toString() + " " + tuple[0];
+}
+
 
 class _MainAppState extends State<MainApp> {
   int myIndex = 0;
