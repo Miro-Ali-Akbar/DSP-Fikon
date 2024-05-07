@@ -485,7 +485,7 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
   await _getSetCurrentPosition();
   List<LatLng> dataList = await _getCloseData(5000, challenge);
   List<Geofence> geofenceList =
-      _getGefenceList(dataList, [GeofenceRadius(id: "radius_20m", length: 20)]);
+      _getGefenceList(dataList, [GeofenceRadius(id: "radius_25m", length: 25)]);
   markerList = _getMarkerList(dataList);
   List<Polyline> polylines = await _getPolylines(challenge, dataList);
 
@@ -664,7 +664,7 @@ Future<List<LatLng>> _getCloseData(
           );
           out geom;''';
     case 'demo':
-      return [LatLng(59.83876637781254, 17.64811677223685)];
+      return [LatLng(59.839227286548116, 17.647351395137616)];
     default:
       throw Exception("Retrieval of unkonwn data from Overpass API");
   }

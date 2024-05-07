@@ -25,7 +25,6 @@ final List<bool> _selectedStatus = <bool>[false, false, false, true];
 
 /// Used for filtering by the type of challenge
 const List<Text> typeChallenge = <Text>[
-  Text('Time limit'),
   Text('Treasure hunt'),
   Text('Checkpoints'),
   Text('Orienteering')
@@ -175,7 +174,6 @@ class _ChallengeState extends State<ChallengePage> {
                         childAspectRatio: 5/2,
                         crossAxisCount: 2,
                         children: [
-                          Text('Time limit'),
                           Text('Treasure hunt'),
                           Text('Checkpoints'),
                           Text('Orienteering')
