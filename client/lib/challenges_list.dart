@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:trailquest/widgets/challenge.dart';
-import 'package:trailquest/widgets/challenge_cards.dart';
 
+/// A list of all challenges currently available in the application and information about them
 List<Challenge> challenges = <Challenge>[
   Challenge(
     name: '10 statues in Uppsala',

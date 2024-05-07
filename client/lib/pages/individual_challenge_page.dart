@@ -18,6 +18,8 @@ bool isInArea = false;
 int geofenceIndex = 0;
 List<Marker> markerList = [];
 
+/// A blueprint for a page displaying information about a specific challenge and providing the means
+/// to start and do the challenge.
 class IndividualChallengePage extends StatefulWidget {
   Challenge challenge;
 
@@ -280,6 +282,11 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
   }
 }
 
+/// Displays an instruction about the challenge type of the current challenge
+/// 
+/// [challenge] The current challenge
+/// 
+/// returns a Text with the instruction
 Widget ChallengeInstruction(Challenge challenge) {
   String type = challenge.type;
 
@@ -350,6 +357,13 @@ Widget ProgressTracker(Challenge challenge) {
   }
 }
 
+/// Picks the style of the button for starting and stopping challenges based on the status of
+/// the current challenge
+/// 
+/// [challenge] The current challenge
+/// 
+/// Returns a ButtonStyle with different background colors depending on if the challenge is
+/// 'not started', 'ongoing' or 'done'
 ButtonStyle StyleStartStopChallenge(Challenge challenge) {
   if (challenge.status == 0) {
     return TextButton.styleFrom(
@@ -378,6 +392,13 @@ ButtonStyle StyleStartStopChallenge(Challenge challenge) {
   }
 }
 
+/// Picks which text should be displayed on the button for starting and stopping challenges based
+/// on the status of the current challenge
+/// 
+/// [challenge] The current challenge
+/// 
+/// Returns a text with either start, stop or finished challenge depending on if the status of the
+/// current challenge is 'not started', 'ongoing' or 'done'
 Text TextStartStopChallenge(Challenge challenge) {
   if (challenge.status == 0) {
     return Text('Start challenge',
