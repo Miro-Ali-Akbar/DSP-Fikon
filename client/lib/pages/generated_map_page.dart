@@ -577,6 +577,7 @@ class GeneratedMap extends StatelessWidget {
       isSaved: false,
       isCircular: false,
       coordinates: []);
+      image_path: '',);
 
   @override
   Widget build(BuildContext context) {
