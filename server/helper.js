@@ -115,22 +115,53 @@ async function sortLeaderboard(wsArr, entry) {
             if ( entry.points > leaderboard.data().user3[1]) {
                 if ( entry.points > leaderboard.data().user2[1]) {
                     if ( entry.points > leaderboard.data().user1[1]) {
-                        leaderboardRef.doc('leaderboard1').update({user1: [entry.username, entry.points]});
+
+                        leaderboardRef.doc('leaderboard1').update({
+                                                                    user1: [entry.username, entry.points],
+                                                                    user2: leaderboard.data().user1,
+                                                                    user3: leaderboard.data().user2,
+                                                                    user4: leaderboard.data().user3,
+                                                                    user5: leaderboard.data().user4
+                                                                });
                         updated = true;
                     } else {
-                        leaderboardRef.doc('leaderboard1').update({user2: [entry.username, entry.points]});
+                        leaderboardRef.doc('leaderboard1').update({
+                                                                    user1: leaderboard.data().user1,
+                                                                    user2: [entry.username, entry.points],
+                                                                    user3: leaderboard.data().user2,
+                                                                    user4: leaderboard.data().user3,
+                                                                    user5: leaderboard.data().user4
+                                                                });
                         updated = true;
                     }
                 } else {
-                    leaderboardRef.doc('leaderboard1').update({user3: [entry.username, entry.points]});
+                    leaderboardRef.doc('leaderboard1').update({
+                                                                user1: leaderboard.data().user1,
+                                                                user2: leaderboard.data().user2,
+                                                                user3: [entry.username, entry.points],
+                                                                user4: leaderboard.data().user3,
+                                                                user5: leaderboard.data().user4
+                                                            });
                     updated = true;
                 }
             } else {
-                leaderboardRef.doc('leaderboard1').update({user4: [entry.username, entry.points]});
+                leaderboardRef.doc('leaderboard1').update({
+                                                            user1: leaderboard.data().user1,
+                                                            user2: leaderboard.data().user2,
+                                                            user3: leaderboard.data().user3,
+                                                            user4: [entry.username, entry.points],
+                                                            user5: leaderboard.data().user4
+                                                        });
                 updated = true;
             }
         } else {
-            leaderboardRef.doc('leaderboard1').update({user5: [entry.username, entry.points]});
+            leaderboardRef.doc('leaderboard1').update({
+                                                        user1: leaderboard.data().user1,
+                                                        user2: leaderboard.data().user2,
+                                                        user3: leaderboard.data().user3,
+                                                        user4: leaderboard.data().user4,
+                                                        user5: [entry.username, entry.points]
+                                                    });
             updated = true;
         }
     }
