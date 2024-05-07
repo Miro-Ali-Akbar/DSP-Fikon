@@ -1,5 +1,3 @@
-
-
 import 'package:flutter_config/flutter_config.dart';
 import 'dart:async';
 
@@ -18,8 +16,13 @@ import 'firebase_options.dart';
 import 'dart:convert';
 
 WebSocketChannel? channel;
-ValueNotifier<List<dynamic>> friendsList = ValueNotifier([["emma", "emms", ["checkpoint"], 40]]);
-ValueNotifier<List<String>> friendRequests = ValueNotifier(["emma", "meep", "ghhh", "fgg"]);
+ValueNotifier<List<dynamic>> friendsList = ValueNotifier([
+  ['{"name": "emma" , "score": 30, "recentChallenges": ["Checkpoint  score gained: 30"], "profilePic" : "url"}'
+    
+  ]
+]);
+ValueNotifier<List<String>> friendRequests =
+    ValueNotifier(["emma", "meep", "ghhh", "fgg"]);
 String feedBack = "";
 var jsonString = '';
 List<dynamic> leaderList = [];
@@ -28,68 +31,80 @@ String myUserName = "";
 ValueNotifier<bool> canSendRequest = ValueNotifier(true);
 ValueNotifier<bool> isSent = ValueNotifier(false);
 ValueNotifier<bool> friendRequestSuccess = ValueNotifier<bool>(true);
-void Listen(){
+
+void Listen() {
   try {
-      channel?.stream.listen((jsonString) {
-      Map <String, dynamic> jsonDecoded = jsonDecode(jsonString);
+    channel?.stream.listen((jsonString) {
+      Map<String, dynamic> jsonDecoded = jsonDecode(jsonString);
       String msgID;
       if (jsonDecoded.isNotEmpty) {
         // Get the first key-value pair from the Map
         MapEntry<String, dynamic> firstEntry = jsonDecoded.entries.first;
-        
+
         // Extract the value
         msgID = firstEntry.value;
         print(msgID);
-    
-        MapEntry<String, dynamic> secondEntry = jsonDecoded.entries.elementAt(1);
+
+        MapEntry<String, dynamic> secondEntry =
+            jsonDecoded.entries.elementAt(1);
         dynamic data = secondEntry.value;
 
         switch (msgID) {
-          case 'leaderboard': 
+          case 'leaderboard':
             Map<String, dynamic> users = data;
             List<String> temp = [];
-            users.forEach((key, value) { temp.add(array_to_string([value[0], value[1]]));});
+            users.forEach((key, value) {
+              temp.add(array_to_string([value[0], value[1]]));
+            });
             leaderList = temp;
             print(leaderList);
             break;
+
           case 'init':
+            Map<String, dynamic> friend = data['friends'];
+            friend.forEach((key, value) {
+              friendsList.value.add(value);
+            });
+            Map<String, dynamic> reqs = data['requests'];
+            reqs.forEach(
+              (key, value) => friendRequests.value.add(value),
+            );
+            Map<String, dynamic> users = data['leaderBoard'];
+            List<String> temp = [];
+            users.forEach((key, value) {
+              temp.add(array_to_string([value[0], value[1]]));
+            });
+            leaderList = temp;
             break;
 
           case 'outGoingRequest':
-            print("hfjjfk");
-            print(data);
-            if(data['error'] == 1) {
-              print("hello$data");
+            
+            if (data['error'] == 1) {
+              
               friendRequestSuccess.value = true;
               canSendRequest.value = true;
               isSent.value = true;
-              
             } else {
               int res = data['error'];
               friendRequestSuccess.value = false;
               canSendRequest.value = true;
-              print("faaaaailll$res");
+             
             }
             break;
           case 'incomingRequest':
             friendRequests.value.add(data['name']);
             break;
-          
+          case 'newFriend':
+            friendsList.value.add(data['newFriend']);
 
-          
-            
-
+            break;
         }
-      }             
+      }
     });
   } catch (e) {
     print(e);
   }
-
 }
-
-
-
 
 void main() async {
   // https://pub.dev/packages/flutter_config
@@ -101,7 +116,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  channel = WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+  channel =
+      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());
@@ -117,7 +133,6 @@ class MainApp extends StatefulWidget {
 String array_to_string(List tuple) {
   return tuple[1].toString() + " " + tuple[0];
 }
-
 
 void _sendMessage(String message) {
   print(message);
@@ -138,7 +153,7 @@ class _MainAppState extends State<MainApp> {
   final screens = [
     const StartPage(),
     TrailPage(),
-    ChallengePage(), 
+    ChallengePage(),
     AuthGate(),
   ];
 
@@ -224,104 +239,96 @@ class _MainAppState extends State<MainApp> {
   }
 }
 
-class Friend extends StatelessWidget{
-
-  final String type;
+class Friend extends StatelessWidget {
+  final String profilePic;
   final String name;
-  
+
   final List<String> recentChallenges;
   final int score;
 
-
-  const Friend({
-    super.key,
-    required this.name,
-    required this.type,
-    
-    required this.recentChallenges,
-    required this.score
-  });
+  const Friend(
+      {super.key,
+      required this.name,
+      required this.profilePic,
+      required this.recentChallenges,
+      required this.score});
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(15),
-        child: Container(
-          padding: EdgeInsets.all(20),
-          height: 120.0,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.green,
-              width: 3,
-              
-            ),
-            borderRadius: BorderRadius.all(
-              Radius.circular(15),
-            ),
-            color: Color.fromARGB(255, 252, 253, 252),
+      child: Container(
+        padding: EdgeInsets.all(20),
+        height: 120.0,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.green,
+            width: 3,
           ),
-          child: Column(
-            children: [
-              Text(this.name),
-              
-        
-            ],
-            ),
-        
-        
+          borderRadius: BorderRadius.all(
+            Radius.circular(15),
+          ),
+          color: Color.fromARGB(255, 252, 253, 252),
         ),
-    
+        child: Row(
+          children: [
+            Text(this.profilePic),
+            Column(
+              children: [
+                Text(this.name),
+                Text("Score: " + this.score.toString()),
+                
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
 class Request extends StatelessWidget {
-  String name;
+  final String name;
   Request({required this.name});
   @override
   Widget build(BuildContext context) {
     return Container(
-      
-      width: 190,
-      height: 1,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomRight,
-          colors: [Colors.white, Color.fromARGB(216, 208, 247, 203), Color.fromARGB(73, 199, 245, 193)],
-        ),
-        
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-        border: Border.all(
-          color: const Color.fromARGB(26, 0, 0, 0),
-
-        )
-      ),
-      padding: EdgeInsets.fromLTRB(15, 0,0,0),
-      child: Row(
-        
-        children: [
-        Expanded(child: Text(this.name)),
-        IconButton(
-          onPressed: () => accept(this.name), 
-          
-          icon: Icon(Icons.check )),
-        IconButton(
-          onPressed: () => reject(this.name), 
-          icon: Icon(Icons.close),
-          
-        )
-      ],
-      )
-    );
+        width: 190,
+        height: 1,
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                Color.fromARGB(216, 208, 247, 203),
+                Color.fromARGB(73, 199, 245, 193)
+              ],
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            border: Border.all(
+              color: const Color.fromARGB(26, 0, 0, 0),
+            )),
+        padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+        child: Row(
+          children: [
+            Expanded(child: Text(this.name)),
+            IconButton(
+                onPressed: () => accept(this.name), icon: Icon(Icons.check)),
+            IconButton(
+              onPressed: () => reject(this.name),
+              icon: Icon(Icons.close),
+            )
+          ],
+        ));
   }
 }
 
 void accept(String name) {
-  channel?.sink.add('"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName}');
+  channel?.sink.add(
+      '"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName}');
   friendRequests.value.remove("$name");
 }
+
 void reject(String name) {
- friendRequests.value.remove("$name");
+  friendRequests.value.remove("$name");
 }
-
-

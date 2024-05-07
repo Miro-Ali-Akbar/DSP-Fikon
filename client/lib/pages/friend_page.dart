@@ -16,12 +16,15 @@ class Friendpage extends StatefulWidget {
 }
 
 class _friendPageState extends State<Friendpage> {
-  
   void init() {
-    friendRequests.addListener(() {_updateState(); });
-    friendsList.addListener(() {_updateState(); });
+    friendRequests.addListener(() {
+      _updateState();
+    });
+    friendsList.addListener(() {
+      _updateState();
+    });
   }
- 
+
   dispose() {
     super.dispose();
     friendRequests.removeListener(_updateState);
@@ -29,17 +32,15 @@ class _friendPageState extends State<Friendpage> {
   }
 
   void _updateState() {
-      setState(() {
-        
-      });
+    setState(() {});
   }
+
   Widget build(BuildContext context) {
     init();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: AppBar(
-              
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back),
                   onPressed: () {
@@ -53,35 +54,37 @@ class _friendPageState extends State<Friendpage> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(15, 2, 15, 0),
                     child: TextButton.icon(
-                          onPressed: () {
-                            sendFriendRequest(context);
-                          },
-                          label: Text(
-                            'Add Friend +',
-                            style: TextStyle(color: Colors.white),
+                        onPressed: () {
+                          sendFriendRequest(context);
+                        },
+                        label: Text(
+                          'Add Friend +',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        icon: SvgPicture.asset('assets/images/img_group.svg'),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.green.shade600,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 30),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),
-                          icon: SvgPicture.asset('assets/images/img_group.svg'),
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.green.shade600,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 30),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                            ),
-                          )),
-                    
+                        )),
                   ),
                 ]),
             body: Column(
               children: [
-                SizedBox(height: 15,),
-                Text( "Friend requests",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    
-                  ),
+                SizedBox(
+                  height: 15,
                 ),
-                SizedBox(height: 20,),
+                Text(
+                  "Friend requests",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
                 Container(
                   padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                   height: MediaQuery.of(context).size.height * 0.1,
@@ -95,38 +98,36 @@ class _friendPageState extends State<Friendpage> {
                           itemCount: friendRequests.value.length,
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: EdgeInsets.fromLTRB(5,0,5,0),
-                              child: Request(name: friendRequests.value[index])
-                            );
+                                padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                child:
+                                    Request(name: friendRequests.value[index]));
                           },
                           separatorBuilder: (_, __) => const Divider(),
                         ),
                       )),
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Text("Friends",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16 
-                  )),
-                SizedBox(height: 20,),
+                    textAlign: TextAlign.left, style: TextStyle(fontSize: 16)),
+                SizedBox(
+                  height: 20,
+                ),
                 Expanded(
-                  
-                  child: ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: friendsList.value.length,
-                    itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Friend(name: friendsList.value[index][0], 
-                          type: friendsList.value[index][1], 
-                          recentChallenges: friendsList.value[index][2], 
-                          score: friendsList.value[index][3]));
-                    }
-
-                  )
-                )
+                    child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        itemCount: friendsList.value.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Friend(
+                                  name: friendsList.value[index]['name'],
+                                  profilePic: friendsList.value[index]['profilePic'],
+                                  recentChallenges: friendsList.value[index]['recentChallenges'],
+                                  score: friendsList.value[index]['score']));
+                        }))
               ],
             )));
   }
@@ -333,64 +334,7 @@ class _friendRequestState extends State<friendRequest> {
   }
 }
 
-class AnimatedButtons extends StatelessWidget {
-  final ValueChanged<bool> onBrowsingChanged;
 
-  AnimatedButtons({required this.onBrowsingChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        TextButton(
-          onPressed: () {
-            onBrowsingChanged(!browsingFriends);
-          },
-          child: Container(
-            alignment: Alignment.topLeft,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            height: 50,
-            width: 160,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text('My Trails',
-                      style: TextStyle(color: Colors.black),
-                      textAlign: TextAlign.center),
-                  Text('Friends',
-                      style: TextStyle(color: Colors.black),
-                      textAlign: TextAlign.center)
-                ],
-              ),
-            ),
-          ),
-        ),
-        AnimatedPositioned(
-          duration: Duration(milliseconds: 300),
-          left: browsingFriends ? 92 : 12,
-          top: 8,
-          child: Container(
-            width: 80,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: !browsingFriends
-                  ? Text('My Trails', style: TextStyle(color: Colors.white))
-                  : Text('Friends', style: TextStyle(color: Colors.white)),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class ProgressIndicator extends StatefulWidget {
   const ProgressIndicator({super.key});
