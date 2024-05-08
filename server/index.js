@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest, disconnectUser } = require('./helper');
+const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest, disconnectUser, init, putUsername } = require('./helper');
 
 // Initializing database variables
 
@@ -43,9 +43,12 @@ wss.on('connection', ws => {
         console.log('2: ', message.data);
         switch(message.msgID) {
             case "initRes":
-                putUser(message.data.username, message.data);
+                putUsername(message.data.email, message.data.username);
                 console.log('=== user added to database ===');
                 wss.connectedUsers.push({"username": message.data.username, "socket": ws, "id": ws.id});
+                break;
+            case "loggedIn":
+                init(ws, message.data.email);
                 break;
             case "getLeaderboard":
                 send(ws, 'leaderboard');

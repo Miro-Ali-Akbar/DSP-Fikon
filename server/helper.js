@@ -203,7 +203,36 @@ async function respondRequest(ws, target, sender, response, wsArr) {
     }
 }
 
-async function init(ws, username) {
+async function getUsername(email) {
+    const raw = await db.collection('connectedEmails').doc(email).get();
+    return raw.data().username;
+}
+
+async function putUsername(email, username) {
+    const raw = db.collection('connectedEmail').get()
+    const collection = raw.docs.map(doc => doc.data());
+    for ( let i = 0; i < collection.length; i++ ) {
+        if ( username === collection[i].username) {
+            ws.send(JSON.stringify({
+                msgID: 'usernameFail'
+            }));
+            return;
+        } else {
+            continue;
+        }
+    }
+    db.collection('connectedEmails').doc(email).set({
+        username: username,
+        changedUsername: true
+    });
+    ws.send(JSON.stringify({
+        msgID: 'usernameSuccess'
+    }))
+}
+
+
+async function init(ws, email) {
+    const username = getUsername(email);
     const user = await usersRef.doc(username).get();
     const leaderboard = await leaderboardRef.doc('leaderboard1').get()
 
@@ -266,5 +295,7 @@ module.exports = {
     send,
     handleFriendrequest,
     respondRequest,
-    disconnectUser
+    disconnectUser,
+    init,
+    putUsername
 };
