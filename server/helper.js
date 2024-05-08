@@ -108,7 +108,14 @@ async function send(ws, msgID, doc, index) {
 
 async function saveRoute(ws, wsArr, data) {
     const name = data.trailName;
-    const username = getSocketUser(ws, wsArr);
+    
+    let username;
+    for ( let i = 0; i < wsArr.length; i++ ) {
+        if ( ws.id === wsArr[i].id ) {
+            username = wsArr[i].username;
+        }
+    } 
+
     const user = await get(usersRef, username);
     const friendlist = await user.friendlist;
     console.log(username);
