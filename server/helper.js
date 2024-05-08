@@ -134,37 +134,6 @@ async function initTrails(ws, username) {
     const docsUser = userRoutes.docs.map(doc => doc.data());
     const docsFriend = friendRoutes.docs.map(doc => doc.data());
     
-    //const userArray = [];
-    //const friendArray = [];
-
-    /*
-    for ( let i = 0; i < docsUser.length; i++ ) {
-        let field = docsUser[i];
-        userArray[i] = {
-            trailName: field.trailName,
-            totalDistance: field.totalDistance,
-            totalTime: field.totalTime,
-            statusEnvironment: field.statusEnvironment,
-            avoidStairs: field.avoidStairs, 
-            hilliness: field.hilliness,
-            coordinates: field.coordinates
-        };
-    }
-
-    for ( let i = 0; i < docsFriend.length; i++ ) { 
-        let field = docsUser[i];
-        friendArray[i] = {
-            trailName: field.trailName,
-            totalDistance: field.totalDistance,
-            totalTime: field.totalTime,
-            statusEnvironment: field.statusEnvironment,
-            avoidStairs: field.avoidStairs, 
-            hilliness: field.hilliness,
-            coordinates: field.coordinates
-        };
-    }
-    */
-
     ws.send(JSON.stringify({
         msgID: 'initTrails',
         data: {

@@ -421,7 +421,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
     //TODO: add points if < inputDistance - 500
     if (generatedDistance < inputDistance - 500) {}
   } else {
-    int pointsCount = 5; //TODO: increase!
+    int pointsCount = 10; //TODO: increase!
     final random = Random();
     double startDirection = random.nextDouble() * (2 * pi + 1.0);
 
@@ -567,7 +567,9 @@ double _distanceToTime(double distance) {
 /// Displays a generated map using the MapsRoutesGenerator widget,
 /// configured with a default TrailCard and options to save the route.
 class GeneratedMap extends StatelessWidget {
-  GeneratedMap({Key? key}) : super(key: key);
+  final Function rebuildTrailPage;
+  
+  GeneratedMap({Key? key, required this.rebuildTrailPage}) : super(key: key);
 
   TrailCard trail = TrailCard(
     name: '',
@@ -590,7 +592,7 @@ class GeneratedMap extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MapsRoutesGenerator(
-          trail: trail, saved: false, onSaveChanged: (value) {}),
+          trail: trail, saved: false, onSaveChanged: (value) {}, rebuildTrailPage: rebuildTrailPage),
     );
   }
 }
@@ -603,17 +605,19 @@ class MapsRoutesGenerator extends StatefulWidget {
   TrailCard trail;
   bool saved;
   final ValueChanged<bool> onSaveChanged; // Callback function
+  final Function rebuildTrailPage; 
 
   MapsRoutesGenerator({
     Key? key,
     required this.trail,
     required this.saved,
     required this.onSaveChanged, // Callback function
+    required this.rebuildTrailPage,
   }) : super(key: key);
 
   @override
   State<MapsRoutesGenerator> createState() =>
-      _MapsRoutesGeneratorState(trail: trail, saved: saved);
+      _MapsRoutesGeneratorState(trail: trail, saved: saved, rebuildTrailPage: rebuildTrailPage);
 }
 
 /// The state for the MapsRoutesGenerator widget.
@@ -623,9 +627,10 @@ class MapsRoutesGenerator extends StatefulWidget {
 class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   bool saved = false;
   TrailCard trail;
+  final Function rebuildTrailPage; 
 
   _MapsRoutesGeneratorState(
-      {Key? key, required this.trail, required this.saved});
+      {Key? key, required this.trail, required this.saved, required this.rebuildTrailPage});
 
   late Completer<GoogleMapController> _controller = Completer();
 
@@ -924,6 +929,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
               totalDistance: totalDistance,
               statusEnvironment: getSelectedStatusEnvironment(),
               hillines: hillines,
+              rebuildTrailPage: rebuildTrailPage,
             ),
           ),
         ]
@@ -944,6 +950,7 @@ class SaveTrail extends StatefulWidget {
   final double totalDistance;
   final String statusEnvironment;
   final double hillines;
+  final Function rebuildTrailPage; 
 
   const SaveTrail({
     Key? key,
@@ -953,6 +960,7 @@ class SaveTrail extends StatefulWidget {
     required this.totalDistance,
     required this.statusEnvironment,
     required this.hillines,
+    required this.rebuildTrailPage,
   }) : super(key: key);
 
   @override
@@ -965,6 +973,7 @@ class SaveTrail extends StatefulWidget {
 /// for saving a trail. When pressed, it triggers the [onSave] callback function
 /// to indicate that the trail is saved.
 class _SaveTrailState extends State<SaveTrail> {
+
   @override
   Widget build(BuildContext context) {
     return TextButton(
@@ -980,6 +989,7 @@ class _SaveTrailState extends State<SaveTrail> {
                 totalDistance: widget.totalDistance,
                 statusEnvironment: widget.statusEnvironment,
                 hillines: widget.hillines,
+                rebuildTrailPage: widget.rebuildTrailPage,
               ),
               width: double.maxFinite,
             ),
@@ -1006,6 +1016,7 @@ class SaveTrailPopUp extends StatefulWidget {
   final double totalDistance;
   final String statusEnvironment;
   final double hillines;
+  final Function rebuildTrailPage; 
 
   const SaveTrailPopUp({
     Key? key,
@@ -1015,6 +1026,7 @@ class SaveTrailPopUp extends StatefulWidget {
     required this.totalDistance,
     required this.statusEnvironment,
     required this.hillines,
+    required this.rebuildTrailPage,
   }) : super(key: key);
 
   @override
@@ -1075,7 +1087,6 @@ class _SaveTrailPopUpState extends State<SaveTrailPopUp> {
       }
     };
 
-    print(jsonData);
   }
 
   void _saveTrail() {
@@ -1085,6 +1096,8 @@ class _SaveTrailPopUpState extends State<SaveTrailPopUp> {
       _trailCardInfo();
       setState(() {});
       saveRouteToServer(jsonData);
+
+      widget.rebuildTrailPage(); 
     } else {
       // Show an error message if trail name is empty
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1141,6 +1154,5 @@ void saveRouteToServer(Map<String, dynamic> routeData) async {
 
   String jsonString = jsonEncode(routeData);
 
-  //TODO: Comment out to connect to server
-  //channel?.sink.add(jsonString);
+  channel?.sink.add(jsonString);
 }

@@ -61,11 +61,12 @@ class _TrailPageState extends State<TrailPage> {
 
       newTrails.add(TrailCard(
           name: data['trailName'].toString(),
-          lengthDistance: data['totalDistance'] as double,
-          lengthTime: data['totalTime'] as double,
+          lengthDistance:
+              double.parse(data['totalDistance'].toStringAsFixed(1)),
+          lengthTime: double.parse(data['totalTime'].toStringAsFixed(1)),
           natureStatus: data['statusEnvironment'] as String,
           stairs: data['avoidStairs'] as bool,
-          heightDifference: data['hilliness'] as double,
+          heightDifference: double.parse(data['hilliness'].toStringAsFixed(1)),
           isSaved: true,
           isCircular: false,
           image_path: images[imageIndex],
@@ -85,7 +86,7 @@ class _TrailPageState extends State<TrailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               SizedBox(height: 40),
-              CreateNewTrail(),
+              CreateNewTrail(rebuildTrailPage: rebuildTrailPage),
               Row(
                 children: <Widget>[
                   AnimatedButtons(onBrowsingChanged: (value) {
@@ -211,14 +212,15 @@ class FilterButton extends StatelessWidget {
 }
 
 class CreateNewTrail extends StatelessWidget {
-  const CreateNewTrail({Key? key}) : super(key: key);
+  final Function rebuildTrailPage; 
+  const CreateNewTrail({Key? key, required this.rebuildTrailPage}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
         Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          pageBuilder: (context, x, xx) => GenerateTrail(),
+          pageBuilder: (context, x, xx) => GenerateTrail(rebuildTrailPage: rebuildTrailPage),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ));

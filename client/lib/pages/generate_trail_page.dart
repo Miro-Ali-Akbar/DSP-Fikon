@@ -16,6 +16,9 @@ import 'package:trailquest/pages/generated_map_page.dart';
 late LatLng start;
 
 class GenerateTrail extends StatelessWidget {
+  final Function rebuildTrailPage;
+
+  const GenerateTrail({super.key, required this.rebuildTrailPage}); 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,7 +37,7 @@ class GenerateTrail extends StatelessWidget {
                       child: Column(children: [PageCenter()]))),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: CreateNewTrail(),
+                child: CreateNewTrail(rebuildTrailPage: rebuildTrailPage),
               ),
             ],
           )),
@@ -43,7 +46,9 @@ class GenerateTrail extends StatelessWidget {
 }
 
 class CreateNewTrail extends StatelessWidget {
-  const CreateNewTrail({Key? key}) : super(key: key);
+  final Function rebuildTrailPage;
+
+  const CreateNewTrail({Key? key, required this.rebuildTrailPage}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +73,7 @@ class CreateNewTrail extends StatelessWidget {
     if (inputDistance.isNotEmpty) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GeneratedMap()),
+        MaterialPageRoute(builder: (context) => GeneratedMap(rebuildTrailPage: rebuildTrailPage)),
       );
     }
   }

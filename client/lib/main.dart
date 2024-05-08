@@ -1,12 +1,8 @@
 import 'package:flutter_config/flutter_config.dart';
-import 'dart:async';
-
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/pages/profilepage/auth_gate.dart';
 import 'package:trailquest/pages/start_page.dart';
@@ -52,15 +48,11 @@ void Listen() {
           case 'init':
             channel?.sink.add(
                 '{"msgID": "initRes", "data": { "username": "uName", "friendRequests": [], "friendlist": ["hitsu"], "online": true } }');
-
+          case 'initTrails':
             Map<String, dynamic> routes = data;
 
-            //Map<String, dynamic> routes = data['data'];
             List<dynamic> userTrailsData = routes['userTrails'];
             List<dynamic> friendTrailsData = routes['friendTrails'];
-
-            //userRoutes.clear();
-            //friendsRoutes.clear();
 
             if (!userTrailsData.isEmpty) {
               for (var i = 0; i < userTrailsData.length; i++) {
@@ -77,6 +69,9 @@ void Listen() {
               }
             }
 
+            print("????????????"); 
+            print(userRoutes.length); 
+
             if (!friendTrailsData.isEmpty) {
               for (var i = 0; i < friendTrailsData.length; i++) {
                 Map<String, dynamic> trailData = friendTrailsData[i];
@@ -92,11 +87,25 @@ void Listen() {
               }
             }
 
-            //print(userRoutes);
-            //print(friendsRoutes);
             break;
-          case 'routes':
+          case 'returnRoute':
+            Map<String, dynamic> routes = data;
 
+            Map<String, dynamic> trailData = data;
+            userRoutes.add({
+              'trailName': trailData['trailName'],
+              'totalDistance': trailData['totalDistance'],
+              'totalTime': trailData['totalTime'],
+              'statusEnvironment': trailData['statusEnvironment'],
+              'avoidStairs': trailData['avoidStairs'],
+              'hilliness': trailData['hilliness'],
+              'coordinates': trailData['coordinates']
+            });
+
+            print(trailData); 
+
+            print("!!!!!!!!!!!!!!!!"); 
+            print(userRoutes.length); 
         }
       }
     });
