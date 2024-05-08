@@ -401,29 +401,6 @@ class _FilterPopUpState extends State<FilterPopUp> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ///
-                /// 'Apply' button
-                ///
-                TextButton(
-                  onPressed: () {
-                    widget
-                        .rebuildTrailPage(); // Triggers a rebuild of the page so that the trails are filtered
-                    Navigator.pop(context);
-                  },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 30),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    side: BorderSide(color: Colors.black),
-                  ),
-                  child: Text(
-                    "Apply",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-
-                ///
                 /// 'Clear' button
                 ///
                 TextButton(
@@ -448,6 +425,28 @@ class _FilterPopUpState extends State<FilterPopUp> {
                   ),
                   child: Text(
                     "Clear",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                ///
+                /// 'Apply' button
+                ///
+                TextButton(
+                  onPressed: () {
+                    widget
+                        .rebuildTrailPage(); // Triggers a rebuild of the page so that the trails are filtered
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 30),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    side: BorderSide(color: Colors.black),
+                  ),
+                  child: Text(
+                    "Apply",
                     style: TextStyle(color: Colors.black),
                   ),
                 ),
