@@ -117,18 +117,18 @@ async function saveRoute(ws, wsArr, data) {
     } 
 
     const raw = await usersRef.doc(username).get()
-    const friendlist = await raw.data().friendlist;
+    const friendlist = raw.data().friendlist;
     console.log(username);
     console.log(friendlist[0]);
 
     // put trail into database
-    db.collection(`users/${username}/userRoutes`).doc(name).set(data);
+    await db.collection(`users/${username}/userRoutes`).doc(name).set(data);
     ws.send(JSON.stringify({msgID: "returnRoute", data: data}));
 
     if ( friendlist.length > 0 ) {
         for ( let i = 0; i < friendlist.length; i++ ) {
             console.log(friendlist[0]);
-            db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
+            await db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
         }
     } else {
         // Do nothing
