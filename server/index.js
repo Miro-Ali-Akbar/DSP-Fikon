@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send } = require('./helper');
+const { heartbeat, generateID, putUser, get, put, send, saveRoute, initTrails, getRoutes } = require('./helper');
 
 // Initializing database variables
 
@@ -31,7 +31,7 @@ wss.on('connection', ws => {
         socketID: ws.id,
         signature: 0, 
     }));
-
+    initUser(ws, 'hitsu');
     console.log('Client connected: ', ws.id);
 
     ws.on('message', function inc(data) {
@@ -47,6 +47,7 @@ wss.on('connection', ws => {
                 console.log('=== user added to database ===');
                 wss.connectedUsers[i] = [message.data.username, ws.id];
                 i = i + 1;
+                initTrails(ws, message.data.username); // 'initTrails' msgID
                 break;
             case "getLeaderboard":
                 send(ws, 'leaderboard');
@@ -57,8 +58,7 @@ wss.on('connection', ws => {
                 saveRoute(ws, wss.connectedUsers, message.data);
                 break;
             case "getRoute":
-                let index = message.data.index;
-                send(ws, 'sendRoute', 'karoRoutes', index);
+                getRoutes(ws, message.data.username, message.data.trailname, message.data.trailType);
                 break;
         }
     })
