@@ -43,7 +43,7 @@ wss.on('connection', ws => {
         console.log('2: ', message.data);
         switch(message.msgID) {
             case "initRes":
-                putUsername(message.data.email, message.data.username);
+                putUsername(ws, message.data.email, message.data.username);
                 console.log('=== user added to database ===');
                 wss.connectedUsers.push({"username": message.data.username, "socket": ws, "id": ws.id});
                 break;

@@ -208,8 +208,8 @@ async function getUsername(email) {
     return raw.data().username;
 }
 
-async function putUsername(email, username) {
-    const raw = db.collection('connectedEmail').get()
+async function putUsername(ws, email, username) {
+    const raw = await db.collection('connectedEmails').get()
     const collection = raw.docs.map(doc => doc.data());
     for ( let i = 0; i < collection.length; i++ ) {
         if ( username === collection[i].username) {
@@ -221,7 +221,7 @@ async function putUsername(email, username) {
             continue;
         }
     }
-    db.collection('connectedEmails').doc(email).set({
+    await db.collection('connectedEmails').doc(email).set({
         username: username,
         changedUsername: true
     });
@@ -232,7 +232,7 @@ async function putUsername(email, username) {
 
 
 async function init(ws, email) {
-    const username = getUsername(email);
+    const username = await getUsername(email);
     const user = await usersRef.doc(username).get();
     const leaderboard = await leaderboardRef.doc('leaderboard1').get()
 
@@ -251,7 +251,6 @@ async function init(ws, email) {
             online: true
         });
     } else {
-        const data = 
         await usersRef.doc(username).set({
             username: username,
             friendlist: [],
