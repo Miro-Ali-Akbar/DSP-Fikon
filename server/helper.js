@@ -117,7 +117,7 @@ async function saveRoute(ws, wsArr, data) {
     } 
 
     const raw = await usersRef.doc(username).get()
-    const friendslist = await raw.data().friendlist;
+    const friendlist = await raw.data().friendlist;
     console.log(username);
     console.log(friendlist[0]);
 
