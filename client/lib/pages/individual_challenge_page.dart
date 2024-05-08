@@ -465,10 +465,12 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
   await _getSetCurrentPosition();
   List<LatLng> dataList = await _getCloseData(5000, challenge);
+  List<LatLng> filteredList = _filterLatLngDataList(dataList, challenge);
+  
   List<Geofence> geofenceList =
-      _getGefenceList(dataList, [GeofenceRadius(id: "radius_25m", length: 25)]);
-  markerList = _getMarkerList(dataList);
-  List<Polyline> polylines = await _getPolylines(challenge, dataList);
+      _getGefenceList(filteredList, [GeofenceRadius(id: "radius_25m", length: 25)]);
+  markerList = _getMarkerList(filteredList);
+  List<Polyline> polylines = await _getPolylines(challenge, filteredList);
 
   _addGeofences(geofenceList, geofenceService);
 
