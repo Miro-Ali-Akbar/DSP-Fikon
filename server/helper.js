@@ -19,13 +19,6 @@ const leaderboardRef = db.collection('leaderboard');
 // Server helper functions
 
 /**
- * Updates alive-status of a socket.
- */
-function heartbeat() {
-    this.isAlive = true;
-}
-
-/**
  * ID generation for new websockets
  * @returns generated user ID
  */
@@ -34,15 +27,6 @@ function generateID() {
 }
 
 // Database helper functions
-
-/**
- * Enters data into a given document in database
- * @param {String} username username used to index database
- * @param {JSON} userData data given to the function from parsed JSON-string
- */
-async function putUser(username, userData) {
-    await usersRef.doc(username).set(userData);
-}
 
 /**
  * Gets document in collection from database
@@ -108,19 +92,28 @@ async function send(ws, msgID, doc, index) {
 
 async function saveRoute(ws, wsArr, data) {
     const name = data.trailName;
-    const username = getSocketUser(ws, wsArr);
-    const user = await get(usersRef, username);
-    const friendlist = await user.friendlist;
+    
+    let username;
+    for ( let i = 0; i < wsArr.length; i++ ) {
+        if ( ws.id === wsArr[i].id ) {
+            username = wsArr[i].username;
+            break;
+        }
+    } 
+
+    const raw = await usersRef.doc(username).get()
+    const friendlist = raw.data().friendlist;
     console.log(username);
     console.log(friendlist[0]);
 
     // put trail into database
-    db.collection(`users/${username}/userRoutes`).doc(name).set(data);
+    await db.collection(`users/${username}/userRoutes`).doc(name).set(data);
+    ws.send(JSON.stringify({msgID: "returnRoute", data: data}));
 
     if ( friendlist.length > 0 ) {
         for ( let i = 0; i < friendlist.length; i++ ) {
             console.log(friendlist[0]);
-            db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
+            await db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
         }
     } else {
         // Do nothing
@@ -133,7 +126,7 @@ async function initTrails(ws, username) {
     
     const docsUser = userRoutes.docs.map(doc => doc.data());
     const docsFriend = friendRoutes.docs.map(doc => doc.data());
-    
+
     ws.send(JSON.stringify({
         msgID: 'initTrails',
         data: {
@@ -154,9 +147,7 @@ async function getRoutes(ws, username, trailName, trailType) {
 }
 
 module.exports = {
-    heartbeat,
     generateID,
-    putUser,
     get,
     put,
     send,
