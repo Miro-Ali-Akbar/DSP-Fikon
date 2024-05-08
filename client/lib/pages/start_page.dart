@@ -106,13 +106,15 @@ List<Challenge> filterOngoing(BuildContext context) {
   }
   if (ongoing.length == 0) {
     Challenge noOngoing = Challenge(
-        type: 'null',
-        name: 'null',
-        description: 'null',
-        dataType: 'null',
-        status: 1,
-        image: 'null',
-        complete: 1);
+      type: 'null',
+      name: 'null',
+      description: 'null',
+      dataType: 'null',
+      status: 1,
+      image: 'null',
+      complete: 1,
+      claimedPoints: [],
+    );
     ongoing.add(noOngoing);
   }
   return ongoing;
