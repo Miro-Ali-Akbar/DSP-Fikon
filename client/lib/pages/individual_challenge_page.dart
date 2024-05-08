@@ -665,6 +665,16 @@ Future<List<LatLng>> _getCloseData(
   return nodes;
 }
 
+List<LatLng> _filterLatLngDataList(List<LatLng> dataList, Challenge challenge) {
+  List<LatLng> filteredList = dataList;
+
+  for (var dataPoint in challenge.claimedPoints) {
+    filteredList.remove(dataPoint);
+  }
+
+  return filteredList;
+}
+
 /// Returns a list of all geogfences generated from [positions]
 ///
 /// [radiusList] list of radiuses for each geofence
