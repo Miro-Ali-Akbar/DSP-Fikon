@@ -126,7 +126,6 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
 
         if (challenge.progress == challenge.complete) {
           challenge.status = 2;
-          updateScore(50);
         }
       }
     }
@@ -330,7 +329,7 @@ Widget ProgressTracker(Challenge challenge) {
   int progress = challenge.progress;
   int complete = challenge.complete;
   int currentPoints = progress * challenge.points;
-  int allPoints = complete * challenge.points + 50;
+  int allPoints = complete * challenge.points;
 
   if (type == 'Checkpoints') {
     return Container(
