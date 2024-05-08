@@ -92,7 +92,7 @@ async function send(ws, msgID, doc, index) {
             }        
             break;
         case "sendRoute":
-            const route = await get(routesRef, doc);
+            const route = await get('', doc);
             data = {
                 route: route.testArr[0].test,
                 color: route.testArr[0].color
@@ -127,7 +127,52 @@ async function saveRoute(ws, wsArr, data) {
     }    
 }
 
+async function initTrails(ws, username) {
+    const userRoutes = await db.collection(`users/${username}/userRoutes`).get();
+    const friendRoutes = await db.collection(`users/${username}/friendRoutes`).get();
+    
+    const docsUser = userRoutes.docs.map(doc => doc.data());
+    const docsFriend = friendRoutes.docs.map(doc => doc.data());
+    
+    const userArray = [];
+    const friendArray = [];
 
+    for ( let i = 0; i < docsUser.length; i++ ) {
+        let field = docsUser[i];
+        userArray[i] = {
+            trailName: field.trailName,
+            totalDistance: field.totalDistance,
+            totalTime: field.totalTime
+        };
+    }
+
+    for ( let i = 0; i < docsFriend.length; i++ ) { 
+        let field = docsUser[i];
+        friendArray[i] = {
+            trailName: field.trailName,
+            totalDistance: field.totalDistance,
+            totalTime: field.totalTime
+        };
+    }
+
+    ws.send(JSON.stringify({
+        msgID: 'initTrails',
+        data: {
+            userTrails: userArray,
+            friendTrails: friendArray
+        }
+    }));
+}
+
+async function getRoutes(ws, username, trailName, trailType) {
+    const raw = db.collection(`users/${username}/${trailType}`).doc(trailname).get();
+    ws.send(JSON.stringify({
+        msgID: 'sendRoute',
+        data: {
+            route: raw.data()
+        }
+    }));
+}
 
 module.exports = {
     heartbeat,
@@ -137,4 +182,6 @@ module.exports = {
     put,
     send,
     saveRoute,
+    initTrails,
+    getRoutes,
 };
