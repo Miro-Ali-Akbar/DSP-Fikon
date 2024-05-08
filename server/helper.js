@@ -123,6 +123,7 @@ async function saveRoute(ws, wsArr, data) {
 
     // put trail into database
     db.collection(`users/${username}/userRoutes`).doc(name).set(data);
+    ws.send(JSON.stringify(data));
 
     if ( friendlist.length > 0 ) {
         for ( let i = 0; i < friendlist.length; i++ ) {
