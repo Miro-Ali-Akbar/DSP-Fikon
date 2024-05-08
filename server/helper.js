@@ -241,10 +241,10 @@ async function init(ws, username) {
     }
 }
 
-async function disconnectUser(ws, wsArr) {
+async function disconnectUser(wsID, wsArr) {
     for ( let i = 0; i < wsArr.length; i++ ) {
         const curr = wsArr[i];
-        if( ws.id === curr.id ) {
+        if( wsID === curr.id ) {
             await usersRef.doc(curr.username).update({
                 online: false
             });
@@ -252,7 +252,7 @@ async function disconnectUser(ws, wsArr) {
             if (index > -1) { // only splice if element is found
                 wsArr.splice(index, 1);
             }
-
+            return wsArr;
         }
     }
 }

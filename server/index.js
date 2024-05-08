@@ -66,9 +66,11 @@ wss.on('connection', ws => {
         }
     })
 
-    ws.on('close', () => {
+    ws.on('close', async () => {
         console.log(`Client with id: ${ws.id} has disconnected.`);
-        disconnectUser(ws.id, wss.connectedUsers);
+        console.log('before dc:', wss.connectedUsers);
+        wss.connectedUsers = await disconnectUser(ws.id, wss.connectedUsers);
+        console.log('after dc:', wss.connectedUsers);
     });
 
 });
