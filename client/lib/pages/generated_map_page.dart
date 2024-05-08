@@ -1084,7 +1084,6 @@ class _SaveTrailPopUpState extends State<SaveTrailPopUp> {
       widget.onSave(true);
       _trailCardInfo();
       setState(() {});
-      ////TODO: Send off to database!
       saveRouteToServer(jsonData);
     } else {
       // Show an error message if trail name is empty

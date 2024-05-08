@@ -20,6 +20,8 @@ import 'dart:convert';
 WebSocketChannel? channel;
 var jsonString = '';
 List<dynamic> dataList = [];
+List<dynamic> userRoutes = [];
+List<dynamic> friendsRoutes = [];
 
 void Listen() {
   try {
@@ -48,24 +50,53 @@ void Listen() {
             print(dataList);
             break;
           case 'init':
-            //channel?.sink.add(
-            //    '{"msgID": "initRes", "data": { "username": "uName", "friendRequests": [], "friendlist": ["hitsu"], "online": true } }');
+            channel?.sink.add(
+                '{"msgID": "initRes", "data": { "username": "uName", "friendRequests": [], "friendlist": ["hitsu"], "online": true } }');
 
-            print(data);
+            Map<String, dynamic> routes = data;
+
+            //Map<String, dynamic> routes = data['data'];
+            List<dynamic> userTrailsData = routes['userTrails'];
+            List<dynamic> friendTrailsData = routes['friendTrails'];
+
+            //userRoutes.clear();
+            //friendsRoutes.clear();
+
+            if (!userTrailsData.isEmpty) {
+              for (var i = 0; i < userTrailsData.length; i++) {
+                Map<String, dynamic> trailData = userTrailsData[i];
+                userRoutes.add({
+                  'trailName': trailData['trailName'],
+                  'totalDistance': trailData['totalDistance'],
+                  'totalTime': trailData['totalTime'],
+                  'statusEnvironment': trailData['statusEnvironment'],
+                  'avoidStairs': trailData['avoidStairs'],
+                  'hilliness': trailData['hilliness'],
+                  'coordinates': trailData['coordinates']
+                });
+              }
+            }
+
+            if (!friendTrailsData.isEmpty) {
+              for (var i = 0; i < friendTrailsData.length; i++) {
+                Map<String, dynamic> trailData = friendTrailsData[i];
+                friendsRoutes.add({
+                  'trailName': trailData['trailName'],
+                  'totalDistance': trailData['totalDistance'],
+                  'totalTime': trailData['totalTime'],
+                  'statusEnvironment': trailData['statusEnvironment'],
+                  'avoidStairs': trailData['avoidStairs'],
+                  'hilliness': trailData['hilliness'],
+                  'coordinates': trailData['coordinates']
+                });
+              }
+            }
+
+            //print(userRoutes);
+            //print(friendsRoutes);
             break;
           case 'routes':
-            //TODO: TEMP
-            String trailName = data['trailName'];
-            double totalDistance = data['totalDistance'];
-            double totalTime = data['totalTime'];
-            String statusEnvironment = data['statusEnvironment'];
-            bool avoidStairs = data['avoidStairs'];
-            double hilliness = data['hilliness'];
 
-            List<dynamic> coordinatesJson = data['coordinates'];
-            List<LatLng> coordinates = coordinatesJson
-                .map((coord) => LatLng(coord['latitude'], coord['longitude']))
-                .toList();
         }
       }
     });

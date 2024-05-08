@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:trailquest/main.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
 import 'package:trailquest/my_trail_list.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
@@ -20,84 +21,30 @@ class TrailPage extends StatefulWidget {
 }
 
 class _TrailPageState extends State<TrailPage> {
+  /// Lists of predetermined TrailCards
   //final List<TrailCard> myTrails = MyTrailList;
-  final List<TrailCard> friendsTrails = FriendTrailList;
+  //final List<TrailCard> friendsTrails = FriendTrailList;
 
   List<TrailCard> myTrails = [];
-  //List<TrailCard> friendsTrails = [];
+  List<TrailCard> friendsTrails = [];
 
   @override
   void initState() {
     super.initState();
-    fetchUserTrailsFromServer();
+    setState(() {
+      myTrails = _trailCardToList(userRoutes);
+      friendsTrails = _trailCardToList(friendsRoutes);
+    });
   }
 
-  //TODO: if we can get i fron the users saved trails in database
-  // Dummy trail that acts as a fron until data from database is fetched
-  /*
-  void fetchTrails() {
-    for (int i = 0; i < 5; i++) {
-      TrailCard dummyTrail = TrailCard(
-          name: 'trail ${i}',
-          lengthDistance: 0.0,
-          lengthTime: 0.0,
-          natureStatus: '',
-          stairs: false,
-          heightDifference: 0.0,
-          isSaved: true,
-          isCircular: false,
-          image_path: '',
-          coordinates: []);
-      myTrails.add(dummyTrail);
-      friendsTrails.add(dummyTrail);
-    }
-    setState(() {});
-  }
-  */
-
-  //TODO: Fetch from database, simulated data below
-  void fetchUserTrailsFromServer() {
-    var trailsData = [
-      {
-        "trailName": "Test trail 1",
-        "totalDistance": 31.0,
-        "totalTime": 0.363849765258216,
-        "statusEnvironment": "Both",
-        "avoidStairs": false,
-        "hilliness": 0.09058952331542969,
-        "coordinates": [
-          {"latitude": 59.85697, "longitude": 17.62699},
-          {"latitude": 59.85695, "longitude": 17.62704},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85692, "longitude": 17.62688},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85686, "longitude": 17.62699},
-          {"latitude": 59.8569, "longitude": 17.62693},
-          {"latitude": 59.85695, "longitude": 17.62704},
-          {"latitude": 59.8569, "longitude": 17.62712},
-          {"latitude": 59.85695, "longitude": 17.62704}
-        ]
-      },
-      {
-        "trailName": "Test trail 2",
-        "totalDistance": 16.0,
-        "totalTime": 0.18779342723004697,
-        "statusEnvironment": "Both",
-        "avoidStairs": false,
-        "hilliness": 0.013283729553222656,
-        "coordinates": [
-          {"latitude": 59.86001, "longitude": 17.64235},
-          {"latitude": 59.85997, "longitude": 17.64227},
-          {"latitude": 59.86001, "longitude": 17.64235},
-          {"latitude": 59.86004, "longitude": 17.64242},
-          {"latitude": 59.86007, "longitude": 17.64247},
-          {"latitude": 59.86001, "longitude": 17.64235}
-        ]
-      },
-    ];
-
+  /// Builds a list of TrailCards out of a list of mixed data retrieved from the database
+  ///
+  /// [routesToDecode] A list of all saved routes and their data
+  ///
+  /// Returns a list of the saved TrailCards to display at the trail page
+  List<TrailCard> _trailCardToList(List<dynamic> routesToDecode) {
     List<TrailCard> newTrails = [];
-    for (var data in trailsData) {
+    for (var data in routesToDecode) {
       List<LatLng> trailCoordinates = [];
       var coordinatesData = data['coordinates'];
       if (coordinatesData != null && coordinatesData is List) {
@@ -125,9 +72,7 @@ class _TrailPageState extends State<TrailPage> {
           coordinates: trailCoordinates));
     }
 
-    setState(() {
-      myTrails = newTrails;
-    });
+    return newTrails;
   }
 
   @override
