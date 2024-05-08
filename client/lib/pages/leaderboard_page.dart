@@ -37,6 +37,8 @@ class Leaderboard extends StatelessWidget {
                   }),
             )
           ],
-        )));
+        )
+      )
+    );
   }
 }

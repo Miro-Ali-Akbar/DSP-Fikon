@@ -8,8 +8,6 @@ import 'package:trailquest/pages/profilepage/profile_page.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 import 'dart:async';
 
-bool browsingFriends = false;
-
 class Friendpage extends StatefulWidget {
   @override
   _friendPageState createState() => _friendPageState();
@@ -24,6 +22,8 @@ class _friendPageState extends State<Friendpage> {
       _updateState();
     });
   }
+
+
 
   dispose() {
     super.dispose();
@@ -124,8 +124,10 @@ class _friendPageState extends State<Friendpage> {
                               padding: EdgeInsets.all(10),
                               child: Friend(
                                   name: friendsList.value[index]['name'],
-                                  profilePic: friendsList.value[index]['profilePic'],
-                                  recentChallenges: friendsList.value[index]['recentChallenges'],
+                                  profilePic: friendsList.value[index]
+                                      ['profilePic'],
+                                  recentChallenges: friendsList.value[index]
+                                      ['recentChallenges'],
                                   score: friendsList.value[index]['score']));
                         }))
               ],
@@ -160,6 +162,7 @@ class _friendRequestState extends State<friendRequest> {
     friendRequestSuccess.addListener(_updateState);
     canSendRequest.addListener(_updateState);
     isSent.addListener(_updateState);
+    alreadyRequested.addListener(_updateState);
   }
 
   @override
@@ -168,6 +171,7 @@ class _friendRequestState extends State<friendRequest> {
     friendRequestSuccess.removeListener(_updateState);
     canSendRequest.removeListener(_updateState);
     isSent.removeListener(_updateState);
+    alreadyRequested.removeListener(() {_updateState();});
     super.dispose();
   }
 
@@ -304,26 +308,40 @@ class _friendRequestState extends State<friendRequest> {
                     ),
                   ]),
               Visibility(
-                  visible: !friendRequestSuccess.value,
-                  child: Positioned(
-                    top: 300,
-                    right: 10,
-                    child: Container(
-                      child: Text("User does not exist. Please try again!",
-                          style: TextStyle(color: Colors.red)),
-                    ),
-                  )),
+                visible: !friendRequestSuccess.value && !alreadyRequested.value,
+                child: Positioned(
+                  top: 300,
+                  right: 10,
+                  child: Container(
+                    child: Text("User does not exist. Please try again!",
+                        style: TextStyle(color: Colors.red)),
+                  ),
+                )
+              ),
               Visibility(
-                  visible: friendRequestSuccess.value && isSent.value,
-                  child: Positioned(
-                    top: 300,
-                    right: 65,
-                    child: Container(
-                      child: Text("Friend request sent!",
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 41, 193, 3))),
-                    ),
-                  ))
+                visible: friendRequestSuccess.value && isSent.value && !alreadyRequested.value,
+                child: Positioned(
+                  top: 300,
+                  right: 65,
+                  child: Container(
+                    child: Text("Friend request sent!",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 41, 193, 3))),
+                  ),
+                )
+              ),
+              Visibility(
+                visible: friendRequestSuccess.value && isSent.value && alreadyRequested.value,
+                child: Positioned(
+                  top: 300,
+                  right: 65,
+                  child: Container(
+                    child: Text("Friend request already sent!",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0))),
+                  ),
+                )
+              )
             ],
           )),
       shape: RoundedRectangleBorder(
@@ -333,8 +351,6 @@ class _friendRequestState extends State<friendRequest> {
     );
   }
 }
-
-
 
 class ProgressIndicator extends StatefulWidget {
   const ProgressIndicator({super.key});

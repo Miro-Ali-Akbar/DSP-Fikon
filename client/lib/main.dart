@@ -26,11 +26,13 @@ ValueNotifier<List<String>> friendRequests =
 String feedBack = "";
 var jsonString = '';
 List<dynamic> leaderList = [];
-String myUserName = "";
+String myUserName = "default_username888";
+
 
 ValueNotifier<bool> canSendRequest = ValueNotifier(true);
 ValueNotifier<bool> isSent = ValueNotifier(false);
 ValueNotifier<bool> friendRequestSuccess = ValueNotifier<bool>(true);
+ValueNotifier<bool> alreadyRequested = ValueNotifier(false);
 
 void Listen() {
   try {
@@ -75,6 +77,7 @@ void Listen() {
               temp.add(array_to_string([value[0], value[1]]));
             });
             leaderList = temp;
+            myUserName = data['username'];
             break;
 
           case 'outGoingRequest':

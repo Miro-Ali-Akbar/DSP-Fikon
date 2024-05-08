@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trailquest/main.dart';
 import 'package:trailquest/pages/friend_page.dart';
+import 'package:flutter_svg/svg.dart';
 
 /// The profilepage of the user
 /// Note: Use authGate instead of this as it guaranties that the user is logged in.
@@ -9,6 +10,7 @@ class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
   static const double? dropDownWidth = 500;
   static const edgeValue = 20.0;
+  
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -16,6 +18,156 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   User? user = FirebaseAuth.instance.currentUser;
+
+  void initState() {
+    String buffer = "";
+    bool _highLightSearchBar = false;
+    super.initState();
+    if (myUserName == "default_username888") {
+      // Show the popup using showDialog
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+      content: Container(
+          width: MediaQuery.of(context).size.width / 1.3,
+          height: MediaQuery.of(context).size.height / 2.5,
+          decoration: new BoxDecoration(
+            shape: BoxShape.rectangle,
+            color: Color.fromARGB(0, 255, 1, 1),
+            borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
+          ),
+          child: Stack(
+            children: [
+              CloseButton(
+                  onPressed: () => setState(() {
+                        Navigator.pop(context);
+                        _highLightSearchBar = false;
+                      })),
+              SizedBox(height: 10),
+              Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Enter username', // Text widget displaying "Success"
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 20),
+                    AnimatedOpacity(
+                        curve: Curves.linear,
+                        opacity: _highLightSearchBar ? 2.0 : 0.5,
+                        duration: Duration(milliseconds: 200),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(10),
+                          child: TextField(
+                            decoration: InputDecoration(
+                                hintText: 'enter new user name here',
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: BorderSide(
+                                    color: _highLightSearchBar
+                                        ? Color.fromARGB(255, 4, 4, 4)
+                                        : Color.fromARGB(255, 5, 5,
+                                            5), // Change the color based on condition
+                                  ),
+                                ),
+                                suffixIcon: canSendRequest.value
+                                    ? null
+                                    : SizedBox(
+                                        height: 0.0000007,
+                                        width: 0.00000007,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Center(
+                                              child: Container(
+                                                height: 10,
+                                                width: 10,
+                                                margin: EdgeInsets.all(10),
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2.0,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation(
+                                                          const Color.fromARGB(
+                                                              255, 7, 6, 6)),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ))),
+                            onChanged: (value) {
+                              setState(() {
+                                buffer = value;
+                                _highLightSearchBar = true;
+                              });
+                            },
+                            
+                          ),
+                          
+                        )),
+                    SizedBox(height: 20),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height / 12,
+                      padding: EdgeInsets.all(15.0),
+                      child: Material(
+                        color:
+                            canSendRequest.value ? Colors.green : Colors.grey,
+                        borderRadius: BorderRadius.circular(25.0),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(25.0),
+                          onTap: () {
+                            // Call your function here when the container is pressed
+                            if (canSendRequest.value) {
+                              channel?.sink.add(
+                                  '{"msgID": "myUserName", "data": {"name":"$buffer"}}');
+                              setState(() {
+                                canSendRequest.value = false;
+                              });
+                            } else {}
+                          },
+                          child: Center(
+                            child: Text(
+                              'Enter',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18.0,
+                                fontFamily: 'helvetica_neue_light',
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]),
+            ],
+          )),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      //add preferences
+    );
+          },
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,11 +185,14 @@ class _ProfilePageState extends State<ProfilePage> {
         body: ListView(
           children: [
             ProfileRow(),
-            ContainerButton(() => Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-              pageBuilder: (context, x, xx) => Friendpage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            )), "Friends"),
+            ContainerButton(
+                () => Navigator.of(context, rootNavigator: true)
+                        .push(PageRouteBuilder(
+                      pageBuilder: (context, x, xx) => Friendpage(),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    )),
+                "Friends"),
             DropdownTile(
               "Statistics",
               Column(
