@@ -45,7 +45,7 @@ wss.on('connection', ws => {
             case "initRes":
                 putUser(message.data.username, message.data);
                 console.log('=== user added to database ===');
-                wss.connectedUsers[i] = [message.data.username, ws.id];
+                wss.connectedUsers.push({"username": message.data.username, "socket": ws, "id": ws.id});
                 i = i + 1;
                 initTrails(ws, message.data.username); // 'initTrails' msgID
                 break;
