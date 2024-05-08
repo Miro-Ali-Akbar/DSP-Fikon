@@ -165,7 +165,7 @@ async function respondRequest(ws, target, sender, response, wsArr) {
         const senderList = senderRaw.data().friendlist;
 
         ws.send(JSON.stringify({msgID: 'newFriend', data: { username: target, points: targetPoints }}));
-        senderList.push(target);
+        senderList.push({username: target, points: targetPoints});
         await usersRef.doc(sender).update({
             friendlist: senderList
         })
@@ -203,6 +203,60 @@ async function respondRequest(ws, target, sender, response, wsArr) {
     }
 }
 
+async function init(ws, username) {
+    const user = await usersRef.doc(username).get();
+    const leaderboard = await leaderboardRef.doc('leaderboard1').get()
+
+    if ( user.exists ) {
+        ws.send(JSON.stringify({
+            msgID: 'initUser',
+            data: {
+                username: username,
+                friendlist: user.data().friendlist,
+                friendRequests: user.data().friendRequests,
+                leaderboard: leaderboard.data(),
+                score: user.data().score,
+            }
+        }));
+        await usersRef.doc(username).update({
+            online: true
+        });
+    } else {
+        const data = 
+        await usersRef.doc(username).set({
+            username: username,
+            friendlist: [],
+            friendRequests: [],
+            score: 0,
+            online: true
+        });
+        ws.send(JSON.stringify({msgID: 'initUser', data: {
+            username: username,
+            friendlist: [],
+            friendRequests: [],
+            score: 0,
+            leaderboard: leaderboard.data(),
+            online: true
+        }}));
+    }
+}
+
+async function disconnectUser(ws, wsArr) {
+    for ( let i = 0; i < wsArr.length; i++ ) {
+        const curr = wsArr[i];
+        if( ws.id === curr.id ) {
+            await usersRef.doc(curr.username).update({
+                online: false
+            });
+            const index = wsArr.indexOf(curr);
+            if (index > -1) { // only splice if element is found
+                wsArr.splice(index, 1);
+            }
+
+        }
+    }
+}
+
 module.exports = {
     heartbeat,
     generateID,
@@ -212,4 +266,5 @@ module.exports = {
     send,
     handleFriendrequest,
     respondRequest,
+    disconnectUser
 };

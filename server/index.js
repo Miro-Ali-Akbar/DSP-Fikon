@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest } = require('./helper');
+const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest, disconnectUser } = require('./helper');
 
 // Initializing database variables
 
@@ -66,6 +66,9 @@ wss.on('connection', ws => {
         }
     })
 
-    ws.on('close', () => console.log(`Client with id: ${ws.id} has disconnected.`));
+    ws.on('close', () => {
+        console.log(`Client with id: ${ws.id} has disconnected.`);
+        disconnectUser(ws.id, wss.connectedUsers);
+    });
 
 });
