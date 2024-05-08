@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send, saveRoute, initTrails, getRoutes } = require('./helper');
+const { generateID, get, put, send, saveRoute, initTrails, getRoutes } = require('./helper');
 
 // Initializing database variables
 

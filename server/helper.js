@@ -19,13 +19,6 @@ const leaderboardRef = db.collection('leaderboard');
 // Server helper functions
 
 /**
- * Updates alive-status of a socket.
- */
-function heartbeat() {
-    this.isAlive = true;
-}
-
-/**
  * ID generation for new websockets
  * @returns generated user ID
  */
@@ -34,15 +27,6 @@ function generateID() {
 }
 
 // Database helper functions
-
-/**
- * Enters data into a given document in database
- * @param {String} username username used to index database
- * @param {JSON} userData data given to the function from parsed JSON-string
- */
-async function putUser(username, userData) {
-    await usersRef.doc(username).set(userData);
-}
 
 /**
  * Gets document in collection from database
@@ -113,6 +97,7 @@ async function saveRoute(ws, wsArr, data) {
     for ( let i = 0; i < wsArr.length; i++ ) {
         if ( ws.id === wsArr[i].id ) {
             username = wsArr[i].username;
+            break;
         }
     } 
 
@@ -141,37 +126,6 @@ async function initTrails(ws, username) {
     
     const docsUser = userRoutes.docs.map(doc => doc.data());
     const docsFriend = friendRoutes.docs.map(doc => doc.data());
-    
-    //const userArray = [];
-    //const friendArray = [];
-
-    /*
-    for ( let i = 0; i < docsUser.length; i++ ) {
-        let field = docsUser[i];
-        userArray[i] = {
-            trailName: field.trailName,
-            totalDistance: field.totalDistance,
-            totalTime: field.totalTime,
-            statusEnvironment: field.statusEnvironment,
-            avoidStairs: field.avoidStairs, 
-            hilliness: field.hilliness,
-            coordinates: field.coordinates
-        };
-    }
-
-    for ( let i = 0; i < docsFriend.length; i++ ) { 
-        let field = docsUser[i];
-        friendArray[i] = {
-            trailName: field.trailName,
-            totalDistance: field.totalDistance,
-            totalTime: field.totalTime,
-            statusEnvironment: field.statusEnvironment,
-            avoidStairs: field.avoidStairs, 
-            hilliness: field.hilliness,
-            coordinates: field.coordinates
-        };
-    }
-    */
 
     ws.send(JSON.stringify({
         msgID: 'initTrails',
@@ -193,9 +147,7 @@ async function getRoutes(ws, username, trailName, trailType) {
 }
 
 module.exports = {
-    heartbeat,
     generateID,
-    putUser,
     get,
     put,
     send,
