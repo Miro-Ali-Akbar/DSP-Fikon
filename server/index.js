@@ -31,7 +31,7 @@ wss.on('connection', ws => {
         socketID: ws.id,
         signature: 0, 
     }));
-    initUser(ws, 'hitsu');
+    // initUser(ws, 'hitsu');
     console.log('Client connected: ', ws.id);
 
     ws.on('message', function inc(data) {
