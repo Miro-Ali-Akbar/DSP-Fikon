@@ -33,7 +33,7 @@ class GenerateTrail extends StatelessWidget {
                       child: Column(children: [PageCenter()]))),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: CreateNewTrail(),
+                child: GenerateNewTrail(),
               ),
             ],
           )),
@@ -41,8 +41,12 @@ class GenerateTrail extends StatelessWidget {
   }
 }
 
-class CreateNewTrail extends StatelessWidget {
-  const CreateNewTrail({Key? key}) : super(key: key);
+///
+/// 'Generate new trail' button
+///
+
+class GenerateNewTrail extends StatelessWidget {
+  const GenerateNewTrail({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +83,10 @@ bool getCheckedValue() {
   return checkedvalue;
 }
 
+///
+/// Text and buttons/input fields to specify preferences
+///
+
 class PageCenter extends StatefulWidget {
   PageCenter({super.key});
 
@@ -94,6 +102,10 @@ class _PageCenterState extends State<PageCenter> {
     _getLocation();
   }
 
+  ///
+  /// Resets all buttons/inputs
+  ///
+
   void reset() {
     checkedvalue = false;
     _selectedStatusActivities = <bool>[false, false, false];
@@ -103,6 +115,10 @@ class _PageCenterState extends State<PageCenter> {
     inputDistance = '';
     isMeters = true;
   }
+
+  ///
+  /// Gets the posistion of the user and saves it in the global variable 'start'
+  ///
 
   void _getLocation() async {
     Position position = await Geolocator.getCurrentPosition();
@@ -571,7 +587,8 @@ class _InputFieldState extends State<InputField> {
           child: TextField(
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
+              FilteringTextInputFormatter
+                  .digitsOnly // Only numbers can be entered
             ],
             onSubmitted: (String value) {
               inputDistance = value;
@@ -579,7 +596,7 @@ class _InputFieldState extends State<InputField> {
           ),
         ),
         UnitToggleButton(),
-      ], // Only numbers can be entered
+      ],
     );
   }
 }

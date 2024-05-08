@@ -1,5 +1,7 @@
 import 'package:trailquest/widgets/trail_cards.dart';
 
+/// An example list of trails - only used for testing purposes 
+
 List<TrailCard> MyTrailList= <TrailCard>[
   TrailCard(
     name: 'trail 1',
@@ -10,6 +12,7 @@ List<TrailCard> MyTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: true,
     isCircular: false,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
   TrailCard(
@@ -20,7 +23,8 @@ List<TrailCard> MyTrailList= <TrailCard>[
     natureStatus: 'City',
     heightDifference: 30,
     isSaved: true,
-    isCircular: true, 
+    isCircular: true,
+    coordinates: [],
     image_path: 'assets/images/path_pic.jpg'
   ),
   TrailCard(
@@ -32,6 +36,7 @@ List<TrailCard> MyTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: true,
     isCircular: true,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
   TrailCard(
@@ -43,9 +48,12 @@ List<TrailCard> MyTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: true,
     isCircular: false,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
 ];
+
+/// An example list of trails - only used for testing purposes 
 
 List<TrailCard> FriendTrailList= <TrailCard>[
   TrailCard(
@@ -57,6 +65,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 2,
     isSaved: false,
     isCircular: true,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
   TrailCard(
@@ -68,6 +77,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: false,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
   TrailCard(
@@ -79,6 +89,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: true,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
   TrailCard(
@@ -90,6 +101,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: false,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
   TrailCard(
@@ -101,6 +113,7 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     heightDifference: 30,
     isSaved: false,
     isCircular: false,
+    coordinates: [],
     image_path: 'assets/images/img_image_1.png'
   ),
 ];
