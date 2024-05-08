@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trailquest/main.dart';
@@ -19,18 +21,35 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   User? user = FirebaseAuth.instance.currentUser;
 
+  _updateState() {
+    setState(() {
+      
+    });
+  }
+  @override
+  void dispose() {
+    isNewUser.removeListener(_updateState);
+    failMessage.removeListener(_updateState);
+    super.dispose();
+  }
+
   void initState() {
+    isNewUser.addListener(_updateState);
+    failMessage.addListener(_updateState);
+
     String buffer = "";
     bool _highLightSearchBar = false;
+    channel?.sink.add(jsonEncode({"msgID": "loggedIn", "data": {"email": user?.email}}));
+
     super.initState();
-    if (myUserName == "default_username888") {
+    if (isNewUser.value) {
       // Show the popup using showDialog
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-      content: Container(
+          content: Container(
           width: MediaQuery.of(context).size.width / 1.3,
           height: MediaQuery.of(context).size.height / 2.5,
           decoration: new BoxDecoration(
@@ -40,12 +59,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           child: Stack(
             children: [
-              CloseButton(
-                  onPressed: () => setState(() {
-                        Navigator.pop(context);
-                        _highLightSearchBar = false;
-                      })),
-              SizedBox(height: 10),
               Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -134,9 +147,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             // Call your function here when the container is pressed
                             if (canSendRequest.value) {
                               channel?.sink.add(
-                                  '{"msgID": "myUserName", "data": {"name":"$buffer"}}');
+                                  jsonEncode({"msgID": "initRes", "data": {"name": buffer, "email": user?.email}}));
                               setState(() {
-                                canSendRequest.value = false;
+                                
                               });
                             } else {}
                           },
@@ -155,6 +168,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ]),
+                  SizedBox(height:20),
+                  Text( failMessage.value)
             ],
           )),
       shape: RoundedRectangleBorder(
@@ -165,11 +180,14 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         );
       });
+    } else {
+      dispose();
     }
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {
+    initState();
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(

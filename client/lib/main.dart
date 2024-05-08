@@ -1,6 +1,6 @@
 import 'package:flutter_config/flutter_config.dart';
 import 'dart:async';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,12 +27,13 @@ String feedBack = "";
 var jsonString = '';
 List<dynamic> leaderList = [];
 String myUserName = "default_username888";
-
-
+ValueNotifier<bool> isNewUser = ValueNotifier(true);
 ValueNotifier<bool> canSendRequest = ValueNotifier(true);
 ValueNotifier<bool> isSent = ValueNotifier(false);
 ValueNotifier<bool> friendRequestSuccess = ValueNotifier<bool>(true);
 ValueNotifier<bool> alreadyRequested = ValueNotifier(false);
+ValueNotifier<String> failMessage = ValueNotifier("");
+
 
 void Listen() {
   try {
@@ -62,7 +63,7 @@ void Listen() {
             print(leaderList);
             break;
 
-          case 'init':
+          case 'initUser':
             Map<String, dynamic> friend = data['friends'];
             friend.forEach((key, value) {
               friendsList.value.add(value);
@@ -78,6 +79,7 @@ void Listen() {
             });
             leaderList = temp;
             myUserName = data['username'];
+            isNewUser = data['changedUsername'];
             break;
 
           case 'outGoingRequest':
@@ -91,7 +93,6 @@ void Listen() {
               int res = data['error'];
               friendRequestSuccess.value = false;
               canSendRequest.value = true;
-             
             }
             break;
           case 'incomingRequest':
@@ -99,8 +100,11 @@ void Listen() {
             break;
           case 'newFriend':
             friendsList.value.add(data['newFriend']);
-
             break;
+          case 'usernameFail':
+            failMessage.value = "User name is already taken, please try again";
+          case 'usernameSuccess':
+            isNewUser.value = false;
         }
       }
     });

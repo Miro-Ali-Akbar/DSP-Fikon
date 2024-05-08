@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:trailquest/main.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:trailquest/pages/profilepage/auth_gate.dart';
-import 'package:trailquest/pages/profilepage/profile_page.dart';
-import 'package:trailquest/widgets/challenge_cards.dart';
-import 'dart:async';
+
 
 class Friendpage extends StatefulWidget {
   @override
@@ -22,8 +19,6 @@ class _friendPageState extends State<Friendpage> {
       _updateState();
     });
   }
-
-
 
   dispose() {
     super.dispose();
@@ -171,7 +166,9 @@ class _friendRequestState extends State<friendRequest> {
     friendRequestSuccess.removeListener(_updateState);
     canSendRequest.removeListener(_updateState);
     isSent.removeListener(_updateState);
-    alreadyRequested.removeListener(() {_updateState();});
+    alreadyRequested.removeListener(() {
+      _updateState();
+    });
     super.dispose();
   }
 
@@ -308,40 +305,42 @@ class _friendRequestState extends State<friendRequest> {
                     ),
                   ]),
               Visibility(
-                visible: !friendRequestSuccess.value && !alreadyRequested.value,
-                child: Positioned(
-                  top: 300,
-                  right: 10,
-                  child: Container(
-                    child: Text("User does not exist. Please try again!",
-                        style: TextStyle(color: Colors.red)),
-                  ),
-                )
-              ),
+                  visible:
+                      !friendRequestSuccess.value && !alreadyRequested.value,
+                  child: Positioned(
+                    top: 300,
+                    right: 10,
+                    child: Container(
+                      child: Text("User does not exist. Please try again!",
+                          style: TextStyle(color: Colors.red)),
+                    ),
+                  )),
               Visibility(
-                visible: friendRequestSuccess.value && isSent.value && !alreadyRequested.value,
-                child: Positioned(
-                  top: 300,
-                  right: 65,
-                  child: Container(
-                    child: Text("Friend request sent!",
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 41, 193, 3))),
-                  ),
-                )
-              ),
+                  visible: friendRequestSuccess.value &&
+                      isSent.value &&
+                      !alreadyRequested.value,
+                  child: Positioned(
+                    top: 300,
+                    right: 65,
+                    child: Container(
+                      child: Text("Friend request sent!",
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 41, 193, 3))),
+                    ),
+                  )),
               Visibility(
-                visible: friendRequestSuccess.value && isSent.value && alreadyRequested.value,
-                child: Positioned(
-                  top: 300,
-                  right: 65,
-                  child: Container(
-                    child: Text("Friend request already sent!",
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0))),
-                  ),
-                )
-              )
+                  visible: friendRequestSuccess.value &&
+                      isSent.value &&
+                      alreadyRequested.value,
+                  child: Positioned(
+                    top: 300,
+                    right: 65,
+                    child: Container(
+                      child: Text("Friend request already sent!",
+                          style:
+                              TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+                    ),
+                  ))
             ],
           )),
       shape: RoundedRectangleBorder(
