@@ -739,7 +739,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   // Builds the trailcard based on the generated route
   // The trailcard is used as reference for displaying the data
   void _buildTrailCard() {
-    trail.name = 'Your Trail';
+    trail.name = '';
     trail.stairs = !avoidStairs;
     trail.lengthDistance = totalDistance;
     trail.lengthTime =
@@ -968,13 +968,24 @@ class _SaveTrailState extends State<SaveTrail> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {
-        widget.onSave(true);
-        _trailCardInfo();
-        setState(() {});
-        //TODO: Send off to database!
-        saveRouteToServer(jsonData);
-      },
+      onPressed: () => showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Container(
+              child: SaveTrailPopUp(
+                onSave: widget.onSave,
+                trail: widget.trail,
+                avoidStairs: widget.avoidStairs,
+                totalDistance: widget.totalDistance,
+                statusEnvironment: widget.statusEnvironment,
+                hillines: widget.hillines,
+              ),
+              width: double.maxFinite,
+            ),
+          );
+        },
+      ),
       style: TextButton.styleFrom(
         backgroundColor: Colors.green,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
@@ -984,6 +995,61 @@ class _SaveTrailState extends State<SaveTrail> {
       ),
       child: const Text('Save Trail +',
           style: TextStyle(color: Colors.white, fontSize: 30)),
+    );
+  }
+}
+
+class SaveTrailPopUp extends StatefulWidget {
+  final Function(bool) onSave;
+  final TrailCard trail;
+  final bool avoidStairs;
+  final double totalDistance;
+  final String statusEnvironment;
+  final double hillines;
+
+  const SaveTrailPopUp({
+    Key? key,
+    required this.onSave,
+    required this.trail,
+    required this.avoidStairs,
+    required this.totalDistance,
+    required this.statusEnvironment,
+    required this.hillines,
+  }) : super(key: key);
+
+  @override
+  State<SaveTrailPopUp> createState() => _SaveTrailPopUpState();
+}
+
+class _SaveTrailPopUpState extends State<SaveTrailPopUp> {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Enter Trail Name'),
+      content: TextField(
+        onChanged: (value) {
+          setState(() {
+            widget.trail.name = value;
+          });
+        },
+        decoration: const InputDecoration(hintText: 'Trail Name'),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            // Save trail with the entered name
+            _saveTrail();
+            Navigator.of(context).pop();
+          },
+          child: const Text('Save'),
+        ),
+      ],
     );
   }
 
@@ -1000,8 +1066,8 @@ class _SaveTrailState extends State<SaveTrail> {
       'msgID': 'addRoute',
       'data': {
         'trailName': widget.trail.name,
-        'totalDistance': totalDistance,
-        'totalTime': _distanceToTime(totalDistance),
+        'totalDistance': widget.totalDistance,
+        'totalTime': _distanceToTime(widget.totalDistance),
         'statusEnvironment': widget.statusEnvironment,
         'avoidStairs': widget.avoidStairs,
         'hilliness': widget.hillines,
@@ -1010,6 +1076,24 @@ class _SaveTrailState extends State<SaveTrail> {
     };
 
     print(jsonData);
+  }
+
+  void _saveTrail() {
+    if (widget.trail.name.isNotEmpty) {
+      // Call onSave callback passing trail name
+      widget.onSave(true);
+      _trailCardInfo();
+      setState(() {});
+      ////TODO: Send off to database!
+      saveRouteToServer(jsonData);
+    } else {
+      // Show an error message if trail name is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a trail name.'),
+        ),
+      );
+    }
   }
 }
 
