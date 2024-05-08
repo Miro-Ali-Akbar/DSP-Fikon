@@ -567,15 +567,16 @@ class GeneratedMap extends StatelessWidget {
   GeneratedMap({Key? key}) : super(key: key);
 
   TrailCard trail = TrailCard(
-      name: '',
-      lengthDistance: 0,
-      lengthTime: 0,
-      natureStatus: '',
-      stairs: false,
-      heightDifference: 0,
-      isSaved: false,
-      isCircular: false,
-      image_path: '',);
+    name: '',
+    lengthDistance: 0,
+    lengthTime: 0,
+    natureStatus: '',
+    stairs: false,
+    heightDifference: 0,
+    isSaved: false,
+    isCircular: false,
+    image_path: '',
+  );
 
   @override
   Widget build(BuildContext context) {

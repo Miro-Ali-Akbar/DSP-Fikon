@@ -92,9 +92,9 @@ class _StartPageState extends State<StartPage> {
 }
 
 /// Filters the challenges based on which ones have the status 'ongoing'
-/// 
+///
 /// [context] The context of the page
-/// 
+///
 /// Returns a List of all challenges with 'ongoing' status. If there are none, a list with an
 /// empty challenge will be returned
 List<Challenge> filterOngoing(BuildContext context) {

@@ -3,14 +3,13 @@ import 'package:trailquest/widgets/challenge.dart';
 /// A list of all challenges currently available in the application and information about them
 List<Challenge> challenges = <Challenge>[
   Challenge(
-    name: '5 statues in Uppsala',
-    type: 'Checkpoints',
-    description:
-        'All around Uppsala there are some interesting statues. During this checkpoint trail you will explore 10 of them.',
-    dataType: 'statues',
-    image: 'assets/images/Pelle_Svanslös-statyn.jpg',
-    complete: 5
-  ),
+      name: '5 statues in Uppsala',
+      type: 'Checkpoints',
+      description:
+          'All around Uppsala there are some interesting statues. During this checkpoint trail you will explore 10 of them.',
+      dataType: 'statues',
+      image: 'assets/images/Pelle_Svanslös-statyn.jpg',
+      complete: 5),
   Challenge(
       name: 'Birds',
       type: 'Orienteering',
@@ -42,9 +41,7 @@ List<Challenge> challenges = <Challenge>[
           'Walk the trail and look at the pretty flowers at each checkpoint. Maybe smell them too?',
       dataType: 'flowers',
       image: 'assets/images/wildflowers.jpg',
-      complete: 9
- 
-  ),
+      complete: 9),
   Challenge(
       name: 'Important buildings',
       type: 'Treasure hunt',

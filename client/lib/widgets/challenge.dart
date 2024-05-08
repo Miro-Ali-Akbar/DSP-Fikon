@@ -11,15 +11,14 @@ class Challenge {
   int progress;
   final int points;
 
-  Challenge({
-    required this.type,
-    required this.name,
-    required this.description,
-    required this.dataType,
-    required this.image,
-    required this.complete,
-    this.progress = 0,
-    this.status = 0,
-    this.points = 100
-  });
+  Challenge(
+      {required this.type,
+      required this.name,
+      required this.description,
+      required this.dataType,
+      required this.image,
+      required this.complete,
+      this.progress = 0,
+      this.status = 0,
+      this.points = 100});
 }

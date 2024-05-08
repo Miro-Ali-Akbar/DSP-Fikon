@@ -268,9 +268,9 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ShowMap(context, challenge, _geofenceService, _controller)
-              ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: ShowMap(
+                      context, challenge, _geofenceService, _controller)),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextButton(
@@ -341,18 +341,12 @@ Widget ProgressTracker(Challenge challenge) {
           children: [
             Text(
               '$progress/$complete checkpoints',
-              style: TextStyle(
-                fontSize: 25,
-                color: Colors.white
-              ),
+              style: TextStyle(fontSize: 25, color: Colors.white),
               textAlign: TextAlign.center,
             ),
             Text(
               '$currentPoints points gained of $allPoints total',
-              style: TextStyle(
-                fontSize: 25,
-                color: Colors.white
-              ),
+              style: TextStyle(fontSize: 25, color: Colors.white),
               textAlign: TextAlign.center,
             )
           ],
@@ -364,23 +358,17 @@ Widget ProgressTracker(Challenge challenge) {
       height: 100,
       color: const Color.fromARGB(255, 250, 159, 74),
       child: Center(
-        child:  Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               '$progress/$complete locations visited',
-              style: TextStyle(
-                fontSize: 25,
-                color: Colors.white
-              ),
+              style: TextStyle(fontSize: 25, color: Colors.white),
               textAlign: TextAlign.center,
             ),
             Text(
               '$currentPoints points gained of $allPoints total',
-              style: TextStyle(
-                fontSize: 25,
-                color: Colors.white
-              ),
+              style: TextStyle(fontSize: 25, color: Colors.white),
               textAlign: TextAlign.center,
             )
           ],
@@ -392,23 +380,17 @@ Widget ProgressTracker(Challenge challenge) {
       height: 100,
       color: const Color.fromARGB(255, 137, 70, 196),
       child: Center(
-        child:  Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               '$progress/$complete control points',
-              style: TextStyle(
-                fontSize: 25,
-                color: Colors.white
-              ),
+              style: TextStyle(fontSize: 25, color: Colors.white),
               textAlign: TextAlign.center,
             ),
             Text(
               '$currentPoints points gained of $allPoints total',
-              style: TextStyle(
-                fontSize: 25,
-                color: Colors.white
-              ),
+              style: TextStyle(fontSize: 25, color: Colors.white),
               textAlign: TextAlign.center,
             )
           ],
@@ -521,23 +503,24 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
 
 Widget ShowMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) {
-  if(challenge.status == 1) {
+  if (challenge.status == 1) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 40),
       child: TextButton.icon(
         onPressed: () {
-          ChallengeMap(context, challenge,
-                            geofenceService, _controller);
+          ChallengeMap(context, challenge, geofenceService, _controller);
         },
-        label: Text('Show map', style: TextStyle(
-          color: Colors.white,
-          fontSize: 25
-        ),),
-        icon: SvgPicture.asset('assets/icons/img_map.svg', height: 35,),
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.green.shade600,
-          minimumSize: Size.fromHeight(70)
+        label: Text(
+          'Show map',
+          style: TextStyle(color: Colors.white, fontSize: 25),
         ),
+        icon: SvgPicture.asset(
+          'assets/icons/img_map.svg',
+          height: 35,
+        ),
+        style: TextButton.styleFrom(
+            backgroundColor: Colors.green.shade600,
+            minimumSize: Size.fromHeight(70)),
       ),
     );
   } else {
