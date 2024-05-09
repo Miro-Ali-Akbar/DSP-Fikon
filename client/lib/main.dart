@@ -69,9 +69,6 @@ void Listen() {
               }
             }
 
-            print("????????????"); 
-            print(userRoutes.length); 
-
             if (!friendTrailsData.isEmpty) {
               for (var i = 0; i < friendTrailsData.length; i++) {
                 Map<String, dynamic> trailData = friendTrailsData[i];
@@ -101,11 +98,6 @@ void Listen() {
               'hilliness': trailData['hilliness'],
               'coordinates': trailData['coordinates']
             });
-
-            print(trailData); 
-
-            print("!!!!!!!!!!!!!!!!"); 
-            print(userRoutes.length); 
         }
       }
     });
