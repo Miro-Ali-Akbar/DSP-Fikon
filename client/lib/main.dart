@@ -139,7 +139,7 @@ void main() async {
   );
 
   channel =
-      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+      WebSocketChannel.connect(Uri.parse("ws://78.66.87.18:3000"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());

@@ -43,7 +43,6 @@ wss.on('connection', ws => {
         console.log('2: ', message.data);
         switch(message.msgID) {
             case "initRes":
-                putUser(message.data.username, message.data);
                 console.log('=== user added to database ===');
                 wss.connectedUsers.push({"username": message.data.username, "socket": ws, "id": ws.id});
                 i = i + 1;
@@ -61,7 +60,7 @@ wss.on('connection', ws => {
                 getRoutes(ws, message.data.username, message.data.trailname, message.data.trailType);
                 break;
         }
-    })
+    });
 
     ws.on('close', () => console.log(`Client with id: ${ws.id} has disconnected.`));
 
