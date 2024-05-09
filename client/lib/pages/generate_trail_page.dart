@@ -83,7 +83,6 @@ class GenerateNewTrail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Hellooooooooo!!!!!!!!!!!!!'); 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: TextButton.icon(
