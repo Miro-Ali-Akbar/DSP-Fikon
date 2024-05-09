@@ -205,11 +205,15 @@ async function respondRequest(ws, target, sender, response, wsArr) {
 
 async function getUsername(email) {
     const raw = await db.collection('connectedEmails').doc(email).get();
-    return raw.data().username;
+    if ( raw.exists ) {
+        return {username: raw.data().username, found: true};
+    } else {
+        return {username: null, found: false};
+    }
 }
 
 async function putUsername(ws, email, username) {
-    const raw = await db.collection('connectedEmails').get()
+    const raw = await db.collection('connectedEmails').get();
     const collection = raw.docs.map(doc => doc.data());
     for ( let i = 0; i < collection.length; i++ ) {
         if ( username === collection[i].username) {
@@ -230,41 +234,48 @@ async function putUsername(ws, email, username) {
     }))
 }
 
-
 async function init(ws, email) {
     const username = await getUsername(email);
     const user = await usersRef.doc(username).get();
     const leaderboard = await leaderboardRef.doc('leaderboard1').get()
-
-    if ( user.exists ) {
-        ws.send(JSON.stringify({
-            msgID: 'initUser',
-            data: {
+    
+    if ( username.found ) {
+        if ( user.exists ) {
+            ws.send(JSON.stringify({
+                msgID: 'initUser',
+                data: {
+                    username: username,
+                    friendlist: user.data().friendlist,
+                    friendRequests: user.data().friendRequests,
+                    leaderboard: leaderboard.data(),
+                    score: user.data().score,
+                    changedUsername: true
+                }
+            }));
+            await usersRef.doc(username).update({
+                online: true
+            });
+        } else {
+            await usersRef.doc(username).set({
                 username: username,
-                friendlist: user.data().friendlist,
-                friendRequests: user.data().friendRequests,
+                friendlist: [],
+                friendRequests: [],
+                score: 0,
+                online: true
+            });
+            ws.send(JSON.stringify({msgID: 'initUser', data: {
+                username: username,
+                friendlist: [],
+                friendRequests: [],
+                score: 0,
                 leaderboard: leaderboard.data(),
-                score: user.data().score,
-            }
-        }));
-        await usersRef.doc(username).update({
-            online: true
-        });
-    } else {
-        await usersRef.doc(username).set({
-            username: username,
-            friendlist: [],
-            friendRequests: [],
-            score: 0,
-            online: true
-        });
-        ws.send(JSON.stringify({msgID: 'initUser', data: {
-            username: username,
-            friendlist: [],
-            friendRequests: [],
-            score: 0,
-            leaderboard: leaderboard.data(),
-            online: true
+                online: true,
+                changedUsername: true
+            }}));
+        }
+    } else { 
+        ws.send(JSON.stringify({ msgID: 'initUser', data: {
+            changedUsername: false
         }}));
     }
 }
