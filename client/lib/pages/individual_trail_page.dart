@@ -173,7 +173,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/icons/img_arrow_up.svg',
+                      'assets/icons/img_mountain.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
@@ -182,7 +182,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
-                        '${trail.heightDifference}',
+                        '${trail.heightDifference} m',
                         style: TextStyle(fontSize: 15),
                       ),
                     ),

@@ -71,6 +71,7 @@ flutter:
     - assets/icons/bronze_medal.svg
     - assets/images/Logo.png
     - assets/icons/img_plus.svg
+    - assets/icons/img_mountain.svg
     
 #  fonts:
 #  - family: InterRegular
