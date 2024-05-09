@@ -44,10 +44,10 @@ class _friendPageState extends State<Friendpage> {
                   },
                 ),
                 title: Text("Friends",
-                    style: TextStyle(color: Colors.green, fontSize: 30.0)),
+                    style: TextStyle(color: Colors.green, fontSize: 25.0)),
                 actions: <Widget>[
                   Padding(
-                    padding: EdgeInsets.fromLTRB(15, 2, 15, 0),
+                    padding: EdgeInsets.fromLTRB(0, 2, 15, 0),
                     child: TextButton.icon(
                         onPressed: () {
                           sendFriendRequest(context);
@@ -110,7 +110,10 @@ class _friendPageState extends State<Friendpage> {
                   height: 20,
                 ),
                 Expanded(
-                    child: ListView.builder(
+                    child: ValueListenableBuilder<List<dynamic>>(
+                      valueListenable: friendsList,
+                      builder: (context, List<dynamic> list, _){
+                        return ListView.builder(
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         itemCount: friendsList.value.length,
@@ -118,13 +121,12 @@ class _friendPageState extends State<Friendpage> {
                           return Padding(
                               padding: EdgeInsets.all(10),
                               child: Friend(
-                                  name: friendsList.value[index]['name'],
-                                  profilePic: friendsList.value[index]
-                                      ['profilePic'],
-                                  recentChallenges: friendsList.value[index]
-                                      ['recentChallenges'],
-                                  score: friendsList.value[index]['score']));
-                        }))
+                                name:list[index]["name"],
+                                score: list[index]["score"]
+                              )
+                                );
+                        });}
+                    ))
               ],
             )));
   }

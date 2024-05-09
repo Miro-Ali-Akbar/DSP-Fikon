@@ -181,13 +181,13 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       });
     } else {
-      dispose();
+      
     }
   } 
 
   @override
   Widget build(BuildContext context) {
-    initState();
+    
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(

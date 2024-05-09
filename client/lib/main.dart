@@ -17,7 +17,8 @@ import 'dart:convert';
 
 WebSocketChannel? channel;
 ValueNotifier<List<dynamic>> friendsList = ValueNotifier([
-  ['{"name": "emma" , "score": 30, "recentChallenges": ["Checkpoint  score gained: 30"], "profilePic" : "url"}'
+  [{"name": "emma" ,  "score": 30},
+  {"name": "eee", "score": 90}
     
   ]
 ]);
@@ -247,17 +248,16 @@ class _MainAppState extends State<MainApp> {
 }
 
 class Friend extends StatelessWidget {
-  final String profilePic;
+
   final String name;
 
-  final List<String> recentChallenges;
+ 
   final int score;
 
   const Friend(
       {super.key,
       required this.name,
-      required this.profilePic,
-      required this.recentChallenges,
+      
       required this.score});
   @override
   Widget build(BuildContext context) {
@@ -278,7 +278,6 @@ class Friend extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(this.profilePic),
             Column(
               children: [
                 Text(this.name),
