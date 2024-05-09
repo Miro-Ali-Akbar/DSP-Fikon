@@ -1,5 +1,7 @@
 import 'package:trailquest/widgets/trail_cards.dart';
 
+/// An example list of trails - only used for testing purposes 
+
 List<TrailCard> MyTrailList= <TrailCard>[
   TrailCard(
     name: 'trail 1',
@@ -21,7 +23,7 @@ List<TrailCard> MyTrailList= <TrailCard>[
     natureStatus: 'City',
     heightDifference: 30,
     isSaved: true,
-    isCircular: true, 
+    isCircular: true,
     coordinates: [],
     image_path: 'assets/images/path_pic.jpg'
   ),
@@ -50,6 +52,8 @@ List<TrailCard> MyTrailList= <TrailCard>[
     image_path: 'assets/images/img_image_1.png'
   ),
 ];
+
+/// An example list of trails - only used for testing purposes 
 
 List<TrailCard> FriendTrailList= <TrailCard>[
   TrailCard(

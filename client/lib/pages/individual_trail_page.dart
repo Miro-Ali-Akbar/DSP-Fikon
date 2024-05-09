@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:trailquest/pages/map_page.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart';
 
@@ -19,15 +20,16 @@ Future<void> _addPolyLine() async {
 }
 
 class IndividualTrailPage extends StatefulWidget {
-  TrailCard trail;
+  TrailCard trail; // Trail card that contains all info about the trail
   bool saved;
-  final ValueChanged<bool> onSaveChanged; // Callback function
+  final ValueChanged<bool>
+      onSaveChanged; // Callback function to the trail card that changes the isSaved value of the trail card
 
   IndividualTrailPage({
     Key? key,
     required this.trail,
     required this.saved,
-    required this.onSaveChanged, // Callback function
+    required this.onSaveChanged,
   }) : super(key: key);
 
   @override
@@ -84,19 +86,21 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
             ),
           ],
         ),
+
+        ///
+        /// The map showing the trail
+        ///
         Expanded(
           child: Center(
             child: GoogleMap(
-              //onMapCreated: (GoogleMapController controller) {
-              //  _controller.complete(controller);
-              //},
-              //zoomControlsEnabled: false,
-              ////myLocationEnabled: visiblePlayer,
-              //myLocationButtonEnabled: false,
-              //initialCameraPosition: CameraPosition(
-              //    target: LatLng(59.83972677529924, 17.6465716818546),
-              //    zoom: 15),
-
+              onTap: (_) {
+                Navigator.of(context, rootNavigator: true)
+                    .push(PageRouteBuilder(
+                  pageBuilder: (context, x, xx) => MapPage(trail: trail),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ));
+              },
               myLocationEnabled: true,
               zoomControlsEnabled: false,
               initialCameraPosition: CameraPosition(
@@ -111,6 +115,10 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
             ),
           ),
         ),
+
+        ///
+        /// Display the information about the trail
+        ///
         SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Column(
@@ -227,6 +235,10 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
             ],
           ),
         ),
+
+        ///
+        /// Displays the 'Save' or 'Remove' button depending on whether the trail is saved
+        ///
         if (saved) ...[
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -257,6 +269,10 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
   }
 }
 
+///
+/// 'Save Trail' button
+///
+
 class SaveTrail extends StatefulWidget {
   final Function(bool) onSave;
 
@@ -284,6 +300,10 @@ class _SaveTrailState extends State<SaveTrail> {
     );
   }
 }
+
+///
+/// 'Remove Trail' button
+///
 
 class RemoveTrail extends StatefulWidget {
   final Function(bool) onRemove;

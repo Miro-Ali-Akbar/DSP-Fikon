@@ -15,9 +15,9 @@ import 'dart:convert';
 
 WebSocketChannel? channel;
 var jsonString = '';
-List<dynamic> dataList = [];
 List<dynamic> userRoutes = [];
 List<dynamic> friendsRoutes = [];
+List<String> dataList = [];
 
 void Listen() {
   try {
@@ -128,7 +128,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  channel = WebSocketChannel.connect(Uri.parse("ws://78.66.87.18:3000"));
+  channel =
+      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());

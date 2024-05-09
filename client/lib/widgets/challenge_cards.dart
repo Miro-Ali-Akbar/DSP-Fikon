@@ -3,13 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/pages/individual_challenge_page.dart';
 import 'package:trailquest/widgets/challenge.dart';
 
-final List<String> challengeTypes = <String>['Checkpoints', 'Quiz', 'Orienteering'];
-
-/**
- * Creates the cards that will be visible on the challenge page and start page.
- * As of now, the accepted types are 'Checkpoints', 'Orienteering' and 'Quiz' but it's likely that Quiz will be substituted for 'Straight line'
- */
-
+/// Creates the cards for challenges that will be visible on the challenge page and start page.
 class ChallengeCard extends StatefulWidget{
   Challenge challenge;
 
@@ -23,10 +17,10 @@ class ChallengeCard extends StatefulWidget{
 }
 
 class _CardState extends State<ChallengeCard> {
-  int count = 0;
-
   @override
   Widget build(BuildContext context) {
+    int complete = widget.challenge.complete;
+    int progress = widget.challenge.progress;
     if(widget.challenge.type == 'Checkpoints') {
       return GestureDetector(
         onTap:() {
@@ -64,7 +58,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 checkpoints',
+                        '$progress/$complete checkpoints',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20
@@ -128,7 +122,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 locations visited',
+                        '$progress/$complete locations visited',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20
@@ -189,7 +183,7 @@ class _CardState extends State<ChallengeCard> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        '$count/10 control points',
+                        '$progress/$complete control points',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20
@@ -217,7 +211,8 @@ class _CardState extends State<ChallengeCard> {
       );
     }
     else {
-      // A default challenge that does not belong to any of the given types, not meant to actually be used
+      /// If there are no ongoing challenges, this card will be showcased on the start page and this
+      /// is the only instance where this specific card should be used.
       return GestureDetector(
         onTap:() {},
         child: Container(

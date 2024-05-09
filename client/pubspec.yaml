@@ -57,6 +57,7 @@ flutter:
     - assets/icons/img_stairs.svg
     - assets/icons/img_arrow_up.svg
     - assets/icons/img_group.svg
+    - assets/icons/img_map.svg
     - assets/images/img_image_1.png
     - assets/images/Pelle_Svanslös-statyn.jpg
     - assets/images/gardsmyg_johan-nilsson.jpg
@@ -65,6 +66,10 @@ flutter:
     - assets/images/wildflowers.jpg
     - assets/images/Uppsala_domkyrka_flygbild.jpg
     - assets/images/path_pic.jpg
+    - assets/icons/gold_medal.svg
+    - assets/icons/silver_medal.svg
+    - assets/icons/bronze_medal.svg
+    - assets/images/Logo.png
     
 #  fonts:
 #  - family: InterRegular
