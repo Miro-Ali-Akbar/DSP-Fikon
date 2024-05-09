@@ -86,8 +86,6 @@ void Listen() {
 
             break;
           case 'returnRoute':
-            Map<String, dynamic> routes = data;
-
             Map<String, dynamic> trailData = data;
             userRoutes.add({
               'trailName': trailData['trailName'],
@@ -130,8 +128,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  channel =
-      WebSocketChannel.connect(Uri.parse("ws://78.66.87.18:3000"));
+  channel = WebSocketChannel.connect(Uri.parse("ws://78.66.87.18:3000"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());

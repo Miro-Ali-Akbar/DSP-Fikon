@@ -12,13 +12,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
+import 'package:trailquest/pages/trail_page.dart';
 
 import 'generate_trail_page.dart';
 
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
-import '../widgets/back_button.dart';
-
 import 'package:trailquest/main.dart';
 
 double totalDistance = 0;
@@ -567,9 +566,7 @@ double _distanceToTime(double distance) {
 /// Displays a generated map using the MapsRoutesGenerator widget,
 /// configured with a default TrailCard and options to save the route.
 class GeneratedMap extends StatelessWidget {
-  final Function rebuildTrailPage;
-  
-  GeneratedMap({Key? key, required this.rebuildTrailPage}) : super(key: key);
+  GeneratedMap({Key? key}) : super(key: key);
 
   TrailCard trail = TrailCard(
     name: '',
@@ -592,7 +589,10 @@ class GeneratedMap extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MapsRoutesGenerator(
-          trail: trail, saved: false, onSaveChanged: (value) {}, rebuildTrailPage: rebuildTrailPage),
+        trail: trail,
+        saved: false,
+        onSaveChanged: (value) {},
+      ),
     );
   }
 }
@@ -605,19 +605,17 @@ class MapsRoutesGenerator extends StatefulWidget {
   TrailCard trail;
   bool saved;
   final ValueChanged<bool> onSaveChanged; // Callback function
-  final Function rebuildTrailPage; 
 
   MapsRoutesGenerator({
     Key? key,
     required this.trail,
     required this.saved,
     required this.onSaveChanged, // Callback function
-    required this.rebuildTrailPage,
   }) : super(key: key);
 
   @override
   State<MapsRoutesGenerator> createState() =>
-      _MapsRoutesGeneratorState(trail: trail, saved: saved, rebuildTrailPage: rebuildTrailPage);
+      _MapsRoutesGeneratorState(trail: trail, saved: saved);
 }
 
 /// The state for the MapsRoutesGenerator widget.
@@ -627,10 +625,12 @@ class MapsRoutesGenerator extends StatefulWidget {
 class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   bool saved = false;
   TrailCard trail;
-  final Function rebuildTrailPage; 
 
-  _MapsRoutesGeneratorState(
-      {Key? key, required this.trail, required this.saved, required this.rebuildTrailPage});
+  _MapsRoutesGeneratorState({
+    Key? key,
+    required this.trail,
+    required this.saved,
+  });
 
   late Completer<GoogleMapController> _controller = Completer();
 
@@ -762,7 +762,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
           body: Column(children: [
         Row(
           children: [
-            GoBackButton(),
+            GoBackButtonGeneratedMap(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
@@ -929,7 +929,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
               totalDistance: totalDistance,
               statusEnvironment: getSelectedStatusEnvironment(),
               hillines: hillines,
-              rebuildTrailPage: rebuildTrailPage,
             ),
           ),
         ]
@@ -950,7 +949,6 @@ class SaveTrail extends StatefulWidget {
   final double totalDistance;
   final String statusEnvironment;
   final double hillines;
-  final Function rebuildTrailPage; 
 
   const SaveTrail({
     Key? key,
@@ -960,7 +958,6 @@ class SaveTrail extends StatefulWidget {
     required this.totalDistance,
     required this.statusEnvironment,
     required this.hillines,
-    required this.rebuildTrailPage,
   }) : super(key: key);
 
   @override
@@ -973,7 +970,6 @@ class SaveTrail extends StatefulWidget {
 /// for saving a trail. When pressed, it triggers the [onSave] callback function
 /// to indicate that the trail is saved.
 class _SaveTrailState extends State<SaveTrail> {
-
   @override
   Widget build(BuildContext context) {
     return TextButton(
@@ -989,7 +985,6 @@ class _SaveTrailState extends State<SaveTrail> {
                 totalDistance: widget.totalDistance,
                 statusEnvironment: widget.statusEnvironment,
                 hillines: widget.hillines,
-                rebuildTrailPage: widget.rebuildTrailPage,
               ),
               width: double.maxFinite,
             ),
@@ -1016,7 +1011,6 @@ class SaveTrailPopUp extends StatefulWidget {
   final double totalDistance;
   final String statusEnvironment;
   final double hillines;
-  final Function rebuildTrailPage; 
 
   const SaveTrailPopUp({
     Key? key,
@@ -1026,7 +1020,6 @@ class SaveTrailPopUp extends StatefulWidget {
     required this.totalDistance,
     required this.statusEnvironment,
     required this.hillines,
-    required this.rebuildTrailPage,
   }) : super(key: key);
 
   @override
@@ -1086,18 +1079,16 @@ class _SaveTrailPopUpState extends State<SaveTrailPopUp> {
         'coordinates': coordinates,
       }
     };
-
   }
 
   void _saveTrail() {
     if (widget.trail.name.isNotEmpty) {
       // Call onSave callback passing trail name
       widget.onSave(true);
+
       _trailCardInfo();
       setState(() {});
       saveRouteToServer(jsonData);
-
-      widget.rebuildTrailPage(); 
     } else {
       // Show an error message if trail name is empty
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1149,10 +1140,42 @@ class _RemoveTrailState extends State<RemoveTrail> {
 }
 
 void saveRouteToServer(Map<String, dynamic> routeData) async {
-  String serverUrl =
-      'http://trocader.duckdns.org:3000'; //TODO: correct?? now yes :)
-
   String jsonString = jsonEncode(routeData);
 
   channel?.sink.add(jsonString);
+}
+
+/// A StatelessWidget that rebuilds the Trail Page
+class GoBackButtonGeneratedMap extends StatelessWidget {
+  const GoBackButtonGeneratedMap({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: TextButton.icon(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        TrailPage()), // Create new instance of TrailPage
+              );
+            },
+            icon: SvgPicture.asset(
+              'assets/icons/arrow-sm-left-svgrepo-com (1).svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+            ),
+            label: Text(''),
+          ),
+        ),
+      ],
+    );
+  }
 }

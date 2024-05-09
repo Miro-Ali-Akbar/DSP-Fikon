@@ -31,6 +31,11 @@ class _TrailPageState extends State<TrailPage> {
   @override
   void initState() {
     super.initState();
+    fetchTrailData();
+  }
+
+  /// Fetches a list of trailcards to set as references for the widgets
+  void fetchTrailData() {
     setState(() {
       myTrails = _trailCardToList(userRoutes);
       friendsTrails = _trailCardToList(friendsRoutes);
@@ -86,7 +91,7 @@ class _TrailPageState extends State<TrailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               SizedBox(height: 40),
-              CreateNewTrail(rebuildTrailPage: rebuildTrailPage),
+              CreateNewTrail(),
               Row(
                 children: <Widget>[
                   AnimatedButtons(onBrowsingChanged: (value) {
@@ -212,15 +217,12 @@ class FilterButton extends StatelessWidget {
 }
 
 class CreateNewTrail extends StatelessWidget {
-  final Function rebuildTrailPage; 
-  const CreateNewTrail({Key? key, required this.rebuildTrailPage}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
         Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          pageBuilder: (context, x, xx) => GenerateTrail(rebuildTrailPage: rebuildTrailPage),
+          pageBuilder: (context, x, xx) => GenerateTrail(),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ));
@@ -242,8 +244,11 @@ class Trails extends StatelessWidget {
   List<TrailCard> savedTrails;
   List<TrailCard> friendTrails;
 
-  Trails({Key? key, required this.savedTrails, required this.friendTrails})
-      : super(key: key);
+  Trails({
+    Key? key,
+    required this.savedTrails,
+    required this.friendTrails,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
