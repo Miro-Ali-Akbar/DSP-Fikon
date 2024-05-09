@@ -244,7 +244,7 @@ async function init(ws, email) {
             ws.send(JSON.stringify({
                 msgID: 'initUser',
                 data: {
-                    username: username,
+                    username: username.username,
                     friendlist: user.data().friendlist,
                     friendRequests: user.data().friendRequests,
                     leaderboard: leaderboard.data(),
@@ -252,19 +252,19 @@ async function init(ws, email) {
                     changedUsername: true
                 }
             }));
-            await usersRef.doc(username).update({
+            await usersRef.doc(username.username).update({
                 online: true
             });
         } else {
-            await usersRef.doc(username).set({
-                username: username,
+            await usersRef.doc(username.username).set({
+                username: username.username,
                 friendlist: [],
                 friendRequests: [],
                 score: 0,
                 online: true
             });
             ws.send(JSON.stringify({msgID: 'initUser', data: {
-                username: username,
+                username: username.username,
                 friendlist: [],
                 friendRequests: [],
                 score: 0,
