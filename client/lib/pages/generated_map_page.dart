@@ -40,6 +40,9 @@ double cyclingSpeed = 5.0;
 
 late LatLng start;
 
+int pointsToVisit = 0;
+int visitedPoints = 0;
+
 /// Resets global variables used by generated_map_page
 void reset() {
   totalDistance = 0;
@@ -51,6 +54,8 @@ void reset() {
   stairsExist = false;
   activityOption = '';
   geofenceService.clearGeofenceList();
+  pointsToVisit = 0;
+  visitedPoints = 0;
 }
 
 /// Adds a marker to the list of markers the map will display
@@ -492,12 +497,14 @@ Future<void> _addPolyLineAndGeofence() async {
       // TODO: Change distance to more suitable number
       if (await _getWalkingDistance(oldOrigin, currentPoint, false) > 100) {
         geofenceService.addGeofence(Geofence(
-            id: 'loc_$i',
-            latitude: currentPoint.latitude,
-            longitude: currentPoint.longitude,
-            radius: geofenceRadiusList));
+          id: 'loc_$i',
+          latitude: currentPoint.latitude,
+          longitude: currentPoint.longitude,
+          radius: geofenceRadiusList,
+        ));
         _addMarker(currentPoint, "GeofenceCoord: $i",
-            BitmapDescriptor.defaultMarkerWithHue(50));
+            BitmapDescriptor.defaultMarkerWithHue(150));
+        pointsToVisit++;
 
         oldOrigin = currentPoint;
       }
@@ -663,10 +670,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
         LatLng(position.latitude, position.longitude), 14));
   }
 
-  bool isInArea = false;
-  int activeIndex = 0;
-  // LatLng currentPosition = LatLng(0, 0);
-
   Future<void> _onGeofenceStatusChanged(
       Geofence geofence,
       GeofenceRadius geofenceRadius,
@@ -677,23 +680,21 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     print('geofenceStatus: ${geofenceStatus.toString()}');
     geofenceStreamController.sink.add(geofence);
 
-    if (geofenceStatus.toString() == "GeofenceStatus.ENTER" &&
-        geofence.toJson().toString().contains(RegExp('loc_$activeIndex'))) {
+    if (geofenceStatus.toString() == "GeofenceStatus.ENTER") {
       print("Entered area");
-      setState(() {
-        isInArea = true;
-        activeIndex++;
-      });
 
-      // TODO: Add game logic
-    } else if (geofenceStatus.toString() == "GeofenceStatus.EXIT") {
-      print("Left area");
+      String geofenceId = geofence.toJson()['id'];
+      print(geofenceId);
+      visitedPoints++;
+      print("pointsToVisit: $pointsToVisit");
+      print("visitedPoints: $visitedPoints");
 
-      geofenceService.removeGeofenceById('loc_$activeIndex');
+      geofenceService.removeGeofenceById(geofenceId);
 
-      setState(() {
-        isInArea = false;
-      });
+      if (visitedPoints >= pointsToVisit) {
+        // TODO: Add logic
+        print("Completed trail!");
+      }
     }
   }
 
