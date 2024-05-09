@@ -14,7 +14,14 @@ import 'package:trailquest/pages/generated_map_page.dart';
 
 late LatLng start;
 
-class GenerateTrail extends StatelessWidget {
+class GenerateTrail extends StatefulWidget {
+  @override
+  State<GenerateTrail> createState() => _GenerateTrailState();
+}
+
+class _GenerateTrailState extends State<GenerateTrail> {
+  bool distanceSpecified = false; 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,13 +37,34 @@ class GenerateTrail extends StatelessWidget {
               ),
               Expanded(
                   child: SingleChildScrollView(
-                      child: Column(children: [PageCenter()]))),
+                      child: Column(
+                        children: [
+                          PageCenter(
+                            distanceSpecified: distanceSpecified, 
+                            distanceEntered:(bool value){
+                              setState(() {
+                                distanceSpecified = value;
+                              });
+                            },
+                          )
+                        ]
+                      )
+                   )
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: GenerateNewTrail(),
+                child: GenerateNewTrail(
+                  distanceSpecified: distanceSpecified,
+                  updateDistanceSpecified: (bool value) {
+                    setState(() {
+                      distanceSpecified = value;
+                    });
+                  },
+                ),
               ),
             ],
-          )),
+          )
+        ),
     );
   }
 }
@@ -46,22 +74,43 @@ class GenerateTrail extends StatelessWidget {
 ///
 
 class GenerateNewTrail extends StatelessWidget {
-  const GenerateNewTrail({Key? key}) : super(key: key);
+  final bool distanceSpecified;
+  final Function(bool) updateDistanceSpecified;
+
+  GenerateNewTrail({Key? key, 
+    required this.distanceSpecified, 
+    required this.updateDistanceSpecified}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () => _generateTrail(context),
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.green,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+    print('Hellooooooooo!!!!!!!!!!!!!'); 
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: TextButton.icon(
+        onPressed: () => _generateTrail(context),
+        style: distanceSpecified ? TextButton.styleFrom(
+          backgroundColor: Colors.green,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+        )
+        : 
+        TextButton.styleFrom(
+          backgroundColor: Colors.grey,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+        ), 
+        label: Padding(
+          padding: const EdgeInsets.only(right: 10.0),
+          child: const Text(
+            'Generate new trail',
+            style: TextStyle(color: Colors.white, fontSize: 30),
+          ),
         ),
-      ),
-      child: const Text(
-        'Generate new trail +',
-        style: TextStyle(color: Colors.white, fontSize: 30),
+        icon: SvgPicture.asset('assets/icons/img_plus.svg',),
       ),
     );
   }
@@ -88,7 +137,9 @@ bool getCheckedValue() {
 ///
 
 class PageCenter extends StatefulWidget {
-  PageCenter({super.key});
+  bool distanceSpecified; 
+  final Function(bool) distanceEntered; 
+  PageCenter({super.key, required this.distanceSpecified, required this.distanceEntered});
 
   @override
   State<PageCenter> createState() => _PageCenterState();
@@ -152,7 +203,7 @@ class _PageCenterState extends State<PageCenter> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Container(
-              child: InputField(),
+              child: InputField(distanceSpecified: widget.distanceSpecified, distanceEntered: widget.distanceEntered,),
               width: 300,
               height: 70,
             ),
@@ -565,11 +616,14 @@ class _EnvironmentOptionsState extends State<EnviornmentOptions> {
 }
 
 class InputField extends StatefulWidget {
-  InputField({super.key});
+  bool distanceSpecified; 
+  final Function(bool) distanceEntered; 
+  InputField({super.key, required this.distanceSpecified, required this.distanceEntered});
 
   @override
   State<InputField> createState() => _InputFieldState();
 }
+
 
 String inputDistance = '';
 
@@ -591,7 +645,12 @@ class _InputFieldState extends State<InputField> {
                   .digitsOnly // Only numbers can be entered
             ],
             onSubmitted: (String value) {
-              inputDistance = value;
+              setState(() {
+                inputDistance = value;
+                value.isNotEmpty ?
+                  widget.distanceEntered(true) : 
+                  widget.distanceEntered(false); 
+              });
             },
           ),
         ),
