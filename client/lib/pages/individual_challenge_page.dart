@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 
-import 'package:flutter_config/flutter_config.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
+import 'package:trailquest/main.dart';
 
-import 'package:flutter/material.dart';
+import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
+import 'package:geolocator/geolocator.dart';
 import 'package:geofence_service/geofence_service.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -42,20 +44,6 @@ class IndividualChallengePage extends StatefulWidget {
 class _IndividualChallengeState extends State<IndividualChallengePage> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
-  // Controllers for geofences
-  final _activityStreamController = StreamController<Activity>();
-  final _geofenceStreamController = StreamController<Geofence>();
-
-  // Settings for geofences
-  final _geofenceService = GeofenceService.instance.setup(
-      interval: 2000,
-      accuracy: 100,
-      loiteringDelayMs: 60000,
-      statusChangeDelayMs: 10000,
-      useActivityRecognition: true,
-      allowMockLocations: true,
-      printDevLog: false,
-      geofenceRadiusSortType: GeofenceRadiusSortType.DESC);
 
   // Automatically called every time the status of a geofence is changed
   // Most game logic will be placed here
@@ -67,7 +55,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
     print('geofence: ${geofence.toJson()}');
     print('geofenceRadius: ${geofenceRadius.toJson()}');
     print('geofenceStatus: ${geofenceStatus.toString()}');
-    _geofenceStreamController.sink.add(geofence);
+    geofenceStreamController.sink.add(geofence);
 
     if (geofenceStatus.toString() == "GeofenceStatus.ENTER") {
       print("Entered area");
@@ -82,7 +70,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
 
         switch (challenge.type) {
           case 'Orienteering':
-            _geofenceService.removeGeofenceById(geofence.toJson()['id']);
+            geofenceService.removeGeofenceById(geofence.toJson()['id']);
 
             // TODO: Cleanup if possible
             setState(() {
@@ -102,7 +90,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
           case 'Checkpoints':
             // TODO: Implement
             if (geofenceId == "loc_$geofenceIndex") {
-              _geofenceService.removeGeofenceById(geofence.toJson()['id']);
+              geofenceService.removeGeofenceById(geofence.toJson()['id']);
               setState(() {
                 Marker marker = markerList.firstWhere(
                     (marker) => marker.markerId.value == geofenceId);
@@ -138,7 +126,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
   void _onActivityChanged(Activity prevActivity, Activity currActivity) {
     print('prevActivity: ${prevActivity.toJson()}');
     print('currActivity: ${currActivity.toJson()}');
-    _activityStreamController.sink.add(currActivity);
+    activityStreamController.sink.add(currActivity);
   }
 
   // This function is to be called when the location has changed.
@@ -167,17 +155,18 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
 
   @override
   void initState() {
+    geofenceService.clearAllListeners();
+    
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _geofenceService
-          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
-      _geofenceService.addLocationChangeListener(_onLocationChanged);
-      _geofenceService.addLocationServicesStatusChangeListener(
+      geofenceService.addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      geofenceService.addLocationChangeListener(_onLocationChanged);
+      geofenceService.addLocationServicesStatusChangeListener(
           _onLocationServicesStatusChanged);
-      _geofenceService.addActivityChangeListener(_onActivityChanged);
-      _geofenceService.addStreamErrorListener(_onError);
-      _geofenceService.start().catchError(_onError);
+      geofenceService.addActivityChangeListener(_onActivityChanged);
+      geofenceService.addStreamErrorListener(_onError);
+      geofenceService.start().catchError(_onError);
     });
   }
 
@@ -189,111 +178,92 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
   Widget build(BuildContext context) {
     String type = widget.challenge.type;
 
-    return WillStartForegroundTask(
-        onWillStart: () async {
-          return _geofenceService.isRunningService;
-        },
-        androidNotificationOptions: AndroidNotificationOptions(
-          channelId: 'geofence_service_notification_channel',
-          channelName: 'Geofence Service Notification',
-          channelDescription:
-              'This notification appears when the geofence service is running in the background.',
-          channelImportance: NotificationChannelImportance.LOW,
-          priority: NotificationPriority.LOW,
-          isSticky: false,
-        ),
-        iosNotificationOptions: const IOSNotificationOptions(),
-        foregroundTaskOptions: const ForegroundTaskOptions(),
-        // TODO: Change message?
-        notificationTitle: 'Geofence Service is running',
-        notificationText: 'Tap to return to the app',
-        child: Scaffold(
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  GoBackButton(),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    child: Text(widget.challenge.name,
-                        style: TextStyle(fontSize: 25)),
-                  )
-                ],
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Image(
-                          width: 400,
-                          fit: BoxFit.contain,
-                          image: AssetImage(widget.challenge.image),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          widget.challenge.description,
-                          style: TextStyle(fontSize: 20),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Instruction: $type',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                ChallengeInstruction(widget.challenge),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ProgressTracker(challenge))
-                    ],
-                  ),
-                ),
-              ),
+              GoBackButton(),
               Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ShowMap(
-                      context, challenge, _geofenceService, _controller)),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextButton(
-                  onPressed: () {
-                    setState(() {
-                      if (widget.challenge.status == 0) {
-                        widget.challenge.status = 1;
-                        ChallengeMap(context, widget.challenge,
-                            _geofenceService, _controller);
-                      } else if (widget.challenge.status == 1) {
-                        widget.challenge.status = 0;
-                      }
-                    });
-                  },
-                  style: StyleStartStopChallenge(widget.challenge),
-                  child: TextStartStopChallenge(widget.challenge),
-                ),
-              ),
+                padding: const EdgeInsets.only(top: 15.0),
+                child:
+                    Text(widget.challenge.name, style: TextStyle(fontSize: 25)),
+              )
             ],
           ),
-        ));
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Image(
+                      width: 400,
+                      fit: BoxFit.contain,
+                      image: AssetImage(widget.challenge.image),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      widget.challenge.description,
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Instruction: $type',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            ChallengeInstruction(widget.challenge),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ProgressTracker(challenge))
+                ],
+              ),
+            ),
+          ),
+          Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ShowMap(context, challenge, geofenceService, _controller)),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  if (widget.challenge.status == 0) {
+                    widget.challenge.status = 1;
+                    ChallengeMap(context, widget.challenge, geofenceService,
+                        _controller);
+                  } else if (widget.challenge.status == 1) {
+                    widget.challenge.status = 0;
+                  }
+                });
+              },
+              style: StyleStartStopChallenge(widget.challenge),
+              child: TextStartStopChallenge(widget.challenge),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -470,7 +440,7 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
   List<LatLng> filteredList = _filterLatLngDataList(dataList, challenge);
 
   List<Geofence> geofenceList = _getGefenceList(
-      filteredList, [GeofenceRadius(id: "radius_25m", length: 25)]);
+      filteredList, geofenceRadiusList);
   markerList = _getMarkerList(filteredList);
   List<Polyline> polylines = await _getPolylines(challenge, filteredList);
 

@@ -3,21 +3,22 @@ import 'dart:convert';
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geofence_service/geofence_service.dart';
+import 'package:trailquest/pages/map_page.dart';
+import 'package:trailquest/widgets/trail_cards.dart';
+import 'package:trailquest/main.dart';
+import '../widgets/back_button.dart';
+import 'generate_trail_page.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_config/flutter_config.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:trailquest/pages/map_page.dart';
-
-import 'generate_trail_page.dart';
-
-import 'package:flutter_svg/svg.dart';
-import 'package:trailquest/widgets/trail_cards.dart';
-import '../widgets/back_button.dart';
 
 double totalDistance = 0;
 bool inIntervall = false;
@@ -49,6 +50,7 @@ void reset() {
   polylinePoints = PolylinePoints();
   stairsExist = false;
   activityOption = '';
+  geofenceService.clearGeofenceList();
 }
 
 /// Adds a marker to the list of markers the map will display
@@ -475,11 +477,32 @@ Future<List<PolylineWayPoint>> _getWayPoints(
 }
 
 /// Creates a polyline with id, color and coordinates
-void _addPolyLine() {
+Future<void> _addPolyLineAndGeofence() async {
   PolylineId id = PolylineId("poly");
   Polyline polyline =
       Polyline(polylineId: id, color: Colors.red, points: polylineCoordinates);
   polylines[id] = polyline;
+
+  if (polylineCoordinates.isNotEmpty) {
+    LatLng oldOrigin = polylineCoordinates.first;
+    int interval = (polylineCoordinates.length / 10).round();
+    for (var i = 1; i < polylineCoordinates.length; i += interval) {
+      LatLng currentPoint = polylineCoordinates[i];
+
+      // TODO: Change distance to more suitable number
+      if (await _getWalkingDistance(oldOrigin, currentPoint, false) > 100) {
+        geofenceService.addGeofence(Geofence(
+            id: 'loc_$i',
+            latitude: currentPoint.latitude,
+            longitude: currentPoint.longitude,
+            radius: geofenceRadiusList));
+        _addMarker(currentPoint, "GeofenceCoord: $i",
+            BitmapDescriptor.defaultMarkerWithHue(50));
+
+        oldOrigin = currentPoint;
+      }
+    }
+  }
 }
 
 /// Retrieves and draws a polyline route on the map.
@@ -533,7 +556,7 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
       polylineCoordinates.add(LatLng(point.latitude, point.longitude));
     });
   }
-  _addPolyLine();
+  await _addPolyLineAndGeofence();
 }
 
 /// Calculates how long it would take to walk/run/cycle a distance,
@@ -640,9 +663,87 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
         LatLng(position.latitude, position.longitude), 14));
   }
 
+  bool isInArea = false;
+  int activeIndex = 0;
+  // LatLng currentPosition = LatLng(0, 0);
+
+  Future<void> _onGeofenceStatusChanged(
+      Geofence geofence,
+      GeofenceRadius geofenceRadius,
+      GeofenceStatus geofenceStatus,
+      Location location) async {
+    print('geofence: ${geofence.toJson()}');
+    print('geofenceRadius: ${geofenceRadius.toJson()}');
+    print('geofenceStatus: ${geofenceStatus.toString()}');
+    geofenceStreamController.sink.add(geofence);
+
+    if (geofenceStatus.toString() == "GeofenceStatus.ENTER" &&
+        geofence.toJson().toString().contains(RegExp('loc_$activeIndex'))) {
+      print("Entered area");
+      setState(() {
+        isInArea = true;
+        activeIndex++;
+      });
+
+      // TODO: Add game logic
+    } else if (geofenceStatus.toString() == "GeofenceStatus.EXIT") {
+      print("Left area");
+
+      geofenceService.removeGeofenceById('loc_$activeIndex');
+
+      setState(() {
+        isInArea = false;
+      });
+    }
+  }
+
+  // Unused
+  // This function is to be called when the activity has changed.
+  void _onActivityChanged(Activity prevActivity, Activity currActivity) {
+    print('prevActivity: ${prevActivity.toJson()}');
+    print('currActivity: ${currActivity.toJson()}');
+    activityStreamController.sink.add(currActivity);
+  }
+
+  // This function is to be called when the location has changed.
+  void _onLocationChanged(Location location) {
+    print('location: ${location.toJson()}');
+    start = LatLng(location.latitude, location.longitude);
+  }
+
+  // Unused
+  // This function is to be called when a location services status change occurs
+  // since the service was started.
+  void _onLocationServicesStatusChanged(bool status) {
+    print('isLocationServicesEnabled: $status');
+  }
+
+  // This function is used to handle errors that occur in the service.
+  void _onError(error) {
+    final errorCode = getErrorCodesFromError(error);
+    if (errorCode == null) {
+      print('Undefined error: $error');
+      return;
+    }
+
+    print('ErrorCode: $errorCode');
+  }
+
   @override
   void initState() {
+    geofenceService.clearAllListeners();
+
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      geofenceService.addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      geofenceService.addLocationChangeListener(_onLocationChanged);
+      geofenceService.addLocationServicesStatusChangeListener(
+          _onLocationServicesStatusChanged);
+      geofenceService.addActivityChangeListener(_onActivityChanged);
+      geofenceService.addStreamErrorListener(_onError);
+      geofenceService.start().catchError(_onError);
+    });
     // Resets all global variables
     reset();
 
@@ -700,11 +801,10 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
       setState(() {
         if (userStartPoint) {
           start = LatLng(position.latitude, position.longitude);
-          _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
         } else {
           start = getPickedLocation();
-          _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
         }
+        _addMarker(start, "origin", BitmapDescriptor.defaultMarker);
       });
       await _asyncPolylineandHilliness(inputDistance);
       setState(() {
@@ -774,7 +874,8 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                       onTap: (_) {
                         Navigator.of(context, rootNavigator: true)
                             .push(PageRouteBuilder(
-                          pageBuilder: (context, x, xx) => MapPage(trail: trail),
+                          pageBuilder: (context, x, xx) =>
+                              MapPage(trail: trail),
                           transitionDuration: Duration.zero,
                           reverseTransitionDuration: Duration.zero,
                         ));
@@ -792,21 +893,20 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                       },
                     ),
                     Positioned(
-                      bottom: 5, 
-                      right: 5, 
-                      child: Container(
-                        height: 30, 
-                        width: 90,
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            reset(); 
-                            activityOption = getSelectedActivity(); 
-                            _getLocation(inputDistance); 
-                          },
-                          child: Text('Regenerate'),
-                        ),
-                      )
-                    )
+                        bottom: 5,
+                        right: 5,
+                        child: Container(
+                          height: 30,
+                          width: 90,
+                          child: FloatingActionButton(
+                            onPressed: () {
+                              reset();
+                              activityOption = getSelectedActivity();
+                              _getLocation(inputDistance);
+                            },
+                            child: Text('Regenerate'),
+                          ),
+                        ))
                   ],
                 ),
               ),

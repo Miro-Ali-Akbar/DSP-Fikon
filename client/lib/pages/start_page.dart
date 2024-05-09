@@ -2,24 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
-
-Future<dynamic> _requestPermissions() async {
-  if (await Permission.location.request().isGranted) {
-    print("Location services permission granted");
-  } else {
-    return Future.error("Location services permission were denied");
-  }
-
-  if (await Permission.activityRecognition.request().isGranted) {
-    print("Activity recognition permission granted");
-  } else {
-    return Future.error("Activity recognition permission denied");
-  }
-}
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -32,11 +17,6 @@ class _StartPageState extends State<StartPage> {
   late Completer<GoogleMapController> _controller = Completer();
 
   bool visiblePlayer = true;
-
-  @override
-  void initState() {
-    _requestPermissions().catchError(print);
-  }
 
   @override
   Widget build(BuildContext context) {

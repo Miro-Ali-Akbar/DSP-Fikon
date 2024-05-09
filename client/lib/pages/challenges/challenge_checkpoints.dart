@@ -508,7 +508,6 @@ class _MapsRoutesExampleState extends State<MapsRoutesExample> {
 
               await _getPolyline(start);
 
-              // FIXME: A good start. Spaced by number of points, not distance
               if (polylineCoordinates.isNotEmpty) {
                 LatLng oldOrigin = polylineCoordinates.first;
                 int interval = (polylineCoordinates.length / 10).round();
