@@ -47,6 +47,8 @@ late LatLng start;
 int pointsToVisit = 0;
 int visitedPoints = 0;
 
+int geofenceSpacing = 100;
+
 /// Resets global variables used by generated_map_page
 void reset() {
   totalDistance = 0;
@@ -418,10 +420,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(
         generatedDistance += distance;
         wayPoints.add(PolylineWayPoint(
             location: "${sortedPath[i].latitude},${sortedPath[i].longitude}"));
-        _addMarker(
-            LatLng(sortedPath[i].latitude, sortedPath[i].longitude),
-            i.toString(),
-            BitmapDescriptor.defaultMarkerWithHue(waypointHue));
+        _addMarker(LatLng(sortedPath[i].latitude, sortedPath[i].longitude),
+            i.toString(), BitmapDescriptor.defaultMarkerWithHue(waypointHue));
       } else {
         break;
       }
@@ -499,7 +499,8 @@ Future<void> _addPolyLineAndGeofence() async {
       LatLng currentPoint = polylineCoordinates[i];
 
       // TODO: Change distance to more suitable number
-      if (await _getWalkingDistance(oldOrigin, currentPoint, false) > 100) {
+      if (await _getWalkingDistance(oldOrigin, currentPoint, false) >
+          geofenceSpacing) {
         geofenceService.addGeofence(Geofence(
           id: 'loc_$i',
           latitude: currentPoint.latitude,
