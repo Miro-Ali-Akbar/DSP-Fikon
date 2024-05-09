@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:trailquest/main.dart';
 import 'package:flutter_svg/svg.dart';
 
-
 class Friendpage extends StatefulWidget {
   @override
   _friendPageState createState() => _friendPageState();
@@ -111,24 +110,22 @@ class _friendPageState extends State<Friendpage> {
                 ),
                 Expanded(
                     child: ValueListenableBuilder<List<dynamic>>(
-                      valueListenable: friendsList,
-                      builder: (context, List<dynamic> list, _){
-                        return ListView.builder(
-                          
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: friendsList.value.length,
-                        itemBuilder: (context, index) {
-                          final friend = list[index];
-                          return Padding(
-                              padding: EdgeInsets.all(10),
-                              child: Friend(
-                                name:friend["name"],
-                                score: friend["score"]
-                              )
-                                );
-                        });}
-                    ))
+                        valueListenable: friendsList,
+                        builder: (context, List<dynamic> list, _) {
+                          return ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: friendsList.value.length,
+                              itemBuilder: (context, index) {
+                                final friend = list[index];
+                                return Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Friend(
+                                      name: friend[index]["name"],
+                                      score: friend[index]["score"],
+                                    ));
+                              });
+                        }))
               ],
             )));
   }
