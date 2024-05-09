@@ -238,7 +238,7 @@ async function init(ws, email) {
     const username = await getUsername(email);
     
     if ( username.found ) {
-        const user = await usersRef.doc(username).get();
+        const user = await usersRef.doc(username.username).get();
         const leaderboard = await leaderboardRef.doc('leaderboard1').get()
         if ( user.exists ) {
             ws.send(JSON.stringify({
