@@ -114,15 +114,17 @@ class _friendPageState extends State<Friendpage> {
                       valueListenable: friendsList,
                       builder: (context, List<dynamic> list, _){
                         return ListView.builder(
+                          
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         itemCount: friendsList.value.length,
                         itemBuilder: (context, index) {
+                          final friend = list[index];
                           return Padding(
                               padding: EdgeInsets.all(10),
                               child: Friend(
-                                name:list[index]["name"],
-                                score: list[index]["score"]
+                                name:friend["name"],
+                                score: friend["score"]
                               )
                                 );
                         });}
