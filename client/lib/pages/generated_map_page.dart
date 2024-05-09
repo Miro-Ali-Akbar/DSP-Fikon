@@ -38,6 +38,10 @@ double walkingSpeed = 1.42;
 double runningSpeed = 2.56;
 double cyclingSpeed = 5.0;
 
+double stairsHue = 90;
+double waypointHue = BitmapDescriptor.hueYellow;
+double geofenceMarkerHue = 150;
+
 late LatLng start;
 
 int pointsToVisit = 0;
@@ -263,7 +267,7 @@ Future<bool> _checkStairs(LatLng waypoint) async {
               _addMarker(
                   LatLng(node['lat'], node['lon']),
                   item['id'].toString(),
-                  BitmapDescriptor.defaultMarkerWithHue(90));
+                  BitmapDescriptor.defaultMarkerWithHue(stairsHue));
             }
           }
         }
@@ -417,7 +421,7 @@ Future<List<PolylineWayPoint>> _getWayPoints(
         _addMarker(
             LatLng(sortedPath[i].latitude, sortedPath[i].longitude),
             i.toString(),
-            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
+            BitmapDescriptor.defaultMarkerWithHue(waypointHue));
       } else {
         break;
       }
@@ -503,7 +507,7 @@ Future<void> _addPolyLineAndGeofence() async {
           radius: geofenceRadiusList,
         ));
         _addMarker(currentPoint, "GeofenceCoord: $i",
-            BitmapDescriptor.defaultMarkerWithHue(150));
+            BitmapDescriptor.defaultMarkerWithHue(geofenceMarkerHue));
         pointsToVisit++;
 
         oldOrigin = currentPoint;
