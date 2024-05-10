@@ -224,7 +224,7 @@ Future<double> _getHilliness() async {
 /// Checks if there are stairs near the specified waypoint.
 ///
 /// Queries OpenStreetMap to search for highway steps within
-/// a 100-meter radius of the given [waypoint]. (TODO: Remove?: If stairs are found, markers
+/// a 100-meter radius of the given [waypoint]. 
 /// are added to the map to indicate their locations.)
 ///
 /// [waypoint] the coordinate to check for stairs.
@@ -234,6 +234,8 @@ Future<bool> _checkStairs(LatLng waypoint) async {
   final url =
       'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="steps"](around:100, ${waypoint.latitude}, ${waypoint.longitude});(._;>;);out;';
   final response = await http.get(Uri.parse(url));
+
+  int counter = 0; 
 
   if (response.statusCode == 200) {
     final decoded = json.decode(response.body);
@@ -256,10 +258,8 @@ Future<bool> _checkStairs(LatLng waypoint) async {
           for (var nodeId in item['nodes']) {
             var node = nodes[nodeId];
             if (node != null) {
-              _addMarker(
-                  LatLng(node['lat'], node['lon']),
-                  item['id'].toString(),
-                  BitmapDescriptor.defaultMarkerWithHue(90));
+              counter++; 
+              break; 
             }
           }
         }
@@ -267,7 +267,7 @@ Future<bool> _checkStairs(LatLng waypoint) async {
     }
   }
 
-  return markers.length > 1 ? false : true;
+  return counter > 1 ? false : true;
 }
 
 /// Retrieves the walking/running/cycling distance between the origin and destination coordinates.
@@ -410,10 +410,6 @@ Future<List<PolylineWayPoint>> _getWayPoints(
         generatedDistance += distance;
         wayPoints.add(PolylineWayPoint(
             location: "${sortedPath[i].latitude},${sortedPath[i].longitude}"));
-        _addMarker(
-            LatLng(sortedPath[i].latitude, sortedPath[i].longitude),
-            i.toString(),
-            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
       } else {
         break;
       }
@@ -920,7 +916,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/icons/img_arrow_up.svg',
+                      'assets/icons/img_mountain.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
