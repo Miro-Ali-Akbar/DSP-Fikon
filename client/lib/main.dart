@@ -81,8 +81,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  String ip = FlutterConfig.get('IP');
+  String port = FlutterConfig.get('PORT');
+
   channel =
-      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+      WebSocketChannel.connect(Uri.parse("ws://$ip:$port"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());
