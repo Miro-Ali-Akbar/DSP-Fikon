@@ -92,7 +92,7 @@ class _TrailPageState extends State<TrailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               SizedBox(height: 40), // Adds some padding at the top of the page
-              GenerateNewTrail(),
+              GenerateNewTrail(fetchTrailData: fetchTrailData),
               Row(
                 children: <Widget>[
                   AnimatedButtons(onBrowsingChanged: (value) {
@@ -125,7 +125,6 @@ class _TrailPageState extends State<TrailPage> {
 ///
 /// The sliding button for changing between seeing 'saved trails' and 'friend trails'
 ///
-
 class AnimatedButtons extends StatelessWidget {
   final ValueChanged<bool> onBrowsingChanged;
 
@@ -197,7 +196,6 @@ class AnimatedButtons extends StatelessWidget {
 ///
 /// The filter button
 ///
-
 class FilterButton extends StatelessWidget {
   final Function rebuildTrailPage;
 
@@ -238,17 +236,21 @@ class FilterButton extends StatelessWidget {
 /// The 'Generate new trail' button.
 ///
 class GenerateNewTrail extends StatelessWidget {
-  const GenerateNewTrail({Key? key}) : super(key: key);
+  final Function fetchTrailData;
+  const GenerateNewTrail({Key? key, required this.fetchTrailData})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
-        Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          pageBuilder: (context, x, xx) => GenerateTrail(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ));
+        Navigator.of(context, rootNavigator: true)
+            .push(PageRouteBuilder(
+              pageBuilder: (context, x, xx) => GenerateTrail(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ))
+            .then((_) => {fetchTrailData()});
       },
       style: TextButton.styleFrom(
         backgroundColor: Colors.green,
@@ -266,7 +268,6 @@ class GenerateNewTrail extends StatelessWidget {
 ///
 /// Creates the scrollable list of trails.
 ///
-
 class Trails extends StatelessWidget {
   List<TrailCard> savedTrails;
   List<TrailCard> friendTrails;
@@ -310,7 +311,6 @@ class Trails extends StatelessWidget {
   /// [list] - The list of trails to be filtered
   ///
   /// returns a list with only the trails that fits into the active filters
-
   List<TrailCard> filterTrails(List<TrailCard> list) {
     List<TrailCard> newList = list;
 
@@ -352,7 +352,6 @@ class Trails extends StatelessWidget {
 ///
 /// The filter 'pop-up' box used for filtering the trails.
 ///
-
 class FilterPopUp extends StatefulWidget {
   final Function rebuildTrailPage;
 
