@@ -11,16 +11,16 @@ final List<String> natureOptions = <String>['Nature', 'City', 'Both'];
 
 class TrailCard extends StatefulWidget {
   late String name;
-  late double lengthDistance; 
-  late double lengthTime; 
-  late String natureStatus; 
-  late bool stairs; 
-  late double heightDifference; 
-  bool isSaved; 
-  bool isCircular; 
-  late List<LatLng> coordinates; 
+  late double lengthDistance;
+  late double lengthTime;
+  late String natureStatus;
+  late bool stairs;
+  late double heightDifference;
+  bool isSaved;
+  bool isCircular;
   //final ValueChanged<bool> onSaveChanged;
-  final String image_path; 
+  final String image_path;
+  late List<LatLng> coordinates;
 
   TrailCard({
     super.key,
@@ -32,10 +32,10 @@ class TrailCard extends StatefulWidget {
     required this.heightDifference,
     required this.isSaved,
     required this.isCircular,
-    required this.coordinates,
     //required this.onSaveChanged, // Callback function
-    required this.image_path, 
-    });
+    required this.image_path,
+    required this.coordinates,
+  });
 
   @override
   State<TrailCard> createState() => _TrailCardState();
@@ -86,14 +86,14 @@ class _TrailCardState extends State<TrailCard> {
                     ),
                 ),
                 Text(
-                  '${widget.lengthTime} min',
+                  '${(widget.lengthTime).toStringAsFixed(1)} min',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                   ),
                 ),
                 Text(
-                  '${widget.lengthDistance/1000} km',
+                  '${(widget.lengthDistance/1000).toStringAsFixed(1)} km',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -110,6 +110,7 @@ class _TrailCardState extends State<TrailCard> {
       /// coresponding with the trail that was pressed
       ///
       onTap: () {
+        //fetchTrailsFromServer();
         Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
           pageBuilder: (context, x, xx) => IndividualTrailPage(
             trail: widget,

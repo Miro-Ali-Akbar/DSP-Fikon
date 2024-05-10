@@ -1,9 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/pages/map_page.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 import '../widgets/back_button.dart';
+
+late LatLng start;
+List<LatLng> polylineCoordinates = [];
+Map<PolylineId, Polyline> polylines = {};
+
+Future<void> _addPolyLine() async {
+  PolylineId id = PolylineId("poly");
+  Polyline polyline =
+      Polyline(polylineId: id, color: Colors.red, points: polylineCoordinates);
+  polylines[id] = polyline;
+}
 
 class IndividualTrailPage extends StatefulWidget {
   TrailCard trail; // Trail card that contains all info about the trail
@@ -29,6 +43,33 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
 
   _IndividualTrailPageState(
       {Key? key, required this.trail, required this.saved});
+
+  @override
+  void initState() {
+    super.initState();
+    polylineCoordinates = trail.coordinates;
+    _getLocation();
+  }
+
+  void _getLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition();
+      await _addPolyLine();
+      setState(() {
+        start = LatLng(position.latitude, position.longitude);
+      });
+    } catch (e) {
+      print("Error getting current location: $e");
+    }
+  }
+
+  late Completer<GoogleMapController> _controller = Completer();
+
+  Future<void> centerScreen(Position position) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newLatLngZoom(
+        LatLng(position.latitude, position.longitude), 14));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +101,17 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
                   reverseTransitionDuration: Duration.zero,
                 ));
               },
-              //TODO: Fix map settings
-              //onMapCreated: (GoogleMapController controller) {
-              //  _controller.complete(controller);
-              //},
+              myLocationEnabled: true,
               zoomControlsEnabled: false,
-              myLocationButtonEnabled: false,
               initialCameraPosition: CameraPosition(
-                  target: LatLng(59.83972677529924, 17.6465716818546),
-                  zoom: 15),
+                zoom: 14.0,
+                target: LatLng(start.latitude, start.longitude),
+              ),
+              //markers: Set<Marker>.of(markers.values),
+              polylines: Set<Polyline>.of(polylines.values),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
             ),
           ),
         ),

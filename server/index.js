@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send, sortLeaderboard } = require('./helper');
+const { generateID, get, put, send, sortLeaderboard, saveRoute, initTrails, getRoutes } = require('./helper');
 
 // Initializing database variables
 
@@ -31,7 +31,7 @@ wss.on('connection', ws => {
         socketID: ws.id,
         signature: 0, 
     }));
-
+    // initUser(ws, 'hitsu');
     console.log('Client connected: ', ws.id);
 
     ws.on('message', function inc(data) {
@@ -43,14 +43,10 @@ wss.on('connection', ws => {
         console.log('2: ', message.data);
         switch(message.msgID) {
             case "initRes":
-                putUser(message.data.username, message.data);
                 console.log('=== user added to database ===');
-                wss.connectedUsers.push({"username": message.data.username, "socket": ws, "id": ws.id})
+                wss.connectedUsers.push({"username": message.data.username, "socket": ws, "id": ws.id});
                 i = i + 1;
-                break;
-            case "getRoute":
-                let index = message.data.index;
-                send(ws, 'sendRoute', 'karoRoutes', index);
+                initTrails(ws, message.data.username); // 'initTrails' msgID
                 break;
             case "getLeaderboard":
                 send(ws, 'leaderboard');
@@ -58,9 +54,15 @@ wss.on('connection', ws => {
                 break;
             case "updateLeaderboard":
                 sortLeaderboard(wss.connectedUsers, message.data.user)
-
+            case "addRoute": 
+                console.log("Should be a route: ", message);
+                saveRoute(ws, wss.connectedUsers, message.data);
+                break;
+            case "getRoute":
+                getRoutes(ws, message.data.username, message.data.trailname, message.data.trailType);
+break;
         }
-    })
+    });
 
     ws.on('close', () => console.log(`Client with id: ${ws.id} has disconnected.`));
 

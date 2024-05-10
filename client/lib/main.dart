@@ -1,7 +1,4 @@
 import 'package:flutter_config/flutter_config.dart';
-import 'dart:async';
-
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,6 +15,8 @@ import 'dart:convert';
 
 WebSocketChannel? channel;
 var jsonString = '';
+List<dynamic> userRoutes = [];
+List<dynamic> friendsRoutes = [];
 List<String> dataList = [];
 
 void Listen() {
@@ -47,8 +46,56 @@ void Listen() {
             print(dataList);
             break;
           case 'init':
-            print(data);
+            channel?.sink.add(
+                '{"msgID": "initRes", "data": { "username": "uName", "friendRequests": [], "friendlist": ["hitsu"], "online": true } }');
+          case 'initTrails':
+            Map<String, dynamic> routes = data;
+
+            List<dynamic> userTrailsData = routes['userTrails'];
+            List<dynamic> friendTrailsData = routes['friendTrails'];
+
+            if (!userTrailsData.isEmpty) {
+              for (var i = 0; i < userTrailsData.length; i++) {
+                Map<String, dynamic> trailData = userTrailsData[i];
+                userRoutes.add({
+                  'trailName': trailData['trailName'],
+                  'totalDistance': trailData['totalDistance'],
+                  'totalTime': trailData['totalTime'],
+                  'statusEnvironment': trailData['statusEnvironment'],
+                  'avoidStairs': trailData['avoidStairs'],
+                  'hilliness': trailData['hilliness'],
+                  'coordinates': trailData['coordinates']
+                });
+              }
+            }
+
+            if (!friendTrailsData.isEmpty) {
+              for (var i = 0; i < friendTrailsData.length; i++) {
+                Map<String, dynamic> trailData = friendTrailsData[i];
+                friendsRoutes.add({
+                  'trailName': trailData['trailName'],
+                  'totalDistance': trailData['totalDistance'],
+                  'totalTime': trailData['totalTime'],
+                  'statusEnvironment': trailData['statusEnvironment'],
+                  'avoidStairs': trailData['avoidStairs'],
+                  'hilliness': trailData['hilliness'],
+                  'coordinates': trailData['coordinates']
+                });
+              }
+            }
+
             break;
+          case 'returnRoute':
+            Map<String, dynamic> trailData = data;
+            userRoutes.add({
+              'trailName': trailData['trailName'],
+              'totalDistance': trailData['totalDistance'],
+              'totalTime': trailData['totalTime'],
+              'statusEnvironment': trailData['statusEnvironment'],
+              'avoidStairs': trailData['avoidStairs'],
+              'hilliness': trailData['hilliness'],
+              'coordinates': trailData['coordinates']
+            });
         }
       }
     });

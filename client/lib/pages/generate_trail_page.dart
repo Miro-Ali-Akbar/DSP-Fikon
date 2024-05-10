@@ -12,6 +12,7 @@ import 'package:trailquest/pages/generated_map_page.dart';
 // import 'package:trailquest/pages/challenges/challenge_orienteering.dart';
 // import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
 
+
 late LatLng start;
 
 class GenerateTrail extends StatefulWidget {
@@ -69,9 +70,6 @@ class _GenerateTrailState extends State<GenerateTrail> {
   }
 }
 
-///
-/// 'Generate new trail' button
-///
 
 class GenerateNewTrail extends StatelessWidget {
   final bool distanceSpecified;

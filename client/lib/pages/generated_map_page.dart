@@ -11,13 +11,16 @@ import 'package:flutter_config/flutter_config.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
+import 'package:trailquest/pages/trail_page.dart';
 import 'package:trailquest/pages/map_page.dart';
+import 'package:trailquest/widgets/back_button.dart';
 
 import 'generate_trail_page.dart';
 
 import 'package:flutter_svg/svg.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
-import '../widgets/back_button.dart';
+import 'package:trailquest/main.dart';
 
 double totalDistance = 0;
 bool inIntervall = false;
@@ -585,7 +588,10 @@ class GeneratedMap extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MapsRoutesGenerator(
-          trail: trail, saved: false, onSaveChanged: (value) {}),
+        trail: trail,
+        saved: false,
+        onSaveChanged: (value) {},
+      ),
     );
   }
 }
@@ -619,8 +625,11 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   bool saved = false;
   TrailCard trail;
 
-  _MapsRoutesGeneratorState(
-      {Key? key, required this.trail, required this.saved});
+  _MapsRoutesGeneratorState({
+    Key? key,
+    required this.trail,
+    required this.saved,
+  });
 
   late Completer<GoogleMapController> _controller = Completer();
 
@@ -734,7 +743,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   // Builds the trailcard based on the generated route
   // The trailcard is used as reference for displaying the data
   void _buildTrailCard() {
-    trail.name = 'Your Trail';
+    trail.name = '';
     trail.stairs = !avoidStairs;
     trail.lengthDistance = totalDistance;
     trail.lengthTime =
@@ -948,6 +957,11 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                   widget.onSaveChanged(true);
                 });
               },
+              trail: trail,
+              avoidStairs: avoidStairs,
+              totalDistance: totalDistance,
+              statusEnvironment: getSelectedStatusEnvironment(),
+              hillines: hillines,
             ),
           ),
         ]
@@ -963,8 +977,22 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
 /// the trail is saved or not.
 class SaveTrail extends StatefulWidget {
   final Function(bool) onSave;
+  final TrailCard trail;
+  final bool avoidStairs;
+  final double totalDistance;
+  final String statusEnvironment;
+  final double hillines;
 
-  const SaveTrail({Key? key, required this.onSave}) : super(key: key);
+  const SaveTrail({
+    Key? key,
+    required this.onSave,
+    required this.trail,
+    required this.avoidStairs,
+    required this.totalDistance,
+    required this.statusEnvironment,
+    required this.hillines,
+  }) : super(key: key);
+
   @override
   State<SaveTrail> createState() => _SaveTrailState();
 }
@@ -978,9 +1006,24 @@ class _SaveTrailState extends State<SaveTrail> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {
-        widget.onSave(true);
-      },
+      onPressed: () => showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Container(
+              child: SaveTrailPopUp(
+                onSave: widget.onSave,
+                trail: widget.trail,
+                avoidStairs: widget.avoidStairs,
+                totalDistance: widget.totalDistance,
+                statusEnvironment: widget.statusEnvironment,
+                hillines: widget.hillines,
+              ),
+              width: double.maxFinite,
+            ),
+          );
+        },
+      ),
       style: TextButton.styleFrom(
         backgroundColor: Colors.green,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),
@@ -991,6 +1034,102 @@ class _SaveTrailState extends State<SaveTrail> {
       child: const Text('Save Trail +',
           style: TextStyle(color: Colors.white, fontSize: 30)),
     );
+  }
+}
+
+class SaveTrailPopUp extends StatefulWidget {
+  final Function(bool) onSave;
+  final TrailCard trail;
+  final bool avoidStairs;
+  final double totalDistance;
+  final String statusEnvironment;
+  final double hillines;
+
+  const SaveTrailPopUp({
+    Key? key,
+    required this.onSave,
+    required this.trail,
+    required this.avoidStairs,
+    required this.totalDistance,
+    required this.statusEnvironment,
+    required this.hillines,
+  }) : super(key: key);
+
+  @override
+  State<SaveTrailPopUp> createState() => _SaveTrailPopUpState();
+}
+
+class _SaveTrailPopUpState extends State<SaveTrailPopUp> {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Enter Trail Name'),
+      content: TextField(
+        onChanged: (value) {
+          setState(() {
+            widget.trail.name = value;
+          });
+        },
+        decoration: const InputDecoration(hintText: 'Trail Name'),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            // Save trail with the entered name
+            _saveTrail();
+            Navigator.of(context).pop();
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+
+  Map<String, dynamic> jsonData = {};
+
+  /// Adds the information of a trail to an array to be sent to server --> database
+  void _trailCardInfo() {
+    List<Map<String, double>> coordinates = polylineCoordinates
+        .map((latLng) =>
+            {"latitude": latLng.latitude, "longitude": latLng.longitude})
+        .toList();
+
+    jsonData = {
+      'msgID': 'addRoute',
+      'data': {
+        'trailName': widget.trail.name,
+        'totalDistance': widget.totalDistance,
+        'totalTime': _distanceToTime(widget.totalDistance),
+        'statusEnvironment': widget.statusEnvironment,
+        'avoidStairs': widget.avoidStairs,
+        'hilliness': widget.hillines,
+        'coordinates': coordinates,
+      }
+    };
+  }
+
+  void _saveTrail() {
+    if (widget.trail.name.isNotEmpty) {
+      // Call onSave callback passing trail name
+      widget.onSave(true);
+
+      _trailCardInfo();
+      setState(() {});
+      saveRouteToServer(jsonData);
+    } else {
+      // Show an error message if trail name is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a trail name.'),
+        ),
+      );
+    }
   }
 }
 
@@ -1029,6 +1168,47 @@ class _RemoveTrailState extends State<RemoveTrail> {
       ),
       child: const Text('Remove Trail',
           style: TextStyle(color: Colors.white, fontSize: 30)),
+    );
+  }
+}
+
+void saveRouteToServer(Map<String, dynamic> routeData) async {
+  String jsonString = jsonEncode(routeData);
+
+  channel?.sink.add(jsonString);
+}
+
+/// A StatelessWidget that rebuilds the Trail Page
+class GoBackButtonGeneratedMap extends StatelessWidget {
+  const GoBackButtonGeneratedMap({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: TextButton.icon(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        TrailPage()), // Create new instance of TrailPage
+              );
+            },
+            icon: SvgPicture.asset(
+              'assets/icons/arrow-sm-left-svgrepo-com (1).svg',
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+            ),
+            label: Text(''),
+          ),
+        ),
+      ],
     );
   }
 }

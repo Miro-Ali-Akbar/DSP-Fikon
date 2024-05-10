@@ -8,7 +8,7 @@ ws.onopen = () => {
 
     ws.send(JSON.stringify({msgID: "updateLeaderboard", data: { user: {username: "uName", points: 1000} }}));
 
-    ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
+    //ws.send(JSON.stringify({msgID: "getRoute", data: { trailName: "MyTrail", username: 'uName' }}));
     
     ws.send(JSON.stringify({msgID: "getLeaderboard"}));
 
