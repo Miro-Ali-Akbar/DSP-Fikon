@@ -407,10 +407,6 @@ Future<List<PolylineWayPoint>> _getWayPoints(
         generatedDistance += distance;
         wayPoints.add(PolylineWayPoint(
             location: "${sortedPath[i].latitude},${sortedPath[i].longitude}"));
-        _addMarker(
-            LatLng(sortedPath[i].latitude, sortedPath[i].longitude),
-            i.toString(),
-            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
       } else {
         break;
       }
