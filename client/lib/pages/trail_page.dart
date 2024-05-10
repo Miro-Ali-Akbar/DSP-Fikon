@@ -162,6 +162,7 @@ class FilterButton extends StatelessWidget {
           backgroundColor: Colors.green,
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
           shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black),
             borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
         ),
@@ -182,23 +183,32 @@ class GenerateNewTrail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          pageBuilder: (context, x, xx) => GenerateTrail(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ));
-      },
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.green,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: TextButton.icon(
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+            pageBuilder: (context, x, xx) => GenerateTrail(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ));
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.green,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black, width: 2),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
         ),
+        label: Padding(
+          padding: const EdgeInsets.only(right: 10.0),
+          child: const Text('Generate new trail',
+              style: TextStyle(color: Colors.white, fontSize: 30)
+          ),
+        ),
+        icon: SvgPicture.asset('assets/icons/img_plus.svg',),
       ),
-      child: const Text('Generate new trail +',
-          style: TextStyle(color: Colors.white, fontSize: 30)),
     );
   }
 }
@@ -401,29 +411,6 @@ class _FilterPopUpState extends State<FilterPopUp> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ///
-                /// 'Apply' button
-                ///
-                TextButton(
-                  onPressed: () {
-                    widget
-                        .rebuildTrailPage(); // Triggers a rebuild of the page so that the trails are filtered
-                    Navigator.pop(context);
-                  },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 30),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    side: BorderSide(color: Colors.black),
-                  ),
-                  child: Text(
-                    "Apply",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-
-                ///
                 /// 'Clear' button
                 ///
                 TextButton(
@@ -448,6 +435,28 @@ class _FilterPopUpState extends State<FilterPopUp> {
                   ),
                   child: Text(
                     "Clear",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                ///
+                /// 'Apply' button
+                ///
+                TextButton(
+                  onPressed: () {
+                    widget
+                        .rebuildTrailPage(); // Triggers a rebuild of the page so that the trails are filtered
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 30),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    side: BorderSide(color: Colors.black),
+                  ),
+                  child: Text(
+                    "Apply",
                     style: TextStyle(color: Colors.black),
                   ),
                 ),

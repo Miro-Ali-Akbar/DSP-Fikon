@@ -911,7 +911,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                 child: Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/icons/img_arrow_up.svg',
+                      'assets/icons/img_mountain.svg',
                       colorFilter:
                           ColorFilter.mode(Colors.black, BlendMode.srcIn),
                       height: 35,
