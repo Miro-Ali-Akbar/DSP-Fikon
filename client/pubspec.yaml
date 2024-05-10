@@ -70,6 +70,7 @@ flutter:
     - assets/icons/silver_medal.svg
     - assets/icons/bronze_medal.svg
     - assets/images/Logo.png
+    - assets/images/default_profilepicture.png
     
 #  fonts:
 #  - family: InterRegular
