@@ -14,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
 import 'package:trailquest/pages/trail_page.dart';
 import 'package:trailquest/pages/map_page.dart';
+import 'package:trailquest/widgets/back_button.dart';
 
 import 'generate_trail_page.dart';
 
@@ -765,7 +766,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
           body: Column(children: [
         Row(
           children: [
-            GoBackButtonGeneratedMap(),
+            GoBackButton(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
