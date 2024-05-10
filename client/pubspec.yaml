@@ -70,6 +70,7 @@ flutter:
     - assets/icons/silver_medal.svg
     - assets/icons/bronze_medal.svg
     - assets/images/Logo.png
+    - assets/images/default_profilepicture.png
     - assets/icons/img_plus.svg
     - assets/icons/img_mountain.svg
     

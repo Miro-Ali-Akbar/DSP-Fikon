@@ -88,6 +88,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
             setState(() {
               Marker marker = markerList
                   .firstWhere((marker) => marker.markerId.value == geofenceId);
+              challenge.claimedPoints.add(marker.position);
               setState(() {
                 markerList.remove(marker);
               });
@@ -105,6 +106,7 @@ class _IndividualChallengeState extends State<IndividualChallengePage> {
               setState(() {
                 Marker marker = markerList.firstWhere(
                     (marker) => marker.markerId.value == geofenceId);
+                challenge.claimedPoints.add(marker.position);
                 markerList.remove(marker);
               });
               setState(() {
@@ -465,10 +467,12 @@ ChallengeMap(BuildContext context, Challenge challenge, final geofenceService,
     Completer<GoogleMapController> _controller) async {
   await _getSetCurrentPosition();
   List<LatLng> dataList = await _getCloseData(5000, challenge);
-  List<Geofence> geofenceList =
-      _getGefenceList(dataList, [GeofenceRadius(id: "radius_25m", length: 25)]);
-  markerList = _getMarkerList(dataList);
-  List<Polyline> polylines = await _getPolylines(challenge, dataList);
+  List<LatLng> filteredList = _filterLatLngDataList(dataList, challenge);
+
+  List<Geofence> geofenceList = _getGefenceList(
+      filteredList, [GeofenceRadius(id: "radius_25m", length: 25)]);
+  markerList = _getMarkerList(filteredList);
+  List<Polyline> polylines = await _getPolylines(challenge, filteredList);
 
   _addGeofences(geofenceList, geofenceService);
 
@@ -663,6 +667,16 @@ Future<List<LatLng>> _getCloseData(
   }
 
   return nodes;
+}
+
+List<LatLng> _filterLatLngDataList(List<LatLng> dataList, Challenge challenge) {
+  List<LatLng> filteredList = dataList;
+
+  for (var dataPoint in challenge.claimedPoints) {
+    filteredList.remove(dataPoint);
+  }
+
+  return filteredList;
 }
 
 /// Returns a list of all geogfences generated from [positions]
