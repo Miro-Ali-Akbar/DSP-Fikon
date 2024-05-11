@@ -242,6 +242,7 @@ async function init(ws, email) {
         const user = await usersRef.doc(username.username).get();
         const leaderboard = await leaderboardRef.doc('leaderboard1').get()
         if ( user.exists ) {
+            console.log('sending data to', username.username);
             ws.send(JSON.stringify({
                 msgID: 'initUser',
                 data: {
@@ -257,6 +258,7 @@ async function init(ws, email) {
                 online: true
             });
         } else {
+            console.log('sending data to new user...', username.username);
             await usersRef.doc(username.username).set({
                 username: username.username,
                 friendlist: [],
@@ -270,11 +272,11 @@ async function init(ws, email) {
                 friendRequests: [],
                 score: 0,
                 leaderboard: leaderboard.data(),
-                online: true,
                 changedUsername: true
             }}));
         }
-    } else { 
+    } else {
+        console.log('did not find username in databse, sending request...');
         ws.send(JSON.stringify({ msgID: 'initUser', data: {
             changedUsername: false
         }}));
