@@ -215,6 +215,7 @@ async function getUsername(email) {
 async function putUsername(ws, email, username) {
     const raw = await db.collection('connectedEmails').get();
     const collection = raw.docs.map(doc => doc.data());
+    console.log(collection);
     for ( let i = 0; i < collection.length; i++ ) {
         if ( username === collection[i].username) {
             ws.send(JSON.stringify({
