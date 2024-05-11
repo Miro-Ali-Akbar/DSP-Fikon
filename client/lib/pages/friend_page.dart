@@ -28,6 +28,7 @@ class _friendPageState extends State<Friendpage> {
   void _updateState() {
     setState(() {});
   }
+  
 
   Widget build(BuildContext context) {
     init();

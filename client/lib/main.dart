@@ -28,7 +28,7 @@ String feedBack = "";
 var jsonString = '';
 List<dynamic> leaderList = [];
 String myUserName = "default_username888";
-ValueNotifier<bool> isNewUser = ValueNotifier(true);
+ValueNotifier<bool> isNewUser = ValueNotifier(false);
 ValueNotifier<bool> canSendRequest = ValueNotifier(true);
 ValueNotifier<bool> isSent = ValueNotifier(false);
 ValueNotifier<bool> friendRequestSuccess = ValueNotifier<bool>(true);
@@ -53,6 +53,11 @@ void Listen() {
             jsonDecoded.entries.elementAt(1);
         dynamic data = secondEntry.value;
 
+        print(data);
+        print("\n\n");
+        print(msgID);
+        print("\n\n");
+
         switch (msgID) {
           case 'leaderboard':
             Map<String, dynamic> users = data;
@@ -65,22 +70,25 @@ void Listen() {
             break;
 
           case 'initUser':
-            Map<String, dynamic> friend = data['friends'];
-            friend.forEach((key, value) {
+          print("fdgghuhuhu\n\n");
+          print(data);
+            Map<String, dynamic>? friend = data['friends'];
+            friend?.forEach((key, value) {
               friendsList.value.add(value);
             });
-            Map<String, dynamic> reqs = data['requests'];
-            reqs.forEach(
+            Map<String, dynamic>? reqs = data['requests'];
+            reqs?.forEach(
               (key, value) => friendRequests.value.add(value),
             );
-            Map<String, dynamic> users = data['leaderBoard'];
+            Map<String, dynamic>? users = data['leaderBoard'];
             List<String> temp = [];
-            users.forEach((key, value) {
+            users?.forEach((key, value) {
               temp.add(array_to_string([value[0], value[1]]));
             });
             leaderList = temp;
             myUserName = data['username'];
-            isNewUser = data['changedUsername'];
+            isNewUser.value = !data['changedUsername'];
+            print(isNewUser);
             break;
 
           case 'outGoingRequest':
@@ -103,8 +111,10 @@ void Listen() {
             friendsList.value.add(data['newFriend']);
             break;
           case 'usernameFail':
+
             failMessage.value = "User name is already taken, please try again";
           case 'usernameSuccess':
+            print("hdjjekfj");
             isNewUser.value = false;
         }
       }
@@ -123,9 +133,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+//78.66.87.18
+//ws://trocader.duckdns.org:4000"
   channel =
-      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:3000"));
+      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:4000"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());
