@@ -71,7 +71,10 @@ void Listen() {
 
           case 'initUser':
           print("fdgghuhuhu\n\n");
+
           print(data);
+          if(data['changedUsername']) {
+            
             Map<String, dynamic>? friend = data['friends'];
             friend?.forEach((key, value) {
               friendsList.value.add(value);
@@ -82,14 +85,9 @@ void Listen() {
                   friendRequests.value.add(reqs[i]);
               }
             } else {}
-            Map<String, dynamic>? users = data['leaderBoard'];
-            List<String> temp = [];
-            users?.forEach((key, value) {
-              temp.add(array_to_string([value[0], value[1]]));
-            });
-            leaderList = temp;
             myUserName = data['username'];
             isNewUser.value = !data['changedUsername'];
+          }
             print(isNewUser);
             break;
 
