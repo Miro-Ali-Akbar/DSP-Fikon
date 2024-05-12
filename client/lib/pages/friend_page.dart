@@ -116,15 +116,16 @@ class _friendPageState extends State<Friendpage> {
                           return ListView.builder(
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
-                              itemCount: friendsList.value.length,
+                              itemCount: list.length,
                               itemBuilder: (context, index) {
                                 final friend = list[index];
                                 return Padding(
                                     padding: EdgeInsets.all(10),
                                     child: Friend(
-                                      name: friend[index]["name"],
-                                      score: friend[index]["score"],
+                                      name: friend["username"],
+                                      score: friend["score"],
                                     ));
+                                    
                               });
                         }))
               ],

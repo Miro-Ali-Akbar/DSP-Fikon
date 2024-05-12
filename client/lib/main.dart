@@ -17,10 +17,10 @@ import 'dart:convert';
 
 WebSocketChannel? channel;
 ValueNotifier<List<dynamic>> friendsList = ValueNotifier([
-  [{"name": "emma" ,  "score": 30},
-  {"name": "eee", "score": 90}
+  {"username": "emma" ,  "score": 30},
+  {"username": "eee", "score": 90}
     
-  ]
+  
 ]);
 ValueNotifier<List<String>> friendRequests =
     ValueNotifier(["emma", "meep", "ghhh", "fgg"]);
