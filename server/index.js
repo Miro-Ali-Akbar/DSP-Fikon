@@ -10,7 +10,7 @@ const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, sav
 
 // Initialize server variable
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const server = express().use((req, res) => res.send("HELLO WORLD")).listen(PORT, () => console.log(`listening to port: ${PORT}`));
 const wss = new Server({server});
 
