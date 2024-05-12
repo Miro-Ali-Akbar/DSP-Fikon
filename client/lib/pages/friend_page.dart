@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:trailquest/main.dart';
 import 'package:flutter_svg/svg.dart';
-
+import 'dart:convert';
 class Friendpage extends StatefulWidget {
   @override
   _friendPageState createState() => _friendPageState();
@@ -285,7 +285,7 @@ class _friendRequestState extends State<friendRequest> {
                             // Call your function here when the container is pressed
                             if (canSendRequest.value) {
                               channel?.sink.add(
-                                  '{"msgID": "addFriend", "data": {"target":"$buffer", "sender": "efjkrkma"}}');
+                                  jsonEncode({"msgID": "addFriend", "data": {"target":"$buffer", "sender": myUserName}}));
                               setState(() {
                                 canSendRequest.value = false;
                               });

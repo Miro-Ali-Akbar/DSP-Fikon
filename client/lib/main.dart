@@ -76,7 +76,7 @@ void Listen() {
             friend?.forEach((key, value) {
               friendsList.value.add(value);
             });
-            Map<String, dynamic>? reqs = data['requests'];
+            Map<String, dynamic>? reqs = data['friendRequests'];
             reqs?.forEach(
               (key, value) => friendRequests.value.add(value),
             );
