@@ -76,7 +76,7 @@ void Listen() {
             friend?.forEach((key, value) {
               friendsList.value.add(value);
             });
-            List<String>? reqs = data['friendRequests'];
+            List<dynamic>? reqs = data['friendRequests'];
             if(reqs != null) {
               for(int i = 0; i < reqs.length ; i++){
                   friendRequests.value.add(reqs[i]);
@@ -107,7 +107,7 @@ void Listen() {
             }
             break;
           case 'incomingRequest':
-            friendRequests.value.add(data['name']);
+            friendRequests.value.add(data['sender']);
             print("hhjfjehfjhjhefjhf\n\n");
             break;
           case 'newFriend':
