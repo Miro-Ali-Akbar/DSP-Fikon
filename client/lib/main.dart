@@ -109,9 +109,10 @@ void Listen() {
           case 'incomingRequest':
             friendRequests.value.add(data['sender']);
             print("hhjfjehfjhjhefjhf\n\n");
+            print(friendRequests.value);
             break;
           case 'newFriend':
-            friendsList.value.add(data['newFriend']);
+            friendsList.value.add(data);
             break;
           case 'usernameFail':
 
@@ -345,12 +346,12 @@ class Request extends StatelessWidget {
 
 void accept(String name) {
   channel?.sink.add(
-      '{"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName"}');
-  friendRequests.value.remove("$name");
+      '{"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName"}}');
+  friendRequests.value.remove(name);
 } 
 
 void reject(String name) {
   channel?.sink.add(
-      '{"msgID": "rejectRequest", "data": {"target": "$name", "sender": "$myUserName"}');
+      '{"msgID": "rejectRequest", "data": {"target": "$name", "sender": "$myUserName"}}');
   friendRequests.value.remove("$name");
 }
