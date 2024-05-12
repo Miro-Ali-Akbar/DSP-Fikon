@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
     String buffer = "";
     bool _highLightSearchBar = false;
     channel?.sink.add(jsonEncode({"msgID": "loggedIn", "data": {"email": user?.email}}));
-
+    print(isNewUser.value);
     super.initState();
     if (isNewUser.value) {
       // Show the popup using showDialog
@@ -74,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 20),
                     AnimatedOpacity(
                         curve: Curves.linear,
-                        opacity: _highLightSearchBar ? 2.0 : 0.5,
+                        opacity: _highLightSearchBar ? 1.0 : 0.5,
                         duration: Duration(milliseconds: 200),
                         child: Container(
                           width: MediaQuery.of(context).size.width,
@@ -187,7 +187,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    
+    print(isNewUser.value);
+    print("vghjhknknknnnnnnnn\n\n");
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
@@ -199,7 +200,9 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text(myUserName),
+        ),
         body: ListView(
           children: [
             ProfileRow(),

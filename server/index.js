@@ -49,6 +49,7 @@ wss.on('connection', ws => {
                 break;
             case "loggedIn":
                 init(ws, message.data.email);
+                console.log('logged in');
                 break;
             case "getLeaderboard":
                 send(ws, 'leaderboard');
