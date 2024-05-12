@@ -200,7 +200,9 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text(myUserName),
+        ),
         body: ListView(
           children: [
             ProfileRow(),
