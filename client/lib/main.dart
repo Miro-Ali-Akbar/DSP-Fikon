@@ -76,10 +76,12 @@ void Listen() {
             friend?.forEach((key, value) {
               friendsList.value.add(value);
             });
-            Map<String, dynamic>? reqs = data['friendRequests'];
-            reqs?.forEach(
-              (key, value) => friendRequests.value.add(value),
-            );
+            List<String>? reqs = data['friendRequests'];
+            if(reqs != null) {
+              for(int i = 0; i < reqs.length ; i++){
+                  friendRequests.value.add(reqs[i]);
+              }
+            } else {}
             Map<String, dynamic>? users = data['leaderBoard'];
             List<String> temp = [];
             users?.forEach((key, value) {
