@@ -74,7 +74,7 @@ void Listen() {
 
           print(data);
           if(data['changedUsername']) {
-            
+
             Map<String, dynamic>? friend = data['friends'];
             friend?.forEach((key, value) {
               friendsList.value.add(value);
@@ -87,7 +87,10 @@ void Listen() {
             } else {}
             myUserName = data['username'];
             isNewUser.value = !data['changedUsername'];
+          } else {
+            isNewUser.value = data['changedUsername'];
           }
+            
             print(isNewUser);
             break;
 
