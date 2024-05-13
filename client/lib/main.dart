@@ -1,7 +1,7 @@
 import 'package:flutter_config/flutter_config.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
@@ -27,7 +27,7 @@ ValueNotifier<List<String>> friendRequests =
 String feedBack = "";
 var jsonString = '';
 List<dynamic> leaderList = [];
-String myUserName = "default_username888";
+ValueNotifier<String> myUserName = ValueNotifier("...");
 ValueNotifier<bool> isNewUser = ValueNotifier(false);
 ValueNotifier<bool> canSendRequest = ValueNotifier(true);
 ValueNotifier<bool> isSent = ValueNotifier(false);
@@ -73,6 +73,7 @@ void Listen() {
           print("fdgghuhuhu\n\n");
 
           print(data);
+
           if(data['changedUsername']) {
 
             Map<String, dynamic>? friend = data['friends'];
@@ -85,10 +86,10 @@ void Listen() {
                   friendRequests.value.add(reqs[i]);
               }
             } else {}
-            myUserName = data['username'];
+            myUserName.value = data['username'];
             isNewUser.value = !data['changedUsername'];
           } else {
-            isNewUser.value = data['changedUsername'];
+            isNewUser.value = !data['changedUsername'];
           }
             
             print(isNewUser);

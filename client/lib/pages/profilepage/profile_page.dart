@@ -12,271 +12,249 @@ class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
   static const double? dropDownWidth = 500;
   static const edgeValue = 20.0;
-  
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
+//class _ProfilePageState extends State<ProfilePage> {
 class _ProfilePageState extends State<ProfilePage> {
   User? user = FirebaseAuth.instance.currentUser;
+  String buffer = "";
+  bool _highLightSearchBar = false;
 
-  _updateState() {
-    setState(() {
-      
-    });
+  @override
+  void initState() {
+    channel?.sink.add(jsonEncode({
+      "msgID": "loggedIn",
+      "data": {"email": user?.email}
+    }));
+    isNewUser.addListener(_updateState);
+    failMessage.addListener(_updateState);
+    myUserName.addListener(_updateState);
+    super.initState();
   }
+
   @override
   void dispose() {
     isNewUser.removeListener(_updateState);
     failMessage.removeListener(_updateState);
+    myUserName.removeListener(_updateState);
     super.dispose();
   }
 
-  void initState() {
-    isNewUser.addListener(_updateState);
-    failMessage.addListener(_updateState);
+  void _updateState() {
+    setState(() {});
+  }
 
-    String buffer = "";
-    bool _highLightSearchBar = false;
-    channel?.sink.add(jsonEncode({"msgID": "loggedIn", "data": {"email": user?.email}}));
-    print(isNewUser.value);
-    super.initState();
-    if (isNewUser.value) {
-      // Show the popup using showDialog
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-          content: Container(
-          width: MediaQuery.of(context).size.width / 1.3,
-          height: MediaQuery.of(context).size.height / 2.5,
-          decoration: new BoxDecoration(
-            shape: BoxShape.rectangle,
-            color: Color.fromARGB(0, 255, 1, 1),
-            borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
-          ),
-          child: Stack(
-            children: [
-              Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Enter username', // Text widget displaying "Success"
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 20),
-                    AnimatedOpacity(
-                        curve: Curves.linear,
-                        opacity: _highLightSearchBar ? 1.0 : 0.5,
-                        duration: Duration(milliseconds: 200),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.all(10),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                hintText: 'enter new user name here',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25)),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: BorderSide(
-                                    color: _highLightSearchBar
-                                        ? Color.fromARGB(255, 4, 4, 4)
-                                        : Color.fromARGB(255, 5, 5,
-                                            5), // Change the color based on condition
-                                  ),
-                                ),
-                                suffixIcon: canSendRequest.value
-                                    ? null
-                                    : SizedBox(
-                                        height: 0.0000007,
-                                        width: 0.00000007,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Center(
-                                              child: Container(
-                                                height: 10,
-                                                width: 10,
-                                                margin: EdgeInsets.all(10),
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2.0,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation(
-                                                          const Color.fromARGB(
-                                                              255, 7, 6, 6)),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ))),
-                            onChanged: (value) {
-                              setState(() {
-                                buffer = value;
-                                _highLightSearchBar = true;
-                              });
-                            },
-                            
-                          ),
-                          
-                        )),
-                    SizedBox(height: 20),
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height / 12,
-                      padding: EdgeInsets.all(15.0),
-                      child: Material(
-                        color:
-                            canSendRequest.value ? Colors.green : Colors.grey,
-                        borderRadius: BorderRadius.circular(25.0),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(25.0),
-                          onTap: () {
-                            // Call your function here when the container is pressed
-                            if (canSendRequest.value) {
-                              channel?.sink.add(
-                                  jsonEncode({"msgID": "initRes", "data": {"name": buffer, "email": user?.email}}));
-                              setState(() {
-                                
-                              });
-                            } else {}
-                          },
-                          child: Center(
-                            child: Text(
-                              'Enter',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18.0,
-                                fontFamily: 'helvetica_neue_light',
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ]),
-                  SizedBox(height:20),
-                  Text( failMessage.value)
-            ],
-          )),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      //add preferences
-    );
-          },
-        );
-      });
-    } else {
-      
-    }
-  } 
 
   @override
   Widget build(BuildContext context) {
     print(isNewUser.value);
     print("vghjhknknknnnnnnnn\n\n");
-    return MaterialApp(
-      theme: ThemeData(
-        textTheme: TextTheme(
-          bodyLarge: TextStyle(
-            color: Colors.black,
-            fontSize: 30.0,
+    return Stack(children: [
+      MaterialApp(
+        theme: ThemeData(
+          textTheme: TextTheme(
+            bodyLarge: TextStyle(
+              color: Colors.black,
+              fontSize: 30.0,
+            ),
+          ),
+        ),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text(myUserName.value),
+          ),
+          body: ListView(
+            children: [
+              ProfileRow(),
+              ContainerButton(
+                  () => Navigator.of(context, rootNavigator: true)
+                          .push(PageRouteBuilder(
+                        pageBuilder: (context, x, xx) => Friendpage(),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      )),
+                  "Friends"),
+              DropdownTile(
+                "Statistics",
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      title: Text(
+                        'Statistics 1',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        // Do something when Button
+                      },
+                    ),
+                    ListTile(
+                      title: Text(
+                        'Dosent have to be buttons',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              DropdownTile(
+                "Preferences",
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      title: Text(
+                        'Button 1',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        // Do something when Button
+                      },
+                    ),
+                    ListTile(
+                      title: Text(
+                        'Button 2',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        // Do something when Button
+                      },
+                    ),
+                    // Add more buttons as needed
+                  ],
+                ),
+              ),
+              ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout"),
+              ElevatedButton(
+                onPressed: () {
+                  print(FirebaseAuth.instance.currentUser);
+                },
+                // tooltip: 'Increment',
+                child: const Text("print user in debug"),
+              ),
+            ],
           ),
         ),
       ),
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(myUserName),
+      ValueListenableBuilder<bool>(
+        valueListenable: isNewUser,
+        builder: (context, isNew_, _) {
+          if (isNew_) {
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+      content: Container(
+        width: MediaQuery.of(context).size.width / 1.3,
+        height: MediaQuery.of(context).size.height / 2.5,
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: Color.fromARGB(0, 255, 1, 1),
+          borderRadius: BorderRadius.circular(32.0),
         ),
-        body: ListView(
+        child: Stack(
           children: [
-            ProfileRow(),
-            ContainerButton(
-                () => Navigator.of(context, rootNavigator: true)
-                        .push(PageRouteBuilder(
-                      pageBuilder: (context, x, xx) => Friendpage(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                    )),
-                "Friends"),
-            DropdownTile(
-              "Statistics",
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListTile(
-                    title: Text(
-                      'Statistics 1',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      // Do something when Button
-                    },
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Enter username',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.normal,
                   ),
-                  ListTile(
-                    title: Text(
-                      'Dosent have to be buttons',
-                      style: TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                AnimatedOpacity(
+                  curve: Curves.linear,
+                  opacity: _highLightSearchBar ? 1.0 : 0.5,
+                  duration: Duration(milliseconds: 200),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(10),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Enter new username here',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: BorderSide(
+                            color: _highLightSearchBar
+                                ? Color.fromARGB(255, 4, 4, 4)
+                                : Color.fromARGB(255, 5, 5, 5),
+                          ),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        buffer = value;
+                      },
                     ),
                   ),
-                ],
-              ),
+                ),
+                SizedBox(height: 20),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 12,
+                  padding: EdgeInsets.all(15.0),
+                  child: Material(
+                    color: canSendRequest.value ? Colors.green : Colors.grey,
+                    borderRadius: BorderRadius.circular(25.0),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(25.0),
+                      onTap: () {
+                        if (canSendRequest.value) {
+                          channel?.sink.add(jsonEncode({
+                            "msgID": "initRes",
+                            "data": {"name": buffer, "email": user?.email}
+                          }));
+                          setState(() {});
+                        }
+                      },
+                      child: Center(
+                        child: Text(
+                          'Enter',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.0,
+                            fontFamily: 'helvetica_neue_light',
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            DropdownTile(
-              "Preferences",
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListTile(
-                    title: Text(
-                      'Button 1',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      // Do something when Button
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
-                      'Button 2',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      // Do something when Button
-                    },
-                  ),
-                  // Add more buttons as needed
-                ],
-              ),
-            ),
-            ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout"),
-            ElevatedButton(
-              onPressed: () {
-                print(FirebaseAuth.instance.currentUser);
-              },
-              // tooltip: 'Increment',
-              child: const Text("print user in debug"),
-            ),
+            SizedBox(height: 20),
+            Text(failMessage.value),
           ],
         ),
       ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
     );
+                },
+              );
+            });
+          }
+          return Container();
+        },
+      )
+    ]);
   }
+
 
   /// Creates a button acording to our style
   ///
@@ -387,12 +365,12 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// Creates a dropdownmenu acording to our style
-  ///
-  /// [Name] The text displayed on the original button
-  /// [Buttons] The buttons that can be expanded: Is a usually a Row or Column with ListTile as buttons
-  ///
-  /// Returns a container that is the complete dropdownmenu
+  // Creates a dropdownmenu acording to our style
+  //
+  // [Name] The text displayed on the original button
+  // [Buttons] The buttons that can be expanded: Is a usually a Row or Column with ListTile as buttons
+  //
+  // Returns a container that is the complete dropdownmenu
   Container DropdownTile(String Name, Column Buttons) {
     // https://api.flutter.dev/flutter/material/ExpansionTile-class.html
     return Container(

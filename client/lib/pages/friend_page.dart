@@ -286,7 +286,7 @@ class _friendRequestState extends State<friendRequest> {
                             // Call your function here when the container is pressed
                             if (canSendRequest.value) {
                               channel?.sink.add(
-                                  jsonEncode({"msgID": "addFriend", "data": {"target":"$buffer", "sender": myUserName}}));
+                                  jsonEncode({"msgID": "addFriend", "data": {"target":"$buffer", "sender": myUserName.value}}));
                               setState(() {
                                 canSendRequest.value = false;
                               });
