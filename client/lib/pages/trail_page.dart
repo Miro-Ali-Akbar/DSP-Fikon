@@ -1,14 +1,19 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:trailquest/main.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
 import 'package:trailquest/my_trail_list.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 
 bool browsing = false;
 
-// Filters: 
-// 0 = noStairs, 1 = onlyNature, 2 = circularRoutes, 3 = maxDistance, 4 = minDistance
+/// This initializes the filters to not exclude any trails
+/// Filters:
+/// 0 = noStairs, 1 = onlyNature, 2 = circularRoutes, 3 = maxDistance, 4 = minDistance
 List filters = [false, false, false, double.infinity, 0];
 
 class TrailPage extends StatefulWidget {
@@ -17,9 +22,65 @@ class TrailPage extends StatefulWidget {
 }
 
 class _TrailPageState extends State<TrailPage> {
+  /// Lists of predetermined TrailCards
+  //final List<TrailCard> myTrails = MyTrailList;
+  //final List<TrailCard> friendsTrails = FriendTrailList;
 
-  final List<TrailCard> myTrails = MyTrailList;
-  final List<TrailCard> friendsTrails = FriendTrailList;
+  List<TrailCard> myTrails = [];
+  List<TrailCard> friendsTrails = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTrailData();
+  }
+
+  /// Fetches a list of trailcards to set as references for the widgets
+  void fetchTrailData() {
+    setState(() {
+      myTrails = _trailCardToList(userRoutes);
+      friendsTrails = _trailCardToList(friendsRoutes);
+    });
+  }
+
+  /// Builds a list of TrailCards out of a list of mixed data retrieved from the database
+  ///
+  /// [routesToDecode] A list of all saved routes and their data
+  ///
+  /// Returns a list of the saved TrailCards to display at the trail page
+  List<TrailCard> _trailCardToList(List<dynamic> routesToDecode) {
+    List<TrailCard> newTrails = [];
+    for (var data in routesToDecode) {
+      List<LatLng> trailCoordinates = [];
+      var coordinatesData = data['coordinates'];
+      if (coordinatesData != null && coordinatesData is List) {
+        trailCoordinates = List<LatLng>.from(coordinatesData
+            .map((coord) => LatLng(coord['latitude'], coord['longitude'])));
+      }
+
+      List<String> images = [
+        'assets/images/path_pic.jpg',
+        'assets/images/img_image_1.png'
+      ];
+      final random = Random();
+      int imageIndex = random.nextInt(2);
+
+      newTrails.add(TrailCard(
+          name: data['trailName'].toString(),
+          lengthDistance:
+              double.parse(data['totalDistance'].toStringAsFixed(1)),
+          lengthTime: double.parse(data['totalTime'].toStringAsFixed(1)),
+          natureStatus: data['statusEnvironment'] as String,
+          stairs: data['avoidStairs'] as bool,
+          heightDifference: double.parse(data['hilliness'].toStringAsFixed(1)),
+          isSaved: true,
+          isCircular: false,
+          image_path: images[imageIndex],
+          coordinates: trailCoordinates));
+    }
+
+    return newTrails;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +91,8 @@ class _TrailPageState extends State<TrailPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              SizedBox(height: 40),
-              CreateNewTrail(),
+              SizedBox(height: 40), // Adds some padding at the top of the page
+              GenerateNewTrail(fetchTrailData: fetchTrailData),
               Row(
                 children: <Widget>[
                   AnimatedButtons(onBrowsingChanged: (value) {
@@ -44,8 +105,10 @@ class _TrailPageState extends State<TrailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               ),
               Expanded(
-                child: Trails(savedTrails: MyTrailList, friendTrails: FriendTrailList,),
-                //child: Trails(trails: MyTrailList),
+                child: Trails(
+                  savedTrails: myTrails,
+                  friendTrails: friendsTrails,
+                ),
               ),
             ],
           ),
@@ -55,10 +118,13 @@ class _TrailPageState extends State<TrailPage> {
   }
 
   void rebuildTrailPage() {
-    setState(() {}); // Triggers a rebuild of the entire widget tree
+    setState(() {}); // Triggers a rebuild of the entire page
   }
 }
 
+///
+/// The sliding button for changing between seeing 'saved trails' and 'friend trails'
+///
 class AnimatedButtons extends StatelessWidget {
   final ValueChanged<bool> onBrowsingChanged;
 
@@ -72,6 +138,10 @@ class AnimatedButtons extends StatelessWidget {
           onPressed: () {
             onBrowsingChanged(!browsing);
           },
+
+          ///
+          /// The 'background' of the button. This is the actual button that can be pressed.
+          ///
           child: Container(
             alignment: Alignment.topLeft,
             decoration: BoxDecoration(
@@ -84,13 +154,22 @@ class AnimatedButtons extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text('My Trails', style: TextStyle(color: Colors.black), textAlign: TextAlign.center),
-                  Text('Friends', style: TextStyle(color: Colors.black), textAlign: TextAlign.center)
+                  Text('My Trails',
+                      style: TextStyle(color: Colors.black),
+                      textAlign: TextAlign.center),
+                  Text('Friends',
+                      style: TextStyle(color: Colors.black),
+                      textAlign: TextAlign.center)
                 ],
               ),
             ),
           ),
         ),
+
+        ///
+        /// A little black box that slides when the button above is pressed.
+        /// Creates the illusion of the button being animated.
+        ///
         AnimatedPositioned(
           duration: Duration(milliseconds: 300),
           left: browsing ? 92 : 12,
@@ -103,7 +182,9 @@ class AnimatedButtons extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
-              child: !browsing ? Text('My Trails', style: TextStyle(color: Colors.white)) : Text('Friends', style: TextStyle(color: Colors.white)),
+              child: !browsing
+                  ? Text('My Trails', style: TextStyle(color: Colors.white))
+                  : Text('Friends', style: TextStyle(color: Colors.white)),
             ),
           ),
         ),
@@ -112,159 +193,200 @@ class AnimatedButtons extends StatelessWidget {
   }
 }
 
+///
+/// The filter button
+///
 class FilterButton extends StatelessWidget {
-  final Function rebuildTrailPage; 
+  final Function rebuildTrailPage;
 
-  const FilterButton({Key? key, required this.rebuildTrailPage}) : super(key: key);
+  const FilterButton({Key? key, required this.rebuildTrailPage})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: TextButton.icon(
-        onPressed: () => showDialog(context: context, builder: (BuildContext context) {
-          return AlertDialog(
-            content: Container(
-              child: FilterPopUp(rebuildTrailPage: rebuildTrailPage), 
-              width: double.maxFinite, 
-            ),
-          );
-        }),
+        onPressed: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: Container(
+                  child: FilterPopUp(rebuildTrailPage: rebuildTrailPage),
+                  width: double.maxFinite,
+                ),
+              );
+            }),
         style: TextButton.styleFrom(
           backgroundColor: Colors.green,
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
           shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black),
             borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
         ),
-        label: const Text('Filter', style: TextStyle(color: Colors.white, fontSize: 15)),
+        label: const Text('Filter',
+            style: TextStyle(color: Colors.white, fontSize: 15)),
         icon: SvgPicture.asset('assets/icons/img_filter.svg'),
       ),
     );
   }
 }
 
-class CreateNewTrail extends StatelessWidget {
-  const CreateNewTrail({Key? key}) : super(key: key);
+///
+/// The 'Generate new trail' button.
+///
+class GenerateNewTrail extends StatelessWidget {
+  final Function fetchTrailData;
+  const GenerateNewTrail({Key? key, required this.fetchTrailData})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          pageBuilder: (context, x, xx) => GenerateTrail(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ));
-      },
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.green,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: TextButton.icon(
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true)
+            .push(PageRouteBuilder(
+                pageBuilder: (context, x, xx) => GenerateTrail(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ))
+            .then((_) => {fetchTrailData()});
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.green,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black, width: 2),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
         ),
+        label: Padding(
+          padding: const EdgeInsets.only(right: 10.0),
+          child: const Text('Generate new trail',
+              style: TextStyle(color: Colors.white, fontSize: 30)
+          ),
+        ),
+        icon: SvgPicture.asset('assets/icons/img_plus.svg',),
       ),
-      child: const Text('Generate new trail +', style: TextStyle(color: Colors.white, fontSize: 30)),
     );
   }
 }
 
+///
+/// Creates the scrollable list of trails.
+///
 class Trails extends StatelessWidget {
   List<TrailCard> savedTrails;
-  List<TrailCard> friendTrails; 
-  
-  Trails({Key? key, required this.savedTrails, required this.friendTrails}) : super(key: key);
+  List<TrailCard> friendTrails;
+
+  Trails({
+    Key? key,
+    required this.savedTrails,
+    required this.friendTrails,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    List<TrailCard> allTrails = new List.from(savedTrails)
+      ..addAll(friendTrails);
 
-    List<TrailCard> allTrails = new List.from(savedTrails)..addAll(friendTrails); 
-    
     // get either all saved trails or all friend trails, depending on the tab
-    List<TrailCard> filteredTrails = browsing ? 
-      friendTrails : 
-      allTrails.where((trail) {
-        return trail.isSaved; 
-      }).toList();
+    List<TrailCard> filteredTrails = browsing
+        ? friendTrails
+        : allTrails.where((trail) {
+            return trail.isSaved;
+          }).toList();
 
-    // filter trails according to the filters selected 
+    // filter trails according to the filters selected
     filteredTrails = filterTrails(filteredTrails);
 
     return ListView.separated(
       padding: const EdgeInsets.all(10),
       itemCount: filteredTrails.length,
       itemBuilder: (BuildContext context, int index) {
-        return filteredTrails[index]; 
+        return filteredTrails[index];
       },
-      separatorBuilder: (BuildContext context, int index) => const Divider(),
+      separatorBuilder: (BuildContext context, int index) =>
+          const Divider(color: Colors.white),
     );
   }
 
+  ///
+  /// Function for filtering the list of trails based on certain attributes.
+  /// The active filters are specified in the global 'filters' array.
+  ///
+  /// [list] - The list of trails to be filtered
+  ///
+  /// returns a list with only the trails that fits into the active filters
   List<TrailCard> filterTrails(List<TrailCard> list) {
-    List<TrailCard> newList = list; 
+    List<TrailCard> newList = list;
 
     // Filter no stairs
     if (filters[0]) {
       newList = newList.where((trail) {
-        return !trail.stairs; 
+        return !trail.stairs;
       }).toList();
     }
 
     // Filter only nature
     if (filters[1]) {
       newList = newList.where((trail) {
-        return trail.natureStatus == "Nature"; 
+        return trail.natureStatus == "Nature";
       }).toList();
     }
 
     // Filter only circular routes
     if (filters[2]) {
       newList = newList.where((trail) {
-        return trail.isCircular; 
+        return trail.isCircular;
       }).toList();
     }
 
     // Filter max distance
     newList = newList.where((trail) {
-      return trail.lengthDistance <= filters[3]; 
+      return trail.lengthDistance <= filters[3];
     }).toList();
 
     // Filter min distance
     newList = newList.where((trail) {
-      return trail.lengthDistance >= filters[4]; 
+      return trail.lengthDistance >= filters[4];
     }).toList();
 
-    return newList; 
+    return newList;
   }
 }
 
+///
+/// The filter 'pop-up' box used for filtering the trails.
+///
 class FilterPopUp extends StatefulWidget {
-  final Function rebuildTrailPage; 
+  final Function rebuildTrailPage;
 
-   const FilterPopUp({Key? key, required this.rebuildTrailPage}) : super(key: key);
+  const FilterPopUp({Key? key, required this.rebuildTrailPage})
+      : super(key: key);
 
-  @override 
+  @override
   State<FilterPopUp> createState() => _FilterPopUpState();
 }
 
 class _FilterPopUpState extends State<FilterPopUp> {
-
   @override
   Widget build(BuildContext context) {
-
     return SingleChildScrollView(
       child: Column(
         children: [
           Row(
             children: [
               Checkbox(
-                onChanged: (newValue) {
-                  setState(() {
-                    filters[0] = newValue ?? false;
-                  });
-                }, 
-                value: filters[0]
-              ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      filters[0] = newValue ?? false;
+                    });
+                  },
+                  value: filters[0]),
               Flexible(
                 child: Text('Exclude routes which could contain stairs'),
               ),
@@ -273,13 +395,12 @@ class _FilterPopUpState extends State<FilterPopUp> {
           Row(
             children: [
               Checkbox(
-                onChanged: (newValue) {
-                  setState(() {
-                    filters[1] = newValue ?? false;
-                  });
-                }, 
-                value: filters[1]
-              ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      filters[1] = newValue ?? false;
+                    });
+                  },
+                  value: filters[1]),
               Flexible(
                 child: Text('Only include routes with a lot of nature'),
               ),
@@ -288,15 +409,15 @@ class _FilterPopUpState extends State<FilterPopUp> {
           Row(
             children: [
               Checkbox(
-                onChanged: (newValue) {
-                  setState(() {
-                    filters[2] = newValue ?? false;
-                  });
-                }, 
-                value: filters[2]
-              ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      filters[2] = newValue ?? false;
+                    });
+                  },
+                  value: filters[2]),
               Flexible(
-                child: Text('Only include routes with the same start- and endpoint'),
+                child: Text(
+                    'Only include routes with the same start- and endpoint'),
               ),
             ],
           ),
@@ -305,15 +426,15 @@ class _FilterPopUpState extends State<FilterPopUp> {
             children: [
               Text('Max distance: '),
               Container(
-                width: 80, // Specify the desired width
-                height: 40, // Specify the desired height
+                width: 80,
+                height: 40,
                 child: TextField(
-                  
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
+                    FilteringTextInputFormatter
+                        .digitsOnly // Makes it only possible to input numbers
                   ],
-                  onSubmitted: (value) {
+                  onChanged: (value) {
                     setState(() {
                       filters[3] = double.parse(value);
                     });
@@ -333,7 +454,8 @@ class _FilterPopUpState extends State<FilterPopUp> {
                 child: TextField(
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
+                    FilteringTextInputFormatter
+                        .digitsOnly // Makes it only possible to input numbers
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -350,34 +472,55 @@ class _FilterPopUpState extends State<FilterPopUp> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                ///
+                /// 'Clear' button
+                ///
                 TextButton(
                   onPressed: () {
-                    widget.rebuildTrailPage(); 
-                    Navigator.pop(context); 
-                  }, 
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    side: BorderSide(color: Colors.black),
-                  ),
-                  child: Text("Apply", style: TextStyle(color: Colors.black),),
-                ),
-                TextButton(
-                  onPressed: () {
-                    filters = [false, false, false, double.infinity, 0];
-                    rebuildFilter(); 
+                    filters = [
+                      false,
+                      false,
+                      false,
+                      double.infinity,
+                      0
+                    ]; // Resets all filters to the default
+                    rebuildFilter(); // Rebuilds the filter pop-up so that the boxes are automatically un-checked
                     widget.rebuildTrailPage();
-                  }, 
+                  },
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 30),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     side: BorderSide(color: Colors.black),
                   ),
-                  child: Text("Clear", style: TextStyle(color: Colors.black),),
+                  child: Text(
+                    "Clear",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                ///
+                /// 'Apply' button
+                ///
+                TextButton(
+                  onPressed: () {
+                    widget
+                        .rebuildTrailPage(); // Triggers a rebuild of the page so that the trails are filtered
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 30),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    side: BorderSide(color: Colors.black),
+                  ),
+                  child: Text(
+                    "Apply",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ],
             ),
@@ -388,6 +531,6 @@ class _FilterPopUpState extends State<FilterPopUp> {
   }
 
   void rebuildFilter() {
-    setState(() {}); 
+    setState(() {});
   }
 }

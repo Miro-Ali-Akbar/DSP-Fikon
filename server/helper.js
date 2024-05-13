@@ -19,13 +19,6 @@ const leaderboardRef = db.collection('leaderboard');
 // Server helper functions
 
 /**
- * Updates alive-status of a socket.
- */
-function heartbeat() {
-    this.isAlive = true;
-}
-
-/**
  * ID generation for new websockets
  * @returns generated user ID
  */
@@ -34,15 +27,6 @@ function generateID() {
 }
 
 // Database helper functions
-
-/**
- * Enters data into a given document in database
- * @param {String} username username used to index database
- * @param {JSON} userData data given to the function from parsed JSON-string
- */
-async function putUser(username, userData) {
-    await usersRef.doc(username).set(userData);
-}
 
 /**
  * Gets document in collection from database
@@ -92,7 +76,7 @@ async function send(ws, msgID, doc, index) {
             }        
             break;
         case "sendRoute":
-            const route = await get(routesRef, doc);
+            const route = await get('', doc);
             data = {
                 route: route.testArr[0].test,
                 color: route.testArr[0].color
@@ -105,6 +89,7 @@ async function send(ws, msgID, doc, index) {
     }
     ws.send(JSON.stringify(msg));
 }
+
 
 //? Create handling by putting websocket in database --- STRETCH GOAL FOR SCALING
 async function handleFriendrequest(ws, sender, target, wsArr) {
@@ -292,12 +277,134 @@ async function disconnectUser(wsID, wsArr) {
             return wsArr;
         }
     }
+
+async function sortLeaderboard(wsArr, entry) {
+    const leaderboard = await leaderboardRef.doc('leaderboard1').get();
+    let updated = false;
+    
+    if ( entry.points > leaderboard.data().user5[1]) {
+        if ( entry.points > leaderboard.data().user4[1]) {
+            if ( entry.points > leaderboard.data().user3[1]) {
+                if ( entry.points > leaderboard.data().user2[1]) {
+                    if ( entry.points > leaderboard.data().user1[1]) {
+
+                        leaderboardRef.doc('leaderboard1').update({
+                                                                    user1: [entry.username, entry.points],
+                                                                    user2: leaderboard.data().user1,
+                                                                    user3: leaderboard.data().user2,
+                                                                    user4: leaderboard.data().user3,
+                                                                    user5: leaderboard.data().user4
+                                                                });
+                        updated = true;
+                    } else {
+                        leaderboardRef.doc('leaderboard1').update({
+                                                                    user1: leaderboard.data().user1,
+                                                                    user2: [entry.username, entry.points],
+                                                                    user3: leaderboard.data().user2,
+                                                                    user4: leaderboard.data().user3,
+                                                                    user5: leaderboard.data().user4
+                                                                });
+                        updated = true;
+                    }
+                } else {
+                    leaderboardRef.doc('leaderboard1').update({
+                                                                user1: leaderboard.data().user1,
+                                                                user2: leaderboard.data().user2,
+                                                                user3: [entry.username, entry.points],
+                                                                user4: leaderboard.data().user3,
+                                                                user5: leaderboard.data().user4
+                                                            });
+                    updated = true;
+                }
+            } else {
+                leaderboardRef.doc('leaderboard1').update({
+                                                            user1: leaderboard.data().user1,
+                                                            user2: leaderboard.data().user2,
+                                                            user3: leaderboard.data().user3,
+                                                            user4: [entry.username, entry.points],
+                                                            user5: leaderboard.data().user4
+                                                        });
+                updated = true;
+            }
+        } else {
+            leaderboardRef.doc('leaderboard1').update({
+                                                        user1: leaderboard.data().user1,
+                                                        user2: leaderboard.data().user2,
+                                                        user3: leaderboard.data().user3,
+                                                        user4: leaderboard.data().user4,
+                                                        user5: [entry.username, entry.points]
+                                                    });
+            updated = true;
+        }
+    }
+
+    if ( updated ) {
+        for ( let i = 0; i < wsArr.length; i++ ) {
+            send(wsArr[i].socket, 'leaderboard');
+        }
+    }
+
+}
+
+async function saveRoute(ws, wsArr, data) {
+    const name = data.trailName;
+    
+    let username;
+    for ( let i = 0; i < wsArr.length; i++ ) {
+        if ( ws.id === wsArr[i].id ) {
+            username = wsArr[i].username;
+            break;
+        }
+    } 
+
+    const raw = await usersRef.doc(username).get()
+    const friendlist = raw.data().friendlist;
+    console.log(username);
+    console.log(friendlist[0]);
+
+    // put trail into database
+    await db.collection(`users/${username}/userRoutes`).doc(name).set(data);
+    ws.send(JSON.stringify({msgID: "returnRoute", data: data}));
+
+    if ( friendlist.length > 0 ) {
+        for ( let i = 0; i < friendlist.length; i++ ) {
+            console.log(friendlist[0]);
+            await db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
+        }
+    } else {
+        // Do nothing
+    }    
+}
+
+async function initTrails(ws, username) {
+    const userRoutes = await db.collection(`users/${username}/userRoutes`).get();
+    const friendRoutes = await db.collection(`users/${username}/friendRoutes`).get();
+    
+    const docsUser = userRoutes.docs.map(doc => doc.data());
+    const docsFriend = friendRoutes.docs.map(doc => doc.data());
+
+    ws.send(JSON.stringify({
+        msgID: 'initTrails',
+        data: {
+            userTrails: docsUser,
+            friendTrails: docsFriend
+        }
+    }));
+}
+
+async function getRoutes(ws, username, trailName, trailType) {
+    const raw = db.collection(`users/${username}/${trailType}`).doc(trailname).get();
+    ws.send(JSON.stringify({
+        msgID: 'sendRoute',
+        data: {
+            route: raw.data()
+        }
+    }));
+
 }
 
 module.exports = {
-    heartbeat,
     generateID,
-    putUser,
     get,
     put,
     send,
@@ -307,4 +414,8 @@ module.exports = {
     init,
     putUsername,
     getUsername
+    saveRoute,
+    initTrails,
+    getRoutes,
+
 };

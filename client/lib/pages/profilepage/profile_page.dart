@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:trailquest/main.dart';
 import 'package:trailquest/pages/friend_page.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// The profilepage of the user
 /// Note: Use authGate instead of this as it guaranties that the user is logged in.
@@ -294,7 +295,7 @@ class _ProfilePageState extends State<ProfilePage> {
   /// The header for the ProfilePage
   ///
   /// returns a avatar image from the logged in user along with thier name and level
-  Row ProfileRow() {
+  Row profileRow(String? name) {
     return Row(
       children: [
         Expanded(
@@ -302,25 +303,26 @@ class _ProfilePageState extends State<ProfilePage> {
           child: //Container(
               CircleAvatar(
             radius: 48, // Image radius
-            backgroundImage: AssetImage('assets/icons/img_profile.svg'),
-            foregroundImage: NetworkImage(user!
+            backgroundImage:
+                AssetImage('assets/images/default_profilepicture.png'),
+            foregroundImage: NetworkImage(user
                 .photoURL!), // Display user's profile picture if user is not null
           ),
         ),
         Expanded(
           flex: 1,
-          child: Column(
-            children: [
-              Text(user!.displayName!,
-                  style: Theme.of(context).textTheme.bodyLarge),
-              Text("Level 1", style: Theme.of(context).textTheme.bodyLarge),
-            ],
-          ),
+          child: Column(children: [
+            Text(
+                (name == null)
+                    ? ""
+                    : name, // Needs nullchecker incase a new name is selected to prevent it being null and causing a red screen for one millisec
+                style: Theme.of(context).textTheme.bodyLarge),
+            Text("Level 1", style: Theme.of(context).textTheme.bodyLarge),
+          ]),
         ),
       ],
     );
   }
-
   // TODO: Remove as this is legacy
   Container Friendlist() {
     // Check with others - I give up

@@ -4,10 +4,17 @@ const ws = new WebSocket("ws://trocader.duckdns.org:4000");
 
 ws.onopen = () => {
 
+
     ws.send(JSON.stringify({msgID: "initRes", data: { email: "hitsu@gmal.com", name: "hitsu" } }));
     ws.send(JSON.stringify({msgID: "loggedIn", data: { email: "hitsu@gmal.com"}}));
 
     // ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
+
+
+    ws.send(JSON.stringify({msgID: "updateLeaderboard", data: { user: {username: "uName", points: 1000} }}));
+
+    //ws.send(JSON.stringify({msgID: "getRoute", data: { trailName: "MyTrail", username: 'uName' }}));
+
     
     ws.send(JSON.stringify({msgID: "getLeaderboard"}));
     // ws.send(JSON.stringify({msgID: "addFriend", data: { target: "uName", sender: "pop"}}));

@@ -3,14 +3,15 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest, disconnectUser, init, putUsername, getUsername } = require('./helper');
+const { generateID, get, put, send, handleFriendrequest, respondRequest, disconnectUser, init, putUsername, getUsername, sortLeaderboard, saveRoute, initTrails, getRoutes } = require('./helper');
+
 
 // Initializing database variables
 
 
 // Initialize server variable
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 const server = express().use((req, res) => res.send("HELLO WORLD")).listen(PORT, () => console.log(`listening to port: ${PORT}`));
 const wss = new Server({server});
 
@@ -31,10 +32,12 @@ wss.on('connection', ws => {
         socketID: ws.id,
         signature: 0, 
     }));
+  
     i++;
     console.log('=== Client connected: ', ws.id, ' ===');
 
     ws.on('message', async function inc(data) {
+
         let message =  data;
 
         message = JSON.parse(message);
@@ -53,7 +56,9 @@ wss.on('connection', ws => {
                 const username = await getUsername(message.data.email);
                 if ( username.found ) {
                     wss.connectedUsers.push({"username": await username.username, "socket": ws, "id": ws.id});
-                    console.log('=== added user to connectedClients ===')
+                    console.log('=== added user to connectedClients ===');
+                    initTrails(ws, username.username);
+                    console.log('=== sent routes to client ===');
                 }
                 break;
             case "getLeaderboard":
@@ -70,10 +75,18 @@ wss.on('connection', ws => {
             case "rejectRequest":
                 respondRequest(ws, message.data.target, message.data.sender, false, wss.connectedUsers);
                 break;
-            
-                
+            case "updateLeaderboard":
+                sortLeaderboard(wss.connectedUsers, message.data.user)
+            case "addRoute": 
+                console.log("Should be a route: ", message);
+                saveRoute(ws, wss.connectedUsers, message.data);
+                break;
+            case "getRoute":
+                getRoutes(ws, message.data.username, message.data.trailname, message.data.trailType);
+                break;
+
         }
-    })
+    });
 
     ws.on('close', async () => {
         console.log('=== Client with id: ', ws.id, '=== has disconnected.');

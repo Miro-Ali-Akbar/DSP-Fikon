@@ -1,4 +1,5 @@
 import 'package:flutter_config/flutter_config.dart';
+
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -24,6 +25,7 @@ ValueNotifier<List<String>> friendRequests =
     ValueNotifier(["emma", "meep", "ghhh", "fgg"]);
 String feedBack = "";
 var jsonString = '';
+
 List<dynamic> leaderList = [];
 ValueNotifier<String> myUserName = ValueNotifier("...");
 ValueNotifier<bool> isNewUser = ValueNotifier(false);
@@ -37,6 +39,11 @@ ValueNotifier<String> failMessage = ValueNotifier("");
  * Listens for data sent from the server via the websocket
  * parses the message and updates values
  */
+
+List<dynamic> userRoutes = [];
+List<dynamic> friendsRoutes = [];
+List<String> dataList = [];
+
 void Listen() {
   try {
     channel?.stream.listen((jsonString) {
@@ -46,29 +53,18 @@ void Listen() {
         // Get the first key-value pair from the Map
         MapEntry<String, dynamic> firstEntry = jsonDecoded.entries.first;
 
+
         // Extract the value of the message ID for the switch case
         msgID = firstEntry.value;
         
         //extracts the data
+
         MapEntry<String, dynamic> secondEntry =
             jsonDecoded.entries.elementAt(1);
         dynamic data = secondEntry.value;
 
         switch (msgID) {
-
-          case 'leaderboard':
-            if(data != null) {
-              Map<String, dynamic> users = data;
-              List<String> temp = [];
-              users.forEach((key, value) {
-                temp.add(array_to_string([value[0], value[1]]));
-              });
-              leaderList = temp;
-            }
-            break;
-
           case 'initUser':
-
             if (data['changedUsername']) {
               if (data['friendlist'] != null) {
                 friendsList.value = data['friendlist'];
@@ -123,8 +119,65 @@ void Listen() {
           case 'usernameSuccess':
             isNewUser.value = false;
             isNewUser.notifyListeners();
+            break;
+          case 'leaderboard':
+            Map<String, dynamic> users = data;
+            List<String> temp = [];
+            users.forEach((key, value) {
+              temp.add(array_to_string([value[0], value[1]]));
+            });
+            dataList = temp;
+            print(dataList);
+            break;
+          case 'initTrails':
+            Map<String, dynamic> routes = data;
+
+            List<dynamic> userTrailsData = routes['userTrails'];
+            List<dynamic> friendTrailsData = routes['friendTrails'];
+
+            if (!userTrailsData.isEmpty) {
+              for (var i = 0; i < userTrailsData.length; i++) {
+                Map<String, dynamic> trailData = userTrailsData[i];
+                userRoutes.add({
+                  'trailName': trailData['trailName'],
+                  'totalDistance': trailData['totalDistance'],
+                  'totalTime': trailData['totalTime'],
+                  'statusEnvironment': trailData['statusEnvironment'],
+                  'avoidStairs': trailData['avoidStairs'],
+                  'hilliness': trailData['hilliness'],
+                  'coordinates': trailData['coordinates']
+                });
+              }
+            }
+
+            if (!friendTrailsData.isEmpty) {
+              for (var i = 0; i < friendTrailsData.length; i++) {
+                Map<String, dynamic> trailData = friendTrailsData[i];
+                friendsRoutes.add({
+                  'trailName': trailData['trailName'],
+                  'totalDistance': trailData['totalDistance'],
+                  'totalTime': trailData['totalTime'],
+                  'statusEnvironment': trailData['statusEnvironment'],
+                  'avoidStairs': trailData['avoidStairs'],
+                  'hilliness': trailData['hilliness'],
+                  'coordinates': trailData['coordinates']
+                });
+              }
+            }
+
+            break;
+          case 'returnRoute':
+            Map<String, dynamic> trailData = data;
+            userRoutes.add({
+              'trailName': trailData['trailName'],
+              'totalDistance': trailData['totalDistance'],
+              'totalTime': trailData['totalTime'],
+              'statusEnvironment': trailData['statusEnvironment'],
+              'avoidStairs': trailData['avoidStairs'],
+              'hilliness': trailData['hilliness'],
+              'coordinates': trailData['coordinates']
+            });
           default:
-            
         }
       }
     });
@@ -142,10 +195,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-//78.66.87.18
-//ws://trocader.duckdns.org:4000"
+
+  String ip = FlutterConfig.get('IP');
+  String port = FlutterConfig.get('PORT');
+
   channel =
-      WebSocketChannel.connect(Uri.parse("ws://trocader.duckdns.org:4000"));
+      WebSocketChannel.connect(Uri.parse("ws://$ip:$port"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());
@@ -161,6 +216,7 @@ class MainApp extends StatefulWidget {
 String array_to_string(List tuple) {
   return tuple[1].toString() + " " + tuple[0];
 }
+
 
 void _sendMessage(String message) {
   print(message);
