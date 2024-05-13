@@ -47,7 +47,6 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {});
   }
 
-
   @override
   Widget build(BuildContext context) {
     print(isNewUser.value);
@@ -149,102 +148,108 @@ class _ProfilePageState extends State<ProfilePage> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-      content: Container(
-        width: MediaQuery.of(context).size.width / 1.3,
-        height: MediaQuery.of(context).size.height / 2.5,
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: Color.fromARGB(0, 255, 1, 1),
-          borderRadius: BorderRadius.circular(32.0),
-        ),
-        child: Stack(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Enter username',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 20),
-                AnimatedOpacity(
-                  curve: Curves.linear,
-                  opacity: _highLightSearchBar ? 1.0 : 0.5,
-                  duration: Duration(milliseconds: 200),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(10),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Enter new username here',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                          borderSide: BorderSide(
-                            color: _highLightSearchBar
-                                ? Color.fromARGB(255, 4, 4, 4)
-                                : Color.fromARGB(255, 5, 5, 5),
-                          ),
-                        ),
+                    content: Container(
+                      width: MediaQuery.of(context).size.width / 1.3,
+                      height: MediaQuery.of(context).size.height / 2.5,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Color.fromARGB(0, 255, 1, 1),
+                        borderRadius: BorderRadius.circular(32.0),
                       ),
-                      onChanged: (value) {
-                        buffer = value;
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height / 12,
-                  padding: EdgeInsets.all(15.0),
-                  child: Material(
-                    color: canSendRequest.value ? Colors.green : Colors.grey,
-                    borderRadius: BorderRadius.circular(25.0),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(25.0),
-                      onTap: () {
-                        if (canSendRequest.value) {
-                          channel?.sink.add(jsonEncode({
-                            "msgID": "initRes",
-                            "data": {"name": buffer, "email": user?.email}
-                          }));
-                          setState(() {});
-                        }
-                      },
-                      child: Center(
-                        child: Text(
-                          'Enter',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18.0,
-                            fontFamily: 'helvetica_neue_light',
+                      child: Stack(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                'Enter username',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 20),
+                              AnimatedOpacity(
+                                curve: Curves.linear,
+                                opacity: _highLightSearchBar ? 1.0 : 0.5,
+                                duration: Duration(milliseconds: 200),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.all(10),
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter new username here',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25.0),
+                                        borderSide: BorderSide(
+                                          color: _highLightSearchBar
+                                              ? Color.fromARGB(255, 4, 4, 4)
+                                              : Color.fromARGB(255, 5, 5, 5),
+                                        ),
+                                      ),
+                                    ),
+                                    onChanged: (value) {
+                                      buffer = value;
+                                    },
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height / 12,
+                                padding: EdgeInsets.all(15.0),
+                                child: Material(
+                                  color: canSendRequest.value
+                                      ? Colors.green
+                                      : Colors.grey,
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(25.0),
+                                    onTap: () {
+                                      if (canSendRequest.value) {
+                                        channel?.sink.add(jsonEncode({
+                                          "msgID": "initRes",
+                                          "data": {
+                                            "name": buffer,
+                                            "email": user?.email
+                                          }
+                                        }));
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        'Enter',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18.0,
+                                          fontFamily: 'helvetica_neue_light',
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                          SizedBox(height: 20),
+                          Text(failMessage.value),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Text(failMessage.value),
-          ],
-        ),
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-    );
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  );
                 },
               );
             });
@@ -254,7 +259,6 @@ class _ProfilePageState extends State<ProfilePage> {
       )
     ]);
   }
-
 
   /// Creates a button acording to our style
   ///
@@ -295,7 +299,7 @@ class _ProfilePageState extends State<ProfilePage> {
   /// The header for the ProfilePage
   ///
   /// returns a avatar image from the logged in user along with thier name and level
-  Row profileRow(String? name) {
+  Row ProfileRow() {
     return Row(
       children: [
         Expanded(
@@ -303,26 +307,25 @@ class _ProfilePageState extends State<ProfilePage> {
           child: //Container(
               CircleAvatar(
             radius: 48, // Image radius
-            backgroundImage:
-                AssetImage('assets/images/default_profilepicture.png'),
-            foregroundImage: NetworkImage(user
+            backgroundImage: AssetImage('assets/icons/img_profile.svg'),
+            foregroundImage: NetworkImage(user!
                 .photoURL!), // Display user's profile picture if user is not null
           ),
         ),
         Expanded(
           flex: 1,
-          child: Column(children: [
-            Text(
-                (name == null)
-                    ? ""
-                    : name, // Needs nullchecker incase a new name is selected to prevent it being null and causing a red screen for one millisec
-                style: Theme.of(context).textTheme.bodyLarge),
-            Text("Level 1", style: Theme.of(context).textTheme.bodyLarge),
-          ]),
+          child: Column(
+            children: [
+              Text(user!.displayName!,
+                  style: Theme.of(context).textTheme.bodyLarge),
+              Text("Level 1", style: Theme.of(context).textTheme.bodyLarge),
+            ],
+          ),
         ),
       ],
     );
   }
+
   // TODO: Remove as this is legacy
   Container Friendlist() {
     // Check with others - I give up
