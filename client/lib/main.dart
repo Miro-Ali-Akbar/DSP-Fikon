@@ -348,12 +348,12 @@ class Request extends StatelessWidget {
 
 void accept(String name) {
   channel?.sink.add(
-      '{"msgID": "acceptRequest", "data": {"target": "$name", "sender": "$myUserName"}}');
+      '{"msgID": "acceptRequest", "data": {"target": "$name", "sender": "${myUserName.value}"}}');
   friendRequests.value.remove(name);
 } 
 
 void reject(String name) {
   channel?.sink.add(
-      '{"msgID": "rejectRequest", "data": {"target": "$name", "sender": "$myUserName"}}');
+      '{"msgID": "rejectRequest", "data": {"target": "$name", "sender": "${myUserName.value}"}}');
   friendRequests.value.remove("$name");
 }
