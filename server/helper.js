@@ -214,20 +214,22 @@ async function putUsername(ws, email, username) {
     }))
 }
 
-async function init(ws, email) {
+aasync function init(ws, email) {
     const username = await getUsername(email);
     
     if ( username.found ) {
         const user = await usersRef.doc(username.username).get();
         const leaderboard = await leaderboardRef.doc('leaderboard1').get()
-        const friendlist = await db.collection(`/users/${username.username}/friendList`).get();
+        const friendRef = await db.collection(`/users/${username.username}/friendList`).get();
+        const friendlist = friendRef.docs.map(doc => doc.data());
+        console.log(friendlist);
         if ( user.exists ) {
             console.log('sending data to', username.username);
             ws.send(JSON.stringify({
                 msgID: 'initUser',
                 data: {
                     username: username.username,
-                    friendlist: friendlist.exists ? friendlist.data() : {},
+                    friendlist: friendlist,
                     friendRequests: user.data().friendRequests,
                     leaderboard: leaderboard.data(),
                     score: user.data().score,
@@ -248,7 +250,7 @@ async function init(ws, email) {
             const friendlist = await db.collection(`/users/${username.username}/friendList`).get();
             ws.send(JSON.stringify({msgID: 'initUser', data: {
                 username: username.username,
-                friendlist: friendlist.exists ? friendlist.data() : {},
+                friendlist: [],
                 friendRequests: [],
                 score: 0,
                 leaderboard: leaderboard.data(),
