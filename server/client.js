@@ -1,18 +1,18 @@
 const { WebSocket } = require('ws');
 
-const ws = new WebSocket("ws://localhost:3000");
+const ws = new WebSocket("ws://trocader.duckdns.org:4000");
 
 ws.onopen = () => {
 
-    ws.send(JSON.stringify({msgID: "initRes", data: { email: "a@b.se", username: "ab" } }));
-    ws.send(JSON.stringify({msgID: "loggedIn", data: { email: "a@b.se"}}));
+    ws.send(JSON.stringify({msgID: "initRes", data: { email: "hitsu@gmal.com", name: "hitsu" } }));
+    ws.send(JSON.stringify({msgID: "loggedIn", data: { email: "hitsu@gmal.com"}}));
 
     // ws.send(JSON.stringify({msgID: "getRoute", data: { index: 0 }}));
     
     ws.send(JSON.stringify({msgID: "getLeaderboard"}));
     // ws.send(JSON.stringify({msgID: "addFriend", data: { target: "uName", sender: "pop"}}));
 
-    ws.send(JSON.stringify({msgID: "addRoute", data: {trailName: "abc", dink: "donk"}}))
+    ws.send(JSON.stringify({msgID: "addFriend", data: {target: "hjgfhjkkkbbj", sender: "hitsu"}}));
 
     ws.on('message', msg => {
         const message = JSON.parse(msg);

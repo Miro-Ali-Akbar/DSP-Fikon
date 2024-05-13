@@ -110,9 +110,7 @@ async function send(ws, msgID, doc, index) {
 async function handleFriendrequest(ws, sender, target, wsArr) {
     const doc = await usersRef.doc(target).get();
     if ( !doc.exists ) {
-        // TODO: Change msgID to match client listener
         ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 0 }}));
-        console.log('did not find user');
         return;
     } else {
         const requests = doc.data().friendRequests;
@@ -123,15 +121,13 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
             }
         }
         if ( doc.data().online === true ) {
-            console.log(doc.data().online);
+
             ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
-            console.log('IM HERE');
+
             for ( let i = 0; i < wsArr.length; i = i + 1 ) {
+
                 const socket = wsArr[i];
-                console.log('socket: ', socket);
-                console.log('arr: ', wsArr);
                 if ( socket.username === target ) {
-                    console.log("socket: ", socket);
                     (socket.socket).send(JSON.stringify({msgID: 'incomingRequest', data: {sender: sender}}));
                     requests.push(sender);
                     await usersRef.doc(target).update({
@@ -142,7 +138,7 @@ async function handleFriendrequest(ws, sender, target, wsArr) {
             }
         } else {
             ws.send(JSON.stringify({ msgID: 'outGoingRequest', data: { error: 1 }}));
-            console.log('im here!');
+
             requests.push(sender);
             await usersRef.doc(target).update({
                 friendRequests: requests
@@ -158,18 +154,18 @@ async function respondRequest(ws, target, sender, response, wsArr) {
     const senderRequests = senderRaw.data().friendRequests;
 
     if ( response ) {
-        const targetPoints = targetRaw.data().points;
+        const targetPoints = targetRaw.data().score;
         const targetList = targetRaw.data().friendlist;
 
-        const senderPoints= senderRaw.data().points;
+        const senderPoints= senderRaw.data().score;
         const senderList = senderRaw.data().friendlist;
 
-        ws.send(JSON.stringify({msgID: 'newFriend', data: { username: target, points: targetPoints }}));
-        senderList.push({username: target, points: targetPoints});
-        await usersRef.doc(sender).update({
-            friendlist: senderList
-        })
-        console.log(senderRequests);
+        ws.send(JSON.stringify({msgID: 'newFriend', data: { username: target, score: targetPoints }}));
+
+        const targetRef = await db.collection(`/users/${sender}/friendList`).doc(target);
+        await targetRef.set({username: target, score: targetPoints});
+
+
         const index = senderRequests.indexOf(target);
         if (index > -1) { // only splice if element is found
             senderRequests.splice(index, 1);
@@ -177,18 +173,16 @@ async function respondRequest(ws, target, sender, response, wsArr) {
         await usersRef.doc(sender).update({
             friendRequests: senderRequests
         });
-        console.log(senderRequests);
+
+
 
         for ( let i = 0; i < wsArr.length; i = i + 1 ) {
             const socket = wsArr[i];
             
             if ( socket.username === target ) {
-                
-                (socket.socket).send(JSON.stringify({msgID: 'newFriend', data: {sender: sender, points: senderPoints}}));
-                targetList.push(sender);
-                await usersRef.doc(target).update({
-                    friendlist: targetList
-                });
+                const senderRef = await db.collection(`/users/${target}/friendList`).doc(sender);
+                (socket.socket).send(JSON.stringify({msgID: 'newFriend', data: {sender: sender, score: senderPoints}}));
+                await senderRef.set({username: sender, score: senderPoints});
                 return;
             }
         }
@@ -215,7 +209,7 @@ async function getUsername(email) {
 async function putUsername(ws, email, username) {
     const raw = await db.collection('connectedEmails').get();
     const collection = raw.docs.map(doc => doc.data());
-    console.log(collection);
+
     for ( let i = 0; i < collection.length; i++ ) {
         if ( username === collection[i].username) {
             ws.send(JSON.stringify({
@@ -241,13 +235,14 @@ async function init(ws, email) {
     if ( username.found ) {
         const user = await usersRef.doc(username.username).get();
         const leaderboard = await leaderboardRef.doc('leaderboard1').get()
+        const friendlist = await db.collection(`/users/${username.username}/friendList`).get();
         if ( user.exists ) {
             console.log('sending data to', username.username);
             ws.send(JSON.stringify({
                 msgID: 'initUser',
                 data: {
                     username: username.username,
-                    friendlist: user.data().friendlist,
+                    friendlist: friendlist.exists ? friendlist.data() : {},
                     friendRequests: user.data().friendRequests,
                     leaderboard: leaderboard.data(),
                     score: user.data().score,
@@ -261,14 +256,14 @@ async function init(ws, email) {
             console.log('sending data to new user...', username.username);
             await usersRef.doc(username.username).set({
                 username: username.username,
-                friendlist: [],
                 friendRequests: [],
                 score: 0,
                 online: true
             });
+            const friendlist = await db.collection(`/users/${username.username}/friendList`).get();
             ws.send(JSON.stringify({msgID: 'initUser', data: {
                 username: username.username,
-                friendlist: [],
+                friendlist: friendlist.exists ? friendlist.data() : {},
                 friendRequests: [],
                 score: 0,
                 leaderboard: leaderboard.data(),
@@ -310,5 +305,6 @@ module.exports = {
     respondRequest,
     disconnectUser,
     init,
-    putUsername
+    putUsername,
+    getUsername
 };

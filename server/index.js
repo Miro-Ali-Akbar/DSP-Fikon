@@ -3,7 +3,7 @@ const { Server } = require('ws');
 const { initializeApp, applicationDefault, cert} = require('firebase-admin/app');
 const  { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
 const serviceAccount = require("./serviceAccountKey.json");
-const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest, disconnectUser, init, putUsername } = require('./helper');
+const { heartbeat, generateID, putUser, get, put, send, handleFriendrequest, saveRoute, respondRequest, disconnectUser, init, putUsername, getUsername } = require('./helper');
 
 // Initializing database variables
 
@@ -32,15 +32,15 @@ wss.on('connection', ws => {
         signature: 0, 
     }));
     i++;
-    console.log('Client connected: ', ws.id);
+    console.log('=== Client connected: ', ws.id, ' ===');
 
-    ws.on('message', function inc(data) {
+    ws.on('message', async function inc(data) {
         let message =  data;
 
         message = JSON.parse(message);
-        console.log('i = ', i);
-        console.log('1: ', message);
-        console.log('2: ', message.data);
+        console.log('count of connected users: ', i);
+        console.log('message: ', message);
+        console.log('message data: ', message.data);
         switch(message.msgID) {
             case "initRes":
                 putUsername(ws, message.data.email, message.data.name);
@@ -49,15 +49,20 @@ wss.on('connection', ws => {
                 break;
             case "loggedIn":
                 init(ws, message.data.email);
-                console.log('logged in');
+                console.log('=== user logged in ===');
+                const username = await getUsername(message.data.email);
+                if ( username.found ) {
+                    wss.connectedUsers.push({"username": await username.username, "socket": ws, "id": ws.id});
+                    console.log('=== added user to connectedClients ===')
+                }
                 break;
             case "getLeaderboard":
                 send(ws, 'leaderboard');
-                console.log('sent leaderboard');
+                console.log('=== sent leaderboard === ');
                 break;
             case "addFriend":
                 handleFriendrequest(ws, message.data.sender, message.data.target, wss.connectedUsers)
-                console.log('sent friend request');
+                console.log('=== sent friend request to', message.data.target, ' ===');
                 break;
             case "acceptRequest":
                 respondRequest(ws, message.data.target, message.data.sender, true, wss.connectedUsers);
@@ -71,10 +76,9 @@ wss.on('connection', ws => {
     })
 
     ws.on('close', async () => {
-        console.log(`Client with id: ${ws.id} has disconnected.`);
-        console.log('before dc:', wss.connectedUsers);
-        // wss.connectedUsers = await disconnectUser(ws.id, wss.connectedUsers);
-        console.log('after dc:', wss.connectedUsers);
+        console.log('=== Client with id: ', ws.id, '=== has disconnected.');
+        i = i-1;
+        wss.connectedUsers = await disconnectUser(ws.id, wss.connectedUsers);
     });
 
 });
