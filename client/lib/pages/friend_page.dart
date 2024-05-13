@@ -1,16 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:trailquest/main.dart';
 import 'package:flutter_svg/svg.dart';
 import 'dart:convert';
+
 class Friendpage extends StatefulWidget {
   @override
   _friendPageState createState() => _friendPageState();
 }
 
 class _friendPageState extends State<Friendpage> {
-  void init() {
+  void initState() {
+    super.initState();
     friendRequests.addListener(() {
       _updateState();
     });
@@ -28,111 +31,118 @@ class _friendPageState extends State<Friendpage> {
   void _updateState() {
     setState(() {});
   }
-  
 
   Widget build(BuildContext context) {
-    init();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: AppBar(
-                leading: IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    dispose();
-                  },
-                ),
-                title: Text("Friends",
-                    style: TextStyle(color: Colors.green, fontSize: 25.0)),
-                actions: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0, 2, 15, 0),
-                    child: TextButton.icon(
-                        onPressed: () {
-                          sendFriendRequest(context);
-                        },
-                        label: Text(
-                          'Add Friend +',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        icon: SvgPicture.asset('assets/images/img_group.svg'),
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 30),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        )),
-                  ),
-                ]),
-            body: Column(
-              children: [
-                SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  "Friend requests",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  child: PreferredSize(
-                      preferredSize: Size.fromHeight(10),
-                      child: AppBar(
-                        flexibleSpace: ListView.separated(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.all(8),
-                          itemCount: friendRequests.value.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                                padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                child:
-                                    Request(name: friendRequests.value[index]));
-                          },
-                          separatorBuilder: (_, __) => const Divider(),
+          appBar: AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                  dispose();
+                },
+              ),
+              title: Text("Friends",
+                  style: TextStyle(color: Colors.green, fontSize: 25.0)),
+              actions: <Widget>[
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 2, 15, 0),
+                  child: TextButton.icon(
+                      onPressed: () {
+                        sendFriendRequest(context);
+                      },
+                      label: Text(
+                        'Add Friend +',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      icon: SvgPicture.asset('assets/images/img_group.svg'),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.green.shade600,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 30),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                       )),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text("Friends",
-                    textAlign: TextAlign.left, style: TextStyle(fontSize: 16)),
-                SizedBox(
-                  height: 20,
-                ),
-                Expanded(
-                    child: ValueListenableBuilder<List<dynamic>>(
-                        valueListenable: friendsList,
-                        builder: (context, List<dynamic> list, _) {
-                          return ListView.builder(
-                              scrollDirection: Axis.vertical,
+              ]),
+          body: Column(
+            children: [
+              SizedBox(
+                height: 15,
+              ),
+              Text(
+                "Friend requests",
+                textAlign: TextAlign.left,
+                style: TextStyle(),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              //scrollable list view of the requests
+              ValueListenableBuilder(
+                  valueListenable: friendRequests,
+                  builder: (context, List, _) {
+                    return Container(
+                      padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: PreferredSize(
+                          preferredSize: Size.fromHeight(10),
+                          child: AppBar(
+                            flexibleSpace: ListView.separated(
                               shrinkWrap: true,
-                              itemCount: list.length,
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.all(8),
+                              itemCount: friendRequests.value.length,
                               itemBuilder: (context, index) {
-                                final friend = list[index];
                                 return Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Friend(
-                                      name: friend["username"],
-                                      score: friend["score"],
-                                    ));
-                                    
-                              });
-                        }))
-              ],
-            )));
+                                    padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                    child: Request(
+                                        name: friendRequests.value[index]));
+                              },
+                              separatorBuilder: (_, __) => const Divider(),
+                            ),
+                          )),
+                    );
+                  }),
+              SizedBox(
+                height: 20,
+              ),
+              Text("Friends",
+                  textAlign: TextAlign.left, style: TextStyle(fontSize: 16)),
+              SizedBox(
+                height: 20,
+              ),
+              //the friends listview
+              Expanded(
+                  child: ValueListenableBuilder<List<dynamic>>(
+                      valueListenable: friendsList,
+                      builder: (context, List<dynamic> list, _) {
+                        return ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: list.length,
+                            itemBuilder: (context, index) {
+                              final friend = list[index];
+                              return Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Friend(
+                                    name: friend["username"],
+                                    score: friend["score"],
+                                  ));
+                            });
+                      }))
+            ],
+          ),
+        ));
   }
 } //end class
 
+/*
+* hepler function that shows the friend request popup
+*/
 void sendFriendRequest(BuildContext context) {
   showDialog(
     context: context,
@@ -145,12 +155,15 @@ void sendFriendRequest(BuildContext context) {
 class friendRequest extends StatefulWidget {
   _friendRequestState createState() => _friendRequestState();
 }
-
+/**
+ * Friend requests sending popup
+ */
 class _friendRequestState extends State<friendRequest> {
   Color colorValue = Colors.green;
   bool _highLightSearchBar = false;
   String buffer = "";
 
+  //init state is called at the initialization
   @override
   void initState() {
     super.initState();
@@ -162,7 +175,7 @@ class _friendRequestState extends State<friendRequest> {
     isSent.addListener(_updateState);
     alreadyRequested.addListener(_updateState);
   }
-
+  //dispose called when widget closes
   @override
   void dispose() {
     // disposing when widget is disposed
@@ -285,8 +298,13 @@ class _friendRequestState extends State<friendRequest> {
                           onTap: () {
                             // Call your function here when the container is pressed
                             if (canSendRequest.value) {
-                              channel?.sink.add(
-                                  jsonEncode({"msgID": "addFriend", "data": {"target":"$buffer", "sender": myUserName.value}}));
+                              channel?.sink.add(jsonEncode({
+                                "msgID": "addFriend",
+                                "data": {
+                                  "target": "$buffer",
+                                  "sender": myUserName.value
+                                }
+                              }));
                               setState(() {
                                 canSendRequest.value = false;
                               });
@@ -353,7 +371,7 @@ class _friendRequestState extends State<friendRequest> {
     );
   }
 }
-
+//loading indicator for the users
 class ProgressIndicator extends StatefulWidget {
   const ProgressIndicator({super.key});
 

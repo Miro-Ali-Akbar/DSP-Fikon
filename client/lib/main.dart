@@ -17,10 +17,8 @@ import 'dart:convert';
 
 WebSocketChannel? channel;
 ValueNotifier<List<dynamic>> friendsList = ValueNotifier([
-  {"username": "emma" ,  "score": 30},
+  {"username": "emma", "score": 30},
   {"username": "eee", "score": 90}
-    
-  
 ]);
 ValueNotifier<List<String>> friendRequests =
     ValueNotifier(["emma", "meep", "ghhh", "fgg"]);
@@ -35,7 +33,10 @@ ValueNotifier<bool> friendRequestSuccess = ValueNotifier<bool>(true);
 ValueNotifier<bool> alreadyRequested = ValueNotifier(false);
 ValueNotifier<String> failMessage = ValueNotifier("");
 
-
+/**
+ * Listens for data sent from the server via the websocket
+ * parses the message and updates values
+ */
 void Listen() {
   try {
     channel?.stream.listen((jsonString) {
@@ -45,83 +46,85 @@ void Listen() {
         // Get the first key-value pair from the Map
         MapEntry<String, dynamic> firstEntry = jsonDecoded.entries.first;
 
-        // Extract the value
+        // Extract the value of the message ID for the switch case
         msgID = firstEntry.value;
-        print(msgID);
-
+        
+        //extracts the data
         MapEntry<String, dynamic> secondEntry =
             jsonDecoded.entries.elementAt(1);
         dynamic data = secondEntry.value;
 
-        print(data);
-        print("\n\n");
-        print(msgID);
-        print("\n\n");
-
         switch (msgID) {
+
           case 'leaderboard':
-            Map<String, dynamic> users = data;
-            List<String> temp = [];
-            users.forEach((key, value) {
-              temp.add(array_to_string([value[0], value[1]]));
-            });
-            leaderList = temp;
-            print(leaderList);
+            if(data != null) {
+              Map<String, dynamic> users = data;
+              List<String> temp = [];
+              users.forEach((key, value) {
+                temp.add(array_to_string([value[0], value[1]]));
+              });
+              leaderList = temp;
+            }
             break;
 
           case 'initUser':
-          print("fdgghuhuhu\n\n");
 
-          print(data);
-
-          if(data['changedUsername']) {
-
-            Map<String, dynamic>? friend = data['friends'];
-            friend?.forEach((key, value) {
-              friendsList.value.add(value);
-            });
-            List<dynamic>? reqs = data['friendRequests'];
-            if(reqs != null) {
-              for(int i = 0; i < reqs.length ; i++){
-                  friendRequests.value.add(reqs[i]);
+            if (data['changedUsername']) {
+              if (data['friendlist'] != null) {
+                friendsList.value = data['friendlist'];
               }
-            } else {}
-            myUserName.value = data['username'];
-            isNewUser.value = !data['changedUsername'];
-          } else {
-            isNewUser.value = !data['changedUsername'];
-          }
-            
-            print(isNewUser);
+              if (data['friendRequests'] != null) {
+                friendRequests = data['friendRequests'];
+              }
+
+              if (data['username'] != null) {
+                myUserName.value = data['username'];
+              }
+
+              if (data['changedUsername'] != null) {
+                isNewUser.value = !data['changedUsername'];
+              }
+            } else {
+              if (data['changedUsername'] != null) {
+                isNewUser.value = !data['changedUsername'];
+              }
+            }
             break;
 
           case 'outGoingRequest':
-            
             if (data['error'] == 1) {
-              
               friendRequestSuccess.value = true;
               canSendRequest.value = true;
               isSent.value = true;
-            } else {
+            } else if( data['error'] == 0){
               int res = data['error'];
+              friendRequestSuccess.value = false;
+              canSendRequest.value = true;
+            } else {
+              alreadyRequested.value = true;
               friendRequestSuccess.value = false;
               canSendRequest.value = true;
             }
             break;
           case 'incomingRequest':
-            friendRequests.value.add(data['sender']);
-            print("hhjfjehfjhjhefjhf\n\n");
-            print(friendRequests.value);
+            if (data['sender'] != null) {
+              friendRequests.value = List.from(friendRequests.value)
+                ..add(data['sender']);
+            }
             break;
           case 'newFriend':
-            friendsList.value.add(data);
+           if (data != null) {
+            friendsList.value = List.from(friendsList.value)..add(data);
+           }
             break;
           case 'usernameFail':
-
             failMessage.value = "User name is already taken, please try again";
+            break;
           case 'usernameSuccess':
-            print("hdjjekfj");
             isNewUser.value = false;
+            isNewUser.notifyListeners();
+          default:
+            
         }
       }
     });
@@ -264,18 +267,15 @@ class _MainAppState extends State<MainApp> {
   }
 }
 
+/**
+ * Friend widget only displays scores of each friend
+ */
 class Friend extends StatelessWidget {
-
   final String name;
 
- 
   final int score;
 
-  const Friend(
-      {super.key,
-      required this.name,
-      
-      required this.score});
+  const Friend({super.key, required this.name, required this.score});
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -296,10 +296,10 @@ class Friend extends StatelessWidget {
         child: Row(
           children: [
             Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(this.name),
                 Text("Score: " + this.score.toString()),
-                
               ],
             ),
           ],
@@ -308,7 +308,9 @@ class Friend extends StatelessWidget {
     );
   }
 }
-
+/**
+ * Friend request widget
+ */
 class Request extends StatelessWidget {
   final String name;
   Request({required this.name});
@@ -345,15 +347,24 @@ class Request extends StatelessWidget {
         ));
   }
 }
-
+/**
+ * accepts friendrequests by sending an accept message to the server and updating the UI
+ * takes the name of the sender of the request  as argument
+ */
 void accept(String name) {
+  print(name);
   channel?.sink.add(
       '{"msgID": "acceptRequest", "data": {"target": "$name", "sender": "${myUserName.value}"}}');
-  friendRequests.value.remove(name);
-} 
-
+  friendRequests.value = List.from(friendRequests.value)..remove(name);
+}
+/**
+ * rejects friendrequests by sending an accept message to the server and updating the UI
+ * takes the name of the sender of the request as argument
+ */
 void reject(String name) {
+  print(name);
   channel?.sink.add(
       '{"msgID": "rejectRequest", "data": {"target": "$name", "sender": "${myUserName.value}"}}');
-  friendRequests.value.remove("$name");
+
+  friendRequests.value = List.from(friendRequests.value)..remove(name);
 }
