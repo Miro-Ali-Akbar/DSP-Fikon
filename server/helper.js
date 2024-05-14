@@ -374,7 +374,7 @@ async function saveRoute(ws, wsArr, data) {
     if ( friendlist.length > 0 ) {
         for ( let i = 0; i < friendlist.length; i++ ) {
             console.log(friendlist[0]);
-            await db.collection(`users/${friendlist[i]}/friendRoutes`).doc(name).set(data);
+            await db.collection(`users/${friendlist[i].username}/friendRoutes`).doc(name).set(data);
         }
     } else {
         // Do nothing
