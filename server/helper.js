@@ -214,7 +214,7 @@ async function putUsername(ws, email, username) {
     }))
 }
 
-aasync function init(ws, email) {
+async function init(ws, email) {
     const username = await getUsername(email);
     
     if ( username.found ) {
@@ -279,6 +279,7 @@ async function disconnectUser(wsID, wsArr) {
             return wsArr;
         }
     }
+}
 
 async function sortLeaderboard(wsArr, entry) {
     const leaderboard = await leaderboardRef.doc('leaderboard1').get();
@@ -360,12 +361,14 @@ async function saveRoute(ws, wsArr, data) {
     } 
 
     const raw = await usersRef.doc(username).get()
-    const friendlist = raw.data().friendlist;
+    const friendRef = await db.collection(`user/${username}/friendlist`).get();
+    const friendlist = friendRef.docs.map(doc => doc.data());
     console.log(username);
     console.log(friendlist[0]);
 
     // put trail into database
     await db.collection(`users/${username}/userRoutes`).doc(name).set(data);
+    
     ws.send(JSON.stringify({msgID: "returnRoute", data: data}));
 
     if ( friendlist.length > 0 ) {
@@ -415,7 +418,7 @@ module.exports = {
     disconnectUser,
     init,
     putUsername,
-    getUsername
+    getUsername,
     saveRoute,
     initTrails,
     getRoutes,
