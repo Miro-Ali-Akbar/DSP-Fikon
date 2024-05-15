@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../pages/individual_trail_page.dart';
+
+import 'package:trailquest/pages/individual_trail_page.dart';
 
 final List<String> natureOptions = <String>['Nature', 'City', 'Both'];
 

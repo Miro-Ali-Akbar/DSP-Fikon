@@ -1,17 +1,21 @@
-import 'package:flutter_config/flutter_config.dart';
-
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+
+import 'package:flutter_config/flutter_config.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+import 'package:trailquest/firebase_options.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/pages/profilepage/auth_gate.dart';
 import 'package:trailquest/pages/start_page.dart';
 import 'package:trailquest/pages/trail_page.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-import 'dart:convert';
 
 WebSocketChannel? channel;
 ValueNotifier<List<dynamic>> friendsList = ValueNotifier([
@@ -186,7 +190,6 @@ void main() async {
   // https://pub.dev/packages/flutter_config
   WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
   await FlutterConfig.loadEnvVariables();
-  var googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

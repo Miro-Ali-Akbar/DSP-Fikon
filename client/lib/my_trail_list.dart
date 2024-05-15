@@ -1,6 +1,6 @@
 import 'package:trailquest/widgets/trail_cards.dart';
 
-/// An example list of trails - only used for testing purposes
+// An example list of trails - only used for testing purposes
 
 List<TrailCard> MyTrailList = <TrailCard>[
   TrailCard(

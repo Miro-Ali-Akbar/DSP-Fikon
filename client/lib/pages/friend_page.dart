@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:trailquest/main.dart';
-import 'package:flutter_svg/svg.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
+
+import 'package:flutter_svg/svg.dart';
+
+import 'package:trailquest/main.dart';
 
 class Friendpage extends StatefulWidget {
   @override

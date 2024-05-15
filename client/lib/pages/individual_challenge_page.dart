@@ -1,18 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 import 'package:flutter_config/flutter_config.dart';
+
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
+import 'package:flutter_svg/svg.dart';
+
 import 'package:geolocator/geolocator.dart';
+
+import 'package:geofence_service/geofence_service.dart';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'package:http/http.dart' as http;
+
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/widgets/back_button.dart';
-
-import 'package:flutter/material.dart';
-import 'package:geofence_service/geofence_service.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
 
 String googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
