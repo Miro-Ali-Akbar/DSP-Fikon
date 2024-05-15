@@ -4,8 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trailquest/main.dart';
 import 'package:trailquest/pages/friend_page.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 /// The profilepage of the user
 /// Note: Use authGate instead of this as it guaranties that the user is logged in.
@@ -145,7 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
           valueListenable: isNewUser,
           builder: (context, isNew_, _) {
             if (isNew_) {
-              WidgetsBinding.instance!.addPostFrameCallback((_) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {

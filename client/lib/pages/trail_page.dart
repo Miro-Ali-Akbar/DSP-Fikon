@@ -6,7 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/main.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
-import 'package:trailquest/my_trail_list.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 
 bool browsing = false;

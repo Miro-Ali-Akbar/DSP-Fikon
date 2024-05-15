@@ -625,7 +625,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   TrailCard trail;
 
   _MapsRoutesGeneratorState({
-    Key? key,
     required this.trail,
     required this.saved,
   });

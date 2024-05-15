@@ -42,7 +42,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
   TrailCard trail;
 
   _IndividualTrailPageState(
-      {Key? key, required this.trail, required this.saved});
+      {required this.trail, required this.saved});
 
   @override
   void initState() {

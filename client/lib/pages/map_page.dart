@@ -21,7 +21,7 @@ class _MapPageState extends State<MapPage> {
   late LatLng start;
   late Map<PolylineId, Polyline> polylines = {};
 
-  _MapPageState({Key? key, required this.trail});
+  _MapPageState({required this.trail});
 
   @override
   void initState() {

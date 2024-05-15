@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'package:flutter/cupertino.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,7 +7,6 @@ import 'package:trailquest/widgets/challenge.dart';
 import 'package:trailquest/pages/leaderboard_page.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 import 'package:trailquest/main.dart';
-import 'dart:convert';
 
 /// Used for filtering by the status of the challenge
 const List<Widget> statusChallenge = <Widget>[
