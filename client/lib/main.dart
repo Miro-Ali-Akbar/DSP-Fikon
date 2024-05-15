@@ -1,16 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-
+import 'package:flutter_config/flutter_config.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-
-import 'package:flutter_config/flutter_config.dart';
-
-import 'package:firebase_core/firebase_core.dart';
-
 import 'package:web_socket_channel/web_socket_channel.dart';
-
 import 'package:trailquest/firebase_options.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/pages/profilepage/auth_gate.dart';

@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
-
 import 'package:flutter_config/flutter_config.dart';
-
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
-
 import 'package:trailquest/pages/profilepage/profile_page.dart';
 import 'package:trailquest/pages/profilepage/usernameChecker.dart';
 

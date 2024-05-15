@@ -1,13 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import 'package:flutter_svg/svg.dart';
-
 import 'package:geolocator/geolocator.dart';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import 'package:trailquest/pages/map_page.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/trail_cards.dart';

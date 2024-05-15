@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_svg/svg.dart';
-
 import 'package:trailquest/pages/individual_challenge_page.dart';
 import 'package:trailquest/widgets/challenge.dart';
 
