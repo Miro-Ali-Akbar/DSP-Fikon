@@ -68,22 +68,24 @@ class _TrailCardState extends State<TrailCard> {
               borderRadius: BorderRadius.horizontal(left: Radius.circular(10)),
               child: Image.asset(
                 widget.image_path,
-                width: 170, 
-                height: 120, 
+                width: 170,
+                height: 120,
                 alignment: Alignment.centerLeft,
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(width: 10,),
+            SizedBox(
+              width: 10,
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [ 
+              children: [
                 Text(
-                    '${widget.name}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                    ),
+                  '${widget.name}',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                  ),
                 ),
                 Text(
                   '${(widget.lengthTime).toStringAsFixed(1)} min',
@@ -93,7 +95,7 @@ class _TrailCardState extends State<TrailCard> {
                   ),
                 ),
                 Text(
-                  '${(widget.lengthDistance/1000).toStringAsFixed(1)} km',
+                  '${(widget.lengthDistance / 1000).toStringAsFixed(1)} km',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -111,24 +113,26 @@ class _TrailCardState extends State<TrailCard> {
       ///
       onTap: () {
         //fetchTrailsFromServer();
-        Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-          pageBuilder: (context, x, xx) => IndividualTrailPage(
-            trail: widget,
-            saved: widget.isSaved,
+        Navigator.of(context, rootNavigator: true).push(
+          PageRouteBuilder(
+            pageBuilder: (context, x, xx) => IndividualTrailPage(
+              trail: widget,
+              saved: widget.isSaved,
 
-            ///
-            /// This function is used to handle saving/removing trails in the individual trail page
-            ///
-            onSaveChanged: (value) {
-              setState(() {
-                widget.isSaved =
-                    value; // Update the isSaved variable in the TrailCard
-              });
-            },
+              ///
+              /// This function is used to handle saving/removing trails in the individual trail page
+              ///
+              onSaveChanged: (value) {
+                setState(() {
+                  widget.isSaved =
+                      value; // Update the isSaved variable in the TrailCard
+                });
+              },
+            ),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
           ),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ));
+        );
       },
     );
   }

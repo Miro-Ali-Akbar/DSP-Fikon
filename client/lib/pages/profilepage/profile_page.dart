@@ -51,213 +51,218 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     print(isNewUser.value);
     print("vghjhknknknnnnnnnn\n\n");
-    return Stack(children: [
-      MaterialApp(
-        theme: ThemeData(
-          textTheme: TextTheme(
-            bodyLarge: TextStyle(
-              color: Colors.black,
-              fontSize: 30.0,
+    return Stack(
+      children: [
+        MaterialApp(
+          theme: ThemeData(
+            textTheme: TextTheme(
+              bodyLarge: TextStyle(
+                color: Colors.black,
+                fontSize: 30.0,
+              ),
+            ),
+          ),
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            appBar: AppBar(
+              title: Text(myUserName.value),
+            ),
+            body: ListView(
+              children: [
+                ProfileRow(),
+                ContainerButton(
+                    () => Navigator.of(context, rootNavigator: true)
+                            .push(PageRouteBuilder(
+                          pageBuilder: (context, x, xx) => Friendpage(),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                        )),
+                    "Friends"),
+                DropdownTile(
+                  "Statistics",
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text(
+                          'Statistics 1',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onTap: () {
+                          // Do something when Button
+                        },
+                      ),
+                      ListTile(
+                        title: Text(
+                          'Dosent have to be buttons',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                DropdownTile(
+                  "Preferences",
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text(
+                          'Button 1',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onTap: () {
+                          // Do something when Button
+                        },
+                      ),
+                      ListTile(
+                        title: Text(
+                          'Button 2',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onTap: () {
+                          // Do something when Button
+                        },
+                      ),
+                      // Add more buttons as needed
+                    ],
+                  ),
+                ),
+                ContainerButton(
+                    () => FirebaseAuth.instance.signOut(), "Signout"),
+                ElevatedButton(
+                  onPressed: () {
+                    print(FirebaseAuth.instance.currentUser);
+                  },
+                  // tooltip: 'Increment',
+                  child: const Text("print user in debug"),
+                ),
+              ],
             ),
           ),
         ),
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text(myUserName.value),
-          ),
-          body: ListView(
-            children: [
-              ProfileRow(),
-              ContainerButton(
-                  () => Navigator.of(context, rootNavigator: true)
-                          .push(PageRouteBuilder(
-                        pageBuilder: (context, x, xx) => Friendpage(),
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      )),
-                  "Friends"),
-              DropdownTile(
-                "Statistics",
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      title: Text(
-                        'Statistics 1',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onTap: () {
-                        // Do something when Button
-                      },
-                    ),
-                    ListTile(
-                      title: Text(
-                        'Dosent have to be buttons',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              DropdownTile(
-                "Preferences",
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      title: Text(
-                        'Button 1',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onTap: () {
-                        // Do something when Button
-                      },
-                    ),
-                    ListTile(
-                      title: Text(
-                        'Button 2',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onTap: () {
-                        // Do something when Button
-                      },
-                    ),
-                    // Add more buttons as needed
-                  ],
-                ),
-              ),
-              ContainerButton(() => FirebaseAuth.instance.signOut(), "Signout"),
-              ElevatedButton(
-                onPressed: () {
-                  print(FirebaseAuth.instance.currentUser);
-                },
-                // tooltip: 'Increment',
-                child: const Text("print user in debug"),
-              ),
-            ],
-          ),
-        ),
-      ),
-      ValueListenableBuilder<bool>(
-        valueListenable: isNewUser,
-        builder: (context, isNew_, _) {
-          if (isNew_) {
-            WidgetsBinding.instance!.addPostFrameCallback((_) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    content: Container(
-                      width: MediaQuery.of(context).size.width / 1.3,
-                      height: MediaQuery.of(context).size.height / 2.5,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Color.fromARGB(0, 255, 1, 1),
-                        borderRadius: BorderRadius.circular(32.0),
-                      ),
-                      child: Stack(
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(
-                                'Enter username',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.normal,
+        ValueListenableBuilder<bool>(
+          valueListenable: isNewUser,
+          builder: (context, isNew_, _) {
+            if (isNew_) {
+              WidgetsBinding.instance!.addPostFrameCallback((_) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      content: Container(
+                        width: MediaQuery.of(context).size.width / 1.3,
+                        height: MediaQuery.of(context).size.height / 2.5,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Color.fromARGB(0, 255, 1, 1),
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                        child: Stack(
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  'Enter username',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 24.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 20),
-                              AnimatedOpacity(
-                                curve: Curves.linear,
-                                opacity: _highLightSearchBar ? 1.0 : 0.5,
-                                duration: Duration(milliseconds: 200),
-                                child: Container(
+                                SizedBox(height: 20),
+                                AnimatedOpacity(
+                                  curve: Curves.linear,
+                                  opacity: _highLightSearchBar ? 1.0 : 0.5,
+                                  duration: Duration(milliseconds: 200),
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.all(10),
+                                    child: TextField(
+                                      decoration: InputDecoration(
+                                        hintText: 'Enter new username here',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(25),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(25.0),
+                                          borderSide: BorderSide(
+                                            color: _highLightSearchBar
+                                                ? Color.fromARGB(255, 4, 4, 4)
+                                                : Color.fromARGB(255, 5, 5, 5),
+                                          ),
+                                        ),
+                                      ),
+                                      onChanged: (value) {
+                                        buffer = value;
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Container(
                                   width: MediaQuery.of(context).size.width,
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.all(10),
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter new username here',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25.0),
-                                        borderSide: BorderSide(
-                                          color: _highLightSearchBar
-                                              ? Color.fromARGB(255, 4, 4, 4)
-                                              : Color.fromARGB(255, 5, 5, 5),
-                                        ),
-                                      ),
-                                    ),
-                                    onChanged: (value) {
-                                      buffer = value;
-                                    },
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              Container(
-                                width: MediaQuery.of(context).size.width,
-                                height: MediaQuery.of(context).size.height / 12,
-                                padding: EdgeInsets.all(15.0),
-                                child: Material(
-                                  color: canSendRequest.value
-                                      ? Colors.green
-                                      : Colors.grey,
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  child: InkWell(
+                                  height:
+                                      MediaQuery.of(context).size.height / 12,
+                                  padding: EdgeInsets.all(15.0),
+                                  child: Material(
+                                    color: canSendRequest.value
+                                        ? Colors.green
+                                        : Colors.grey,
                                     borderRadius: BorderRadius.circular(25.0),
-                                    onTap: () {
-                                      if (canSendRequest.value) {
-                                        channel?.sink.add(jsonEncode({
-                                          "msgID": "initRes",
-                                          "data": {
-                                            "name": buffer,
-                                            "email": user?.email
-                                          }
-                                        }));
-                                        setState(() {});
-                                      }
-                                    },
-                                    child: Center(
-                                      child: Text(
-                                        'Enter',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18.0,
-                                          fontFamily: 'helvetica_neue_light',
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(25.0),
+                                      onTap: () {
+                                        if (canSendRequest.value) {
+                                          channel?.sink.add(jsonEncode({
+                                            "msgID": "initRes",
+                                            "data": {
+                                              "name": buffer,
+                                              "email": user?.email
+                                            }
+                                          }));
+                                          setState(() {});
+                                        }
+                                      },
+                                      child: Center(
+                                        child: Text(
+                                          'Enter',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18.0,
+                                            fontFamily: 'helvetica_neue_light',
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
-                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 20),
-                          Text(failMessage.value),
-                        ],
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Text(failMessage.value),
+                          ],
+                        ),
                       ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  );
-                },
-              );
-            });
-          }
-          return Container();
-        },
-      )
-    ]);
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    );
+                  },
+                );
+              });
+            }
+            return Container();
+          },
+        )
+      ],
+    );
   }
 
   /// Creates a button acording to our style

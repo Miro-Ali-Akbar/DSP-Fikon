@@ -67,10 +67,11 @@ class _AuthGateState extends State<AuthGate> {
         // in UsernameChecker and done would not be needed either
         print(roundDateTimeToSecond(snapshot.data!.metadata.creationTime!));
         print(roundDateTimeToSecond(snapshot.data!.metadata.lastSignInTime!));
-        if (snapshot.data!.uid == snapshot.data!.displayName || roundDateTimeToSecond(snapshot.data!.metadata.creationTime!) ==
-                roundDateTimeToSecond(
-                    snapshot.data!.metadata.lastSignInTime!) &&
-            !done) {
+        if (snapshot.data!.uid == snapshot.data!.displayName ||
+            roundDateTimeToSecond(snapshot.data!.metadata.creationTime!) ==
+                    roundDateTimeToSecond(
+                        snapshot.data!.metadata.lastSignInTime!) &&
+                !done) {
           FirebaseAuth.instance.currentUser!
               .updateDisplayName(snapshot.data!.uid);
           done = true;

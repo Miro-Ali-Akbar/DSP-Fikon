@@ -1,11 +1,11 @@
 import 'package:trailquest/widgets/trail_cards.dart';
 
-/// An example list of trails - only used for testing purposes 
+/// An example list of trails - only used for testing purposes
 
-List<TrailCard> MyTrailList= <TrailCard>[
+List<TrailCard> MyTrailList = <TrailCard>[
   TrailCard(
     name: 'trail 1',
-    stairs: false, 
+    stairs: false,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'City',
@@ -13,11 +13,11 @@ List<TrailCard> MyTrailList= <TrailCard>[
     isSaved: true,
     isCircular: false,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
   TrailCard(
     name: 'trail 2',
-    stairs: false, 
+    stairs: false,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'City',
@@ -25,11 +25,11 @@ List<TrailCard> MyTrailList= <TrailCard>[
     isSaved: true,
     isCircular: true,
     coordinates: [],
-    image_path: 'assets/images/path_pic.jpg'
+    image_path: 'assets/images/path_pic.jpg',
   ),
   TrailCard(
     name: 'trail 3',
-    stairs: false, 
+    stairs: false,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'Nature',
@@ -37,11 +37,11 @@ List<TrailCard> MyTrailList= <TrailCard>[
     isSaved: true,
     isCircular: true,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
   TrailCard(
     name: 'trail 4',
-    stairs: true, 
+    stairs: true,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'Nature',
@@ -49,16 +49,16 @@ List<TrailCard> MyTrailList= <TrailCard>[
     isSaved: true,
     isCircular: false,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
 ];
 
-/// An example list of trails - only used for testing purposes 
+/// An example list of trails - only used for testing purposes
 
-List<TrailCard> FriendTrailList= <TrailCard>[
+List<TrailCard> FriendTrailList = <TrailCard>[
   TrailCard(
     name: 'trail A',
-    stairs: true, 
+    stairs: true,
     lengthDistance: 200,
     lengthTime: 3,
     natureStatus: 'City',
@@ -66,11 +66,11 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     isSaved: false,
     isCircular: true,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
   TrailCard(
     name: 'trail B',
-    stairs: false, 
+    stairs: false,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'Nature',
@@ -78,11 +78,11 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     isSaved: false,
     isCircular: false,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
   TrailCard(
     name: 'trail C',
-    stairs: false, 
+    stairs: false,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'Nature',
@@ -90,11 +90,11 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     isSaved: false,
     isCircular: true,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
   TrailCard(
     name: 'trail D',
-    stairs: false, 
+    stairs: false,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'Nature',
@@ -102,11 +102,11 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     isSaved: false,
     isCircular: false,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
   TrailCard(
     name: 'trail E',
-    stairs: false, 
+    stairs: false,
     lengthDistance: 5000,
     lengthTime: 60,
     natureStatus: 'Nature',
@@ -114,6 +114,6 @@ List<TrailCard> FriendTrailList= <TrailCard>[
     isSaved: false,
     isCircular: false,
     coordinates: [],
-    image_path: 'assets/images/img_image_1.png'
+    image_path: 'assets/images/img_image_1.png',
   ),
 ];

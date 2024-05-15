@@ -43,51 +43,53 @@ class _StartPageState extends State<StartPage> {
     List<Challenge> ongoingChallenges = filterOngoing(context);
 
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: AppBar(
-            actions: const [],
-            title: const Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'TrailQuest',
-                style: TextStyle(color: Colors.black),
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          actions: const [],
+          title: const Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              'TrailQuest',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ),
+        body: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(200),
+            child: AppBar(
+              flexibleSpace: ListView.separated(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.all(8),
+                itemCount: ongoingChallenges.length,
+                itemBuilder: (context, index) {
+                  return ChallengeCard(ongoingChallenges[index],
+                      challenge: ongoingChallenges[index]);
+                },
+                separatorBuilder: (_, __) => const Divider(),
               ),
             ),
           ),
-          body: Scaffold(
-            appBar: PreferredSize(
-                preferredSize: Size.fromHeight(200),
-                child: AppBar(
-                  flexibleSpace: ListView.separated(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.all(8),
-                    itemCount: ongoingChallenges.length,
-                    itemBuilder: (context, index) {
-                      return ChallengeCard(ongoingChallenges[index],
-                          challenge: ongoingChallenges[index]);
-                    },
-                    separatorBuilder: (_, __) => const Divider(),
-                  ),
-                )),
-            body: Stack(
-              children: [
-                GoogleMap(
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller.complete(controller);
-                  },
-                  zoomControlsEnabled: false,
-                  myLocationEnabled: visiblePlayer,
-                  myLocationButtonEnabled: false,
-                  initialCameraPosition: CameraPosition(
-                      target: LatLng(59.83972677529924, 17.6465716818546),
-                      zoom: 15),
-                ),
-              ],
-            ),
+          body: Stack(
+            children: [
+              GoogleMap(
+                onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                },
+                zoomControlsEnabled: false,
+                myLocationEnabled: visiblePlayer,
+                myLocationButtonEnabled: false,
+                initialCameraPosition: CameraPosition(
+                    target: LatLng(59.83972677529924, 17.6465716818546),
+                    zoom: 15),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
