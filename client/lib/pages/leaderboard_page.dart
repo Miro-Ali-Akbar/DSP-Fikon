@@ -5,8 +5,6 @@ import 'package:trailquest/challenges_list.dart';
 import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/challenge_cards.dart';
 
-
-
 class Leaderboard extends StatelessWidget {
 
   final List<String> myList;
@@ -71,9 +69,8 @@ class Leaderboard extends StatelessWidget {
               ),
             ), 
           ],
-        )   
+        )
       )
     );
   }
 }
-

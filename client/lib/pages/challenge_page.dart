@@ -51,6 +51,7 @@ class _ChallengeState extends State<ChallengePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: PreferredSize(
