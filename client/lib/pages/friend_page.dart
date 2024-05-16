@@ -204,6 +204,9 @@ class _friendRequestState extends State<friendRequest> {
 
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
       content: Container(
         width: MediaQuery.of(context).size.width / 1.3,
         height: MediaQuery.of(context).size.height / 2.5,
@@ -247,6 +250,11 @@ class _friendRequestState extends State<friendRequest> {
                     alignment: Alignment.center,
                     padding: EdgeInsets.all(10),
                     child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          buffer = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         hintText: 'Search',
                         border: OutlineInputBorder(
@@ -286,11 +294,6 @@ class _friendRequestState extends State<friendRequest> {
                                 ),
                               ),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          buffer = value;
-                        });
-                      },
                     ),
                   ),
                 ),
@@ -375,10 +378,6 @@ class _friendRequestState extends State<friendRequest> {
           ],
         ),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      //add preferences
     );
   }
 }

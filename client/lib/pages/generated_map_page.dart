@@ -766,6 +766,7 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
             Expanded(
               child: Center(
                 child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
                   child: Container(
                     child: Stack(
                       children: [
@@ -810,7 +811,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
                       ],
                     ),
                   ),
-                  behavior: HitTestBehavior.translucent,
                 ),
               ),
             ),
@@ -1008,6 +1008,7 @@ class _SaveTrailState extends State<SaveTrail> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: Container(
+              width: double.maxFinite,
               child: SaveTrailPopUp(
                 onSave: widget.onSave,
                 trail: widget.trail,
@@ -1016,7 +1017,6 @@ class _SaveTrailState extends State<SaveTrail> {
                 statusEnvironment: widget.statusEnvironment,
                 hillines: widget.hillines,
               ),
-              width: double.maxFinite,
             ),
           );
         },

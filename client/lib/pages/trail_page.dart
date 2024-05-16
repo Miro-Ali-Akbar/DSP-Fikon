@@ -68,18 +68,18 @@ class _TrailPageState extends State<TrailPage> {
 
       newTrails.add(
         TrailCard(
-            name: data['trailName'].toString(),
-            lengthDistance:
-                double.parse(data['totalDistance'].toStringAsFixed(1)),
-            lengthTime: double.parse(data['totalTime'].toStringAsFixed(1)),
-            natureStatus: data['statusEnvironment'] as String,
-            stairs: data['avoidStairs'] as bool,
-            heightDifference:
-                double.parse(data['hilliness'].toStringAsFixed(1)),
-            isSaved: true,
-            isCircular: false,
-            image_path: images[imageIndex],
-            coordinates: trailCoordinates),
+          name: data['trailName'].toString(),
+          lengthDistance:
+              double.parse(data['totalDistance'].toStringAsFixed(1)),
+          lengthTime: double.parse(data['totalTime'].toStringAsFixed(1)),
+          natureStatus: data['statusEnvironment'] as String,
+          stairs: data['avoidStairs'] as bool,
+          heightDifference: double.parse(data['hilliness'].toStringAsFixed(1)),
+          isSaved: true,
+          isCircular: false,
+          image_path: images[imageIndex],
+          coordinates: trailCoordinates,
+        ),
       );
     }
 

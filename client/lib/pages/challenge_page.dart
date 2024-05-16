@@ -44,9 +44,6 @@ class ChallengePage extends StatefulWidget {
 }
 
 class _ChallengeState extends State<ChallengePage> {
-  // The user's total score
-  // TODO: currently an arbitrary number
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -95,6 +92,7 @@ class _ChallengeState extends State<ChallengePage> {
           ),
         ),
         body: Scaffold(
+          body: scrollChallenges(context),
           appBar: PreferredSize(
             preferredSize: Size.fromHeight(150),
             child: AppBar(
@@ -201,7 +199,6 @@ class _ChallengeState extends State<ChallengePage> {
               ),
             ),
           ),
-          body: scrollChallenges(context),
         ),
       ),
     );
