@@ -1,17 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import '../widgets/back_button.dart';
-
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/pages/generated_map_page.dart';
-// import 'package:trailquest/pages/challenges/challenge_template.dart';
-// import 'package:trailquest/pages/challenges/challenge_orienteering.dart';
-// import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
-
+import 'package:trailquest/widgets/back_button.dart';
 
 late LatLng start;
 
@@ -21,63 +15,66 @@ class GenerateTrail extends StatefulWidget {
 }
 
 class _GenerateTrailState extends State<GenerateTrail> {
-  bool distanceSpecified = false; 
+  bool distanceSpecified = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: Column(
-            children: [
-              Row(
-                children: [
-                  GoBackButton().build(context),
-                ],
-              ),
-              Expanded(
-                  child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          PageCenter(
-                            distanceSpecified: distanceSpecified, 
-                            distanceEntered:(bool value){
-                              setState(() {
-                                distanceSpecified = value;
-                              });
-                            },
-                          )
-                        ]
-                      )
-                   )
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: GenerateNewTrail(
-                  distanceSpecified: distanceSpecified,
-                  updateDistanceSpecified: (bool value) {
-                    setState(() {
-                      distanceSpecified = value;
-                    });
-                  },
+        resizeToAvoidBottomInset: false,
+        body: Column(
+          children: [
+            Row(
+              children: [
+                GoBackButton().build(context),
+              ],
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    PageCenter(
+                      distanceSpecified: distanceSpecified,
+                      distanceEntered: (bool value) {
+                        setState(
+                          () {
+                            distanceSpecified = value;
+                          },
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ],
-          )
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: GenerateNewTrail(
+                distanceSpecified: distanceSpecified,
+                updateDistanceSpecified: (bool value) {
+                  setState(() {
+                    distanceSpecified = value;
+                  });
+                },
+              ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
-
 
 class GenerateNewTrail extends StatelessWidget {
   final bool distanceSpecified;
   final Function(bool) updateDistanceSpecified;
 
-  GenerateNewTrail({Key? key, 
-    required this.distanceSpecified, 
-    required this.updateDistanceSpecified}) : super(key: key);
+  GenerateNewTrail(
+      {Key? key,
+      required this.distanceSpecified,
+      required this.updateDistanceSpecified})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -85,21 +82,23 @@ class GenerateNewTrail extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: TextButton.icon(
         onPressed: () => _generateTrail(context),
-        style: distanceSpecified ? TextButton.styleFrom(
-          backgroundColor: Colors.green,
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        )
-        : 
-        TextButton.styleFrom(
-          backgroundColor: Colors.grey,
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ), 
+        style: distanceSpecified
+            ? TextButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              )
+            : TextButton.styleFrom(
+                backgroundColor: Colors.grey,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
         label: Padding(
           padding: const EdgeInsets.only(right: 10.0),
           child: const Text(
@@ -107,7 +106,9 @@ class GenerateNewTrail extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontSize: 30),
           ),
         ),
-        icon: SvgPicture.asset('assets/icons/img_plus.svg',),
+        icon: SvgPicture.asset(
+          'assets/icons/img_plus.svg',
+        ),
       ),
     );
   }
@@ -134,9 +135,12 @@ bool getCheckedValue() {
 ///
 
 class PageCenter extends StatefulWidget {
-  bool distanceSpecified; 
-  final Function(bool) distanceEntered; 
-  PageCenter({super.key, required this.distanceSpecified, required this.distanceEntered});
+  bool distanceSpecified;
+  final Function(bool) distanceEntered;
+  PageCenter(
+      {super.key,
+      required this.distanceSpecified,
+      required this.distanceEntered});
 
   @override
   State<PageCenter> createState() => _PageCenterState();
@@ -200,7 +204,10 @@ class _PageCenterState extends State<PageCenter> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Container(
-              child: InputField(distanceSpecified: widget.distanceSpecified, distanceEntered: widget.distanceEntered,),
+              child: InputField(
+                distanceSpecified: widget.distanceSpecified,
+                distanceEntered: widget.distanceEntered,
+              ),
               width: 300,
               height: 70,
             ),
@@ -299,25 +306,30 @@ class _ActivityOptionsState extends State<ActivityOptions> {
         });
       },
       children: List<Widget>.generate(
-          3,
-          (index) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      color: _selectedStatusActivities[index]
-                          ? Colors.black
-                          : Colors.white),
-                  padding: const EdgeInsets.all(5),
-                  width: 90,
-                  height: 30,
-                  alignment: Alignment.center,
-                  child: Text(Activities[index],
-                      style: TextStyle(
-                          color: _selectedStatusActivities[index]
-                              ? Colors.white
-                              : Colors.black))))),
+        3,
+        (index) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: _selectedStatusActivities[index]
+                    ? Colors.black
+                    : Colors.white),
+            padding: const EdgeInsets.all(5),
+            width: 90,
+            height: 30,
+            alignment: Alignment.center,
+            child: Text(
+              Activities[index],
+              style: TextStyle(
+                  color: _selectedStatusActivities[index]
+                      ? Colors.white
+                      : Colors.black),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -366,38 +378,42 @@ class _TrailTypeState extends State<TrailType> {
         });
       },
       children: List<Widget>.generate(
-          2,
-          (index) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: _selectedStatusTrailTypes[index]
-                        ? Colors.black
-                        : Colors.white),
-                padding: const EdgeInsets.all(5),
-                width: 160,
-                height: 70,
-                alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    SvgPicture.asset(
-                      TrailTypes[index],
-                      colorFilter: _selectedStatusTrailTypes[index]
-                          ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
-                          : ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 35,
-                    ),
-                    Text(index == 0 ? 'Yes' : 'No',
-                        style: TextStyle(
-                            color: _selectedStatusTrailTypes[index]
-                                ? Colors.white
-                                : Colors.black))
-                  ],
+        2,
+        (index) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: _selectedStatusTrailTypes[index]
+                    ? Colors.black
+                    : Colors.white),
+            padding: const EdgeInsets.all(5),
+            width: 160,
+            height: 70,
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                SvgPicture.asset(
+                  TrailTypes[index],
+                  colorFilter: _selectedStatusTrailTypes[index]
+                      ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                      : ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  height: 35,
+                  width: 35,
                 ),
-              ))),
+                Text(
+                  index == 0 ? 'Yes' : 'No',
+                  style: TextStyle(
+                      color: _selectedStatusTrailTypes[index]
+                          ? Colors.white
+                          : Colors.black),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -491,10 +507,10 @@ class _StartPointOptionsState extends State<StartPointOptions> {
       enableDrag: false,
       builder: (BuildContext bc) {
         return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.75,
-            child: GoogleMap(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              child: GoogleMap(
                 myLocationEnabled: true,
                 zoomControlsEnabled: false,
                 onMapCreated: (GoogleMapController controller) {
@@ -515,9 +531,11 @@ class _StartPointOptionsState extends State<StartPointOptions> {
                 onTap: (LatLng location) {
                   _pickLocation(location);
                   setState(() {});
-                }),
-          );
-        });
+                },
+              ),
+            );
+          },
+        );
       },
     );
   }
@@ -574,53 +592,57 @@ class _EnvironmentOptionsState extends State<EnviornmentOptions> {
         });
       },
       children: List<Widget>.generate(
-          3,
-          (index) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: _selectedStatusEnviornment[index]
-                        ? Colors.black
-                        : Colors.white),
-                padding: const EdgeInsets.all(5),
-                width: 90,
-                height: 70,
-                alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    SvgPicture.asset(
-                      EnviornmentIcons[index],
-                      colorFilter: _selectedStatusEnviornment[index]
-                          ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
-                          : ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 35,
-                    ),
-                    Text(
-                      Enviornments[index],
-                      style: TextStyle(
-                          color: _selectedStatusEnviornment[index]
-                              ? Colors.white
-                              : Colors.black),
-                    ),
-                  ],
+        3,
+        (index) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: _selectedStatusEnviornment[index]
+                    ? Colors.black
+                    : Colors.white),
+            padding: const EdgeInsets.all(5),
+            width: 90,
+            height: 70,
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                SvgPicture.asset(
+                  EnviornmentIcons[index],
+                  colorFilter: _selectedStatusEnviornment[index]
+                      ? ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                      : ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  height: 35,
+                  width: 35,
                 ),
-              ))),
+                Text(
+                  Enviornments[index],
+                  style: TextStyle(
+                      color: _selectedStatusEnviornment[index]
+                          ? Colors.white
+                          : Colors.black),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
 class InputField extends StatefulWidget {
-  bool distanceSpecified; 
-  final Function(bool) distanceEntered; 
-  InputField({super.key, required this.distanceSpecified, required this.distanceEntered});
+  bool distanceSpecified;
+  final Function(bool) distanceEntered;
+  InputField(
+      {super.key,
+      required this.distanceSpecified,
+      required this.distanceEntered});
 
   @override
   State<InputField> createState() => _InputFieldState();
 }
-
 
 String inputDistance = '';
 
@@ -644,9 +666,9 @@ class _InputFieldState extends State<InputField> {
             onSubmitted: (String value) {
               setState(() {
                 inputDistance = value;
-                value.isNotEmpty ?
-                  widget.distanceEntered(true) : 
-                  widget.distanceEntered(false); 
+                value.isNotEmpty
+                    ? widget.distanceEntered(true)
+                    : widget.distanceEntered(false);
               });
             },
           ),
@@ -686,13 +708,13 @@ class _UnitToggleButtonState extends State<UnitToggleButton> {
         style: TextStyle(color: Colors.black),
       ),
       style: TextButton.styleFrom(
-          backgroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          side: BorderSide(
-            color: Colors.black,
-          )),
+        backgroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        side: BorderSide(
+          color: Colors.black,
+        ),
+      ),
     );
   }
 }

@@ -1,27 +1,22 @@
-import 'package:flutter_config/flutter_config.dart';
-
-import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_config/flutter_config.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:trailquest/firebase_options.dart';
 import 'package:trailquest/pages/challenge_page.dart';
 import 'package:trailquest/pages/profilepage/auth_gate.dart';
 import 'package:trailquest/pages/start_page.dart';
 import 'package:trailquest/pages/trail_page.dart';
-import 'package:web_socket_channel/status.dart' as status;
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-import 'dart:convert';
 
 WebSocketChannel? channel;
 ValueNotifier<List<dynamic>> friendsList = ValueNotifier([
   {"username": "emma", "score": 30},
   {"username": "eee", "score": 90}
 ]);
-ValueNotifier<List<String>> friendRequests =
+ValueNotifier<List<dynamic>> friendRequests =
     ValueNotifier(["emma", "meep", "ghhh", "fgg"]);
 String feedBack = "";
 var jsonString = '';
@@ -53,10 +48,9 @@ void Listen() {
         // Get the first key-value pair from the Map
         MapEntry<String, dynamic> firstEntry = jsonDecoded.entries.first;
 
-
         // Extract the value of the message ID for the switch case
         msgID = firstEntry.value;
-        
+
         //extracts the data
 
         MapEntry<String, dynamic> secondEntry =
@@ -70,7 +64,7 @@ void Listen() {
                 friendsList.value = data['friendlist'];
               }
               if (data['friendRequests'] != null) {
-                friendRequests = data['friendRequests'];
+                friendRequests.value = data['friendRequests'];
               }
 
               if (data['username'] != null) {
@@ -92,7 +86,7 @@ void Listen() {
               friendRequestSuccess.value = true;
               canSendRequest.value = true;
               isSent.value = true;
-            } else if( data['error'] == 0){
+            } else if (data['error'] == 0) {
               int res = data['error'];
               friendRequestSuccess.value = false;
               canSendRequest.value = true;
@@ -109,9 +103,9 @@ void Listen() {
             }
             break;
           case 'newFriend':
-           if (data != null) {
-            friendsList.value = List.from(friendsList.value)..add(data);
-           }
+            if (data != null) {
+              friendsList.value = List.from(friendsList.value)..add(data);
+            }
             break;
           case 'usernameFail':
             failMessage.value = "User name is already taken, please try again";
@@ -190,7 +184,6 @@ void main() async {
   // https://pub.dev/packages/flutter_config
   WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
   await FlutterConfig.loadEnvVariables();
-  var googleMapsApiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -199,8 +192,7 @@ void main() async {
   String ip = FlutterConfig.get('IP');
   String port = FlutterConfig.get('PORT');
 
-  channel =
-      WebSocketChannel.connect(Uri.parse("ws://$ip:$port"));
+  channel = WebSocketChannel.connect(Uri.parse("ws://$ip:$port"));
   channel?.sink.add('{"msgID": "getLeaderboard"}');
   Listen();
   runApp(const MainApp());
@@ -215,21 +207,6 @@ class MainApp extends StatefulWidget {
 
 String array_to_string(List tuple) {
   return tuple[1].toString() + " " + tuple[0];
-}
-
-
-void _sendMessage(String message) {
-  print(message);
-
-  try {
-    channel?.sink.add(message);
-    channel?.stream.listen((message) {
-      print(message);
-      channel?.sink.close();
-    });
-  } catch (e) {
-    print(e);
-  }
 }
 
 class _MainAppState extends State<MainApp> {
@@ -364,6 +341,7 @@ class Friend extends StatelessWidget {
     );
   }
 }
+
 /**
  * Friend request widget
  */
@@ -373,36 +351,38 @@ class Request extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 190,
-        height: 1,
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Color.fromARGB(216, 208, 247, 203),
-                Color.fromARGB(73, 199, 245, 193)
-              ],
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(15)),
-            border: Border.all(
-              color: const Color.fromARGB(26, 0, 0, 0),
-            )),
-        padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-        child: Row(
-          children: [
-            Expanded(child: Text(this.name)),
-            IconButton(
-                onPressed: () => accept(this.name), icon: Icon(Icons.check)),
-            IconButton(
-              onPressed: () => reject(this.name),
-              icon: Icon(Icons.close),
-            )
-          ],
-        ));
+      width: 190,
+      height: 1,
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              Color.fromARGB(216, 208, 247, 203),
+              Color.fromARGB(73, 199, 245, 193)
+            ],
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(15)),
+          border: Border.all(
+            color: const Color.fromARGB(26, 0, 0, 0),
+          )),
+      padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+      child: Row(
+        children: [
+          Expanded(child: Text(this.name)),
+          IconButton(
+              onPressed: () => accept(this.name), icon: Icon(Icons.check)),
+          IconButton(
+            onPressed: () => reject(this.name),
+            icon: Icon(Icons.close),
+          )
+        ],
+      ),
+    );
   }
 }
+
 /**
  * accepts friendrequests by sending an accept message to the server and updating the UI
  * takes the name of the sender of the request  as argument
@@ -413,6 +393,7 @@ void accept(String name) {
       '{"msgID": "acceptRequest", "data": {"target": "$name", "sender": "${myUserName.value}"}}');
   friendRequests.value = List.from(friendRequests.value)..remove(name);
 }
+
 /**
  * rejects friendrequests by sending an accept message to the server and updating the UI
  * takes the name of the sender of the request as argument

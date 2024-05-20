@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
-import '../widgets/back_button.dart';  
 
-class MapPage extends StatefulWidget{
-
-  TrailCard trail;// Callback function
+class MapPage extends StatefulWidget {
+  TrailCard trail; // Callback function
 
   MapPage({
     Key? key,
@@ -18,19 +17,21 @@ class MapPage extends StatefulWidget{
 }
 
 class _MapPageState extends State<MapPage> {
-
-  TrailCard trail; 
+  TrailCard trail;
   late LatLng start;
   late Map<PolylineId, Polyline> polylines = {};
 
-  _MapPageState({Key? key, required this.trail}); 
+  _MapPageState({required this.trail});
 
   @override
   void initState() {
     super.initState();
     _getLocation();
-    polylines[PolylineId('poly')] = Polyline(polylineId : PolylineId('poly'), color: Colors.red, points: trail.coordinates);
-
+    polylines[PolylineId('poly')] = Polyline(
+      polylineId: PolylineId('poly'),
+      color: Colors.red,
+      points: trail.coordinates,
+    );
   }
 
   void _getLocation() async {
@@ -48,20 +49,18 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
       home: Scaffold(
-        body: Column( 
+        body: Column(
           children: [
             Row(
               children: [
                 GoBackButton(),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text('${trail.name}', 
-                    style: TextStyle(fontSize: 20)),
+                  child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
                 ),
               ],
-            ), 
+            ),
             Expanded(
               child: Center(
                 child: GoogleMap(
@@ -73,16 +72,11 @@ class _MapPageState extends State<MapPage> {
                     target: LatLng(start.latitude, start.longitude),
                   ),
                   polylines: Set<Polyline>.of(polylines.values),
-                  //markers: Set<Marker>.of(markers.values),
-                  //polylines: Set<Polyline>.of(polylines.values),
-                  //onMapCreated: (GoogleMapController controller) {
-                  //  _controller.complete(controller);
-                  //},
                 ),
-              ), 
+              ),
             ),
-          ]
-        )  
+          ],
+        ),
       ),
     );
   }
