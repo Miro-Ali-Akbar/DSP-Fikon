@@ -1,12 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/pages/map_page.dart';
+import 'package:trailquest/widgets/back_button.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
-import '../widgets/back_button.dart';
 
 late LatLng start;
 List<LatLng> polylineCoordinates = [];
@@ -42,7 +41,7 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
   TrailCard trail;
 
   _IndividualTrailPageState(
-      {Key? key, required this.trail, required this.saved});
+      {required this.trail, required this.saved});
 
   @override
   void initState() {
@@ -76,203 +75,197 @@ class _IndividualTrailPageState extends State<IndividualTrailPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          body: Column(children: [
-        Row(
+        body: Column(
           children: [
-            GoBackButton(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
+            Row(
+              children: [
+                GoBackButton(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
+                ),
+              ],
             ),
+
+            // The map showing the trail
+            Expanded(
+              child: Center(
+                child: GoogleMap(
+                  onTap: (_) {
+                    Navigator.of(context, rootNavigator: true)
+                        .push(PageRouteBuilder(
+                      pageBuilder: (context, x, xx) => MapPage(trail: trail),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ));
+                  },
+                  myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    zoom: 14.0,
+                    target: LatLng(start.latitude, start.longitude),
+                  ),
+                  //markers: Set<Marker>.of(markers.values),
+                  polylines: Set<Polyline>.of(polylines.values),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                ),
+              ),
+            ),
+
+            // Display the information about the trail
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_walking.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.lengthDistance / 1000} km',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_clock.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.lengthTime} min',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_trees.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.natureStatus}',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_stairs.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            trail.stairs
+                                ? 'This route could contain stairs'
+                                : 'This route does not contain any stairs',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_mountain.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.heightDifference} m',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Displays the 'Save' or 'Remove' button depending on whether the trail is saved
+            if (saved) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: RemoveTrail(
+                  onRemove: (value) {
+                    setState(() {
+                      saved = value;
+                      widget.onSaveChanged(false);
+                    });
+                  },
+                ),
+              ),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: SaveTrail(
+                  onSave: (value) {
+                    setState(() {
+                      saved = value;
+                      widget.onSaveChanged(true);
+                    });
+                  },
+                ),
+              ),
+            ]
           ],
         ),
-
-        ///
-        /// The map showing the trail
-        ///
-        Expanded(
-          child: Center(
-            child: GoogleMap(
-              onTap: (_) {
-                Navigator.of(context, rootNavigator: true)
-                    .push(PageRouteBuilder(
-                  pageBuilder: (context, x, xx) => MapPage(trail: trail),
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
-                ));
-              },
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
-              initialCameraPosition: CameraPosition(
-                zoom: 14.0,
-                target: LatLng(start.latitude, start.longitude),
-              ),
-              //markers: Set<Marker>.of(markers.values),
-              polylines: Set<Polyline>.of(polylines.values),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-            ),
-          ),
-        ),
-
-        ///
-        /// Display the information about the trail
-        ///
-        SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_walking.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.lengthDistance / 1000} km',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_clock.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.lengthTime} min',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_trees.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.natureStatus}',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_stairs.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        trail.stairs
-                            ? 'This route could contain stairs'
-                            : 'This route does not contain any stairs',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_mountain.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.heightDifference} m',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        ///
-        /// Displays the 'Save' or 'Remove' button depending on whether the trail is saved
-        ///
-        if (saved) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: RemoveTrail(
-              onRemove: (value) {
-                setState(() {
-                  saved = value;
-                  widget.onSaveChanged(false);
-                });
-              },
-            ),
-          ),
-        ] else ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: SaveTrail(
-              onSave: (value) {
-                setState(() {
-                  saved = value;
-                  widget.onSaveChanged(true);
-                });
-              },
-            ),
-          ),
-        ]
-      ])),
+      ),
     );
   }
 }
 
-///
 /// 'Save Trail' button
-///
-
 class SaveTrail extends StatefulWidget {
   final Function(bool) onSave;
 
@@ -301,10 +294,7 @@ class _SaveTrailState extends State<SaveTrail> {
   }
 }
 
-///
 /// 'Remove Trail' button
-///
-
 class RemoveTrail extends StatefulWidget {
   final Function(bool) onRemove;
 

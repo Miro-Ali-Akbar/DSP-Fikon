@@ -1,12 +1,10 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trailquest/main.dart';
 import 'package:trailquest/pages/generate_trail_page.dart';
-import 'package:trailquest/my_trail_list.dart';
 import 'package:trailquest/widgets/trail_cards.dart';
 
 bool browsing = false;
@@ -54,8 +52,11 @@ class _TrailPageState extends State<TrailPage> {
       List<LatLng> trailCoordinates = [];
       var coordinatesData = data['coordinates'];
       if (coordinatesData != null && coordinatesData is List) {
-        trailCoordinates = List<LatLng>.from(coordinatesData
-            .map((coord) => LatLng(coord['latitude'], coord['longitude'])));
+        trailCoordinates = List<LatLng>.from(
+          coordinatesData.map(
+            (coord) => LatLng(coord['latitude'], coord['longitude']),
+          ),
+        );
       }
 
       List<String> images = [
@@ -65,7 +66,8 @@ class _TrailPageState extends State<TrailPage> {
       final random = Random();
       int imageIndex = random.nextInt(2);
 
-      newTrails.add(TrailCard(
+      newTrails.add(
+        TrailCard(
           name: data['trailName'].toString(),
           lengthDistance:
               double.parse(data['totalDistance'].toStringAsFixed(1)),
@@ -76,7 +78,9 @@ class _TrailPageState extends State<TrailPage> {
           isSaved: true,
           isCircular: false,
           image_path: images[imageIndex],
-          coordinates: trailCoordinates));
+          coordinates: trailCoordinates,
+        ),
+      );
     }
 
     return newTrails;
@@ -248,12 +252,12 @@ class GenerateNewTrail extends StatelessWidget {
       child: TextButton.icon(
         onPressed: () {
           Navigator.of(context, rootNavigator: true)
-            .push(PageRouteBuilder(
+              .push(PageRouteBuilder(
                 pageBuilder: (context, x, xx) => GenerateTrail(),
                 transitionDuration: Duration.zero,
                 reverseTransitionDuration: Duration.zero,
               ))
-            .then((_) => {fetchTrailData()});
+              .then((_) => {fetchTrailData()});
         },
         style: TextButton.styleFrom(
           backgroundColor: Colors.green,
@@ -266,10 +270,11 @@ class GenerateNewTrail extends StatelessWidget {
         label: Padding(
           padding: const EdgeInsets.only(right: 10.0),
           child: const Text('Generate new trail',
-              style: TextStyle(color: Colors.white, fontSize: 30)
-          ),
+              style: TextStyle(color: Colors.white, fontSize: 30)),
         ),
-        icon: SvgPicture.asset('assets/icons/img_plus.svg',),
+        icon: SvgPicture.asset(
+          'assets/icons/img_plus.svg',
+        ),
       ),
     );
   }
@@ -500,6 +505,7 @@ class _FilterPopUpState extends State<FilterPopUp> {
                     style: TextStyle(color: Colors.black),
                   ),
                 ),
+
                 ///
                 /// 'Apply' button
                 ///

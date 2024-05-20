@@ -1,11 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+import 'package:flutter_config/flutter_config.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_config/flutter_config.dart';
-
 import 'package:trailquest/pages/profilepage/profile_page.dart';
-import 'usernameChecker.dart';
+import 'package:trailquest/pages/profilepage/usernameChecker.dart';
 
 /// Checks if the user is logged in. Either forces you to login or takes you to the profilepage
 /// Note: Use this to go to the profilepage instead of calling said class
@@ -67,10 +66,11 @@ class _AuthGateState extends State<AuthGate> {
         // in UsernameChecker and done would not be needed either
         print(roundDateTimeToSecond(snapshot.data!.metadata.creationTime!));
         print(roundDateTimeToSecond(snapshot.data!.metadata.lastSignInTime!));
-        if (snapshot.data!.uid == snapshot.data!.displayName || roundDateTimeToSecond(snapshot.data!.metadata.creationTime!) ==
-                roundDateTimeToSecond(
-                    snapshot.data!.metadata.lastSignInTime!) &&
-            !done) {
+        if (snapshot.data!.uid == snapshot.data!.displayName ||
+            roundDateTimeToSecond(snapshot.data!.metadata.creationTime!) ==
+                    roundDateTimeToSecond(
+                        snapshot.data!.metadata.lastSignInTime!) &&
+                !done) {
           FirebaseAuth.instance.currentUser!
               .updateDisplayName(snapshot.data!.uid);
           done = true;

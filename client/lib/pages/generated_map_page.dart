@@ -2,25 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:collection';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-
 import 'package:flutter_config/flutter_config.dart';
-
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:trailquest/pages/challenges/challenge_checkpoints.dart';
-import 'package:trailquest/pages/trail_page.dart';
-import 'package:trailquest/pages/map_page.dart';
-import 'package:trailquest/widgets/back_button.dart';
-
-import 'generate_trail_page.dart';
-
-import 'package:flutter_svg/svg.dart';
-import 'package:trailquest/widgets/trail_cards.dart';
 import 'package:trailquest/main.dart';
+import 'package:trailquest/pages/generate_trail_page.dart';
+import 'package:trailquest/pages/map_page.dart';
+import 'package:trailquest/pages/trail_page.dart';
+import 'package:trailquest/widgets/back_button.dart';
+import 'package:trailquest/widgets/trail_cards.dart';
 
 double totalDistance = 0;
 bool inIntervall = false;
@@ -235,7 +229,7 @@ Future<bool> _checkStairs(LatLng waypoint, double arc) async {
   final url =
       'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="steps"](around:${arc / 2}, ${waypoint.latitude}, ${waypoint.longitude});(._;>;);out;';
   final response = await http.get(Uri.parse(url));
-
+  
   if (response.statusCode == 200) {
     final decoded = json.decode(response.body);
     List<dynamic> elements = decoded['elements'];
@@ -630,7 +624,6 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
   TrailCard trail;
 
   _MapsRoutesGeneratorState({
-    Key? key,
     required this.trail,
     required this.saved,
   });
@@ -763,213 +756,217 @@ class _MapsRoutesGeneratorState extends State<MapsRoutesGenerator> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          body: Column(children: [
-        Row(
+        body: Column(
           children: [
-            GoBackButton(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
+            Row(
+              children: [
+                GoBackButton(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Text('${trail.name}', style: TextStyle(fontSize: 20)),
+                ),
+              ],
             ),
+            Expanded(
+              child: Center(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  child: Container(
+                    child: Stack(
+                      children: [
+                        GoogleMap(
+                          onTap: (_) {
+                            Navigator.of(context, rootNavigator: true)
+                                .push(PageRouteBuilder(
+                              pageBuilder: (context, x, xx) =>
+                                  MapPage(trail: trail),
+                              transitionDuration: Duration.zero,
+                              reverseTransitionDuration: Duration.zero,
+                            ));
+                          },
+                          myLocationEnabled: true,
+                          zoomControlsEnabled: false,
+                          initialCameraPosition: CameraPosition(
+                            zoom: 14.0,
+                            target: LatLng(start.latitude, start.longitude),
+                          ),
+                          markers: Set<Marker>.of(markers.values),
+                          polylines: Set<Polyline>.of(polylines.values),
+                          onMapCreated: (GoogleMapController controller) {
+                            _controller.complete(controller);
+                          },
+                        ),
+                        Positioned(
+                          bottom: 5,
+                          right: 5,
+                          child: Container(
+                            height: 30,
+                            width: 90,
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                reset();
+                                activityOption = getSelectedActivity();
+                                _getLocation(inputDistance);
+                              },
+                              child: Text('Regenerate'),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_walking.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.lengthDistance / 1000} km',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_clock.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.lengthTime} min',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_trees.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.natureStatus}',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_stairs.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            trail.stairs
+                                ? 'This route could contain stairs'
+                                : 'This route does not contain any stairs',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/img_mountain.svg',
+                          colorFilter:
+                              ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          height: 35,
+                          width: 50,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            '${trail.heightDifference} m',
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (saved) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: RemoveTrail(
+                  onRemove: (value) {
+                    setState(() {
+                      saved = value;
+                      widget.onSaveChanged(false);
+                    });
+                  },
+                ),
+              ),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: SaveTrail(
+                  onSave: (value) {
+                    setState(() {
+                      saved = value;
+                      widget.onSaveChanged(true);
+                    });
+                  },
+                  trail: trail,
+                  avoidStairs: avoidStairs,
+                  totalDistance: totalDistance,
+                  statusEnvironment: getSelectedStatusEnvironment(),
+                  hillines: hillines,
+                ),
+              ),
+            ]
           ],
         ),
-        Expanded(
-          child: Center(
-            child: GestureDetector(
-              child: Container(
-                child: Stack(
-                  children: [
-                    GoogleMap(
-                      onTap: (_) {
-                        Navigator.of(context, rootNavigator: true)
-                            .push(PageRouteBuilder(
-                          pageBuilder: (context, x, xx) => MapPage(trail: trail),
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ));
-                      },
-                      myLocationEnabled: true,
-                      zoomControlsEnabled: false,
-                      initialCameraPosition: CameraPosition(
-                        zoom: 14.0,
-                        target: LatLng(start.latitude, start.longitude),
-                      ),
-                      markers: Set<Marker>.of(markers.values),
-                      polylines: Set<Polyline>.of(polylines.values),
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller.complete(controller);
-                      },
-                    ),
-                    Positioned(
-                      bottom: 5, 
-                      right: 5, 
-                      child: Container(
-                        height: 30, 
-                        width: 90,
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            reset(); 
-                            activityOption = getSelectedActivity(); 
-                            _getLocation(inputDistance); 
-                          },
-                          child: Text('Regenerate'),
-                        ),
-                      )
-                    )
-                  ],
-                ),
-              ),
-              behavior: HitTestBehavior.translucent,
-            ),
-          ),
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_walking.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.lengthDistance / 1000} km',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_clock.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.lengthTime} min',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_trees.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.natureStatus}',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_stairs.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        trail.stairs
-                            ? 'This route could contain stairs'
-                            : 'This route does not contain any stairs',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/img_mountain.svg',
-                      colorFilter:
-                          ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                      height: 35,
-                      width: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        '${trail.heightDifference} m',
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (saved) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: RemoveTrail(
-              onRemove: (value) {
-                setState(() {
-                  saved = value;
-                  widget.onSaveChanged(false);
-                });
-              },
-            ),
-          ),
-        ] else ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: SaveTrail(
-              onSave: (value) {
-                setState(() {
-                  saved = value;
-                  widget.onSaveChanged(true);
-                });
-              },
-              trail: trail,
-              avoidStairs: avoidStairs,
-              totalDistance: totalDistance,
-              statusEnvironment: getSelectedStatusEnvironment(),
-              hillines: hillines,
-            ),
-          ),
-        ]
-      ])),
+      ),
     );
   }
 }
@@ -1015,6 +1012,7 @@ class _SaveTrailState extends State<SaveTrail> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: Container(
+              width: double.maxFinite,
               child: SaveTrailPopUp(
                 onSave: widget.onSave,
                 trail: widget.trail,
@@ -1023,7 +1021,6 @@ class _SaveTrailState extends State<SaveTrail> {
                 statusEnvironment: widget.statusEnvironment,
                 hillines: widget.hillines,
               ),
-              width: double.maxFinite,
             ),
           );
         },
