@@ -224,50 +224,31 @@ Future<double> _getHilliness() async {
 /// Checks if there are stairs near the specified waypoint.
 ///
 /// Queries OpenStreetMap to search for highway steps within
-/// a 100-meter radius of the given [waypoint]. 
+/// a  radius of the given [waypoint].
 /// are added to the map to indicate their locations.)
 ///
 /// [waypoint] the coordinate to check for stairs.
+/// [arc] an estimated distance between two points.
 ///
 /// Returns true if no stairs are found near the waypoint, and false otherwise.
-Future<bool> _checkStairs(LatLng waypoint) async {
+Future<bool> _checkStairs(LatLng waypoint, double arc) async {
   final url =
-      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="steps"](around:100, ${waypoint.latitude}, ${waypoint.longitude});(._;>;);out;';
+      'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];way["highway"="steps"](around:${arc / 2}, ${waypoint.latitude}, ${waypoint.longitude});(._;>;);out;';
   final response = await http.get(Uri.parse(url));
-
-  int counter = 0; 
 
   if (response.statusCode == 200) {
     final decoded = json.decode(response.body);
     List<dynamic> elements = decoded['elements'];
 
-    HashMap<int, Map<String, dynamic>> nodes = HashMap();
-
-    // Parse nodes
-    for (var item in elements) {
-      if (item['type'] == 'node') {
-        nodes[item['id']] = {'lat': item['lat'], 'lon': item['lon']};
-      }
-    }
-    // Parse ways
-    for (var item in elements) {
-      if (item['type'] == 'way' &&
-          item['tags'] != null &&
-          item['tags']['highway'] == 'steps') {
-        if (item['nodes'] != null) {
-          for (var nodeId in item['nodes']) {
-            var node = nodes[nodeId];
-            if (node != null) {
-              counter++; 
-              break; 
-            }
-          }
-        }
-      }
+    // Any elements in the query means a stair have been found
+    if (!elements.isEmpty) {
+      return false;
+    } else {
+      return true;
     }
   }
 
-  return counter > 1 ? false : true;
+  return false;
 }
 
 /// Retrieves the walking/running/cycling distance between the origin and destination coordinates.
@@ -380,8 +361,8 @@ LatLng _parseLatLng(String locationString) {
 /// [statusEnvironment] a boolean indicating whether to consider a natura favored route.
 ///
 /// Returns a list of polyline waypoints.
-Future<List<PolylineWayPoint>> _getWayPoints(
-    LatLng start, double inputDistance, bool statusEnvironment) async {
+Future<List<PolylineWayPoint>> _getWayPoints(LatLng start, double inputDistance,
+    bool statusEnvironment, bool avoidStairs) async {
   List<PolylineWayPoint> wayPoints = [];
 
   double generatedDistance = 0;
@@ -390,6 +371,8 @@ Future<List<PolylineWayPoint>> _getWayPoints(
 
   print("START");
   print(start);
+
+  bool noStairs = true;
 
   // Nature favored route generation if chosen, else normal generation
   if (statusEnvironment) {
@@ -400,10 +383,17 @@ Future<List<PolylineWayPoint>> _getWayPoints(
       LatLng origin = sortedPath[i];
       LatLng destination = sortedPath[i + 1];
 
-      bool noStairs = await _checkStairs(origin);
+      if (avoidStairs) {
+        noStairs = await _checkStairs(origin, inputDistance / 10);
+      }
 
       double distance =
           await _getWalkingDistance(origin, destination, noStairs);
+
+      if (stairsExist) {
+        print("STAIRS FOUND, BREAKING _getWayPoints 1");
+        break;
+      }
 
       // Add waypoint and distance if the input distance hasn't been reached
       if (generatedDistance < inputDistance) {
@@ -418,13 +408,14 @@ Future<List<PolylineWayPoint>> _getWayPoints(
     //TODO: add points if < inputDistance - 500
     if (generatedDistance < inputDistance - 500) {}
   } else {
-    int pointsCount = 10; //TODO: increase!
+    int pointsCount = 10;
     final random = Random();
     double startDirection = random.nextDouble() * (2 * pi + 1.0);
+    double angle = 0;
 
     // Calculates each new waypoint on a half circle, taking roughly consideration of the earths curvature
     for (int i = 1; i <= pointsCount; i++) {
-      double angle = (pi * i) / (pointsCount) + startDirection;
+      angle = (pi * i) / (pointsCount) + startDirection;
       double lat = start.latitude + radiusKM * sin(angle) / 110.574;
       double lon = start.longitude +
           radiusKM * cos(angle) / (111.320 * cos(lat * pi / 180));
@@ -437,10 +428,17 @@ Future<List<PolylineWayPoint>> _getWayPoints(
       LatLng origin = _parseLatLng(wayPoints[i].location);
       LatLng destination = _parseLatLng(wayPoints[i + 1].location);
 
-      bool noStairs = await _checkStairs(origin);
+      if (avoidStairs) {
+        noStairs = await _checkStairs(origin, inputDistance / 10);
+      }
 
       double distance =
           await _getWalkingDistance(origin, destination, noStairs);
+
+      if (stairsExist) {
+        print("STAIRS FOUND, BREAKING _getWayPoints 2");
+        break;
+      }
 
       generatedDistance += distance;
     }
@@ -453,9 +451,14 @@ Future<List<PolylineWayPoint>> _getWayPoints(
     LatLng origin = _parseLatLng(wayPoints[wayPoints.length - 2].location);
     LatLng destination = _parseLatLng(wayPoints[wayPoints.length - 1].location);
 
-    bool noStairs = await _checkStairs(origin);
+    bool noStairs = await _checkStairs(origin, inputDistance / 10);
 
     double distance = await _getWalkingDistance(origin, destination, noStairs);
+
+    if (stairsExist) {
+      print("STAIRS FOUND, BREAKING _getWayPoints 3");
+      break;
+    }
 
     wayPoints.removeAt(wayPoints.length - 1);
     generatedDistance -= distance;
@@ -496,7 +499,7 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
   for (int i = 0; i < 5; i++) {
     if (!inIntervall) {
       points = await _getWayPoints(
-          start, inputDistance + increaseRoute, statusEnvironment);
+          start, inputDistance + increaseRoute, statusEnvironment, avoidStairs);
     }
 
     // If stairs exist on the route and the user requested no stairs the route generation is retried
@@ -504,7 +507,8 @@ Future<void> _getPolyline(LatLng start, double inputDistance,
       print("STAIRS FOUND ON ROUTE, RETRYING...");
       stairsExist = false;
       inIntervall = false;
-      points = await _getWayPoints(start, inputDistance, statusEnvironment);
+      points = await _getWayPoints(
+          start, inputDistance, statusEnvironment, avoidStairs);
     }
 
     increaseRoute += 500;
@@ -1070,6 +1074,7 @@ class _SaveTrailPopUpState extends State<SaveTrailPopUp> {
             widget.trail.name = value;
           });
         },
+        maxLength: 10,
         decoration: const InputDecoration(hintText: 'Trail Name'),
       ),
       actions: <Widget>[
@@ -1176,39 +1181,4 @@ void saveRouteToServer(Map<String, dynamic> routeData) async {
   String jsonString = jsonEncode(routeData);
 
   channel?.sink.add(jsonString);
-}
-
-/// A StatelessWidget that rebuilds the Trail Page
-class GoBackButtonGeneratedMap extends StatelessWidget {
-  const GoBackButtonGeneratedMap({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: TextButton.icon(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        TrailPage()), // Create new instance of TrailPage
-              );
-            },
-            icon: SvgPicture.asset(
-              'assets/icons/arrow-sm-left-svgrepo-com (1).svg',
-              width: 40,
-              height: 40,
-              colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
-            ),
-            label: Text(''),
-          ),
-        ),
-      ],
-    );
-  }
 }
